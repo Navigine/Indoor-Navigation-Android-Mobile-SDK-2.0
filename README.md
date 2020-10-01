@@ -26,7 +26,7 @@ To get the Navigine demo application for Android,
 
 For complete guidelines on using the Demo, refer to the [corresponding sections in the Navigine User Manual](http://docs.navigine.com/ud_android_demo.html), or refer to the Help file incorporated into the application.
 
-## Navigation SDK
+## Navigation SDK and Implementation
 
 Navigine SDK for Android applications enables you to develop your own indoor navigation apps using the well-developed methods, classes, and functions created by the Navigine team.
 The SDK file resides in the NavigineSDK folder.
