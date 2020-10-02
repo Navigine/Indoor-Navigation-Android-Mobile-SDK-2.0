@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mLocationView = findViewById(R.id.location_view);
-        mLocationView.init(getApplicationContext());
         mLocationView.setSublocation(D.SUBLOCATION_ID);
 
         mLocationView.getTouchInput().setLongPressResponder((x, y) -> mLocationView.setTargetPoint(new Point(x, y)));
