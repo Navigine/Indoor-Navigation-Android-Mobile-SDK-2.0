@@ -1,0 +1,2 @@
+include ':app', ':libnavigine'
+rootProject.name = "NavigineDemo"
