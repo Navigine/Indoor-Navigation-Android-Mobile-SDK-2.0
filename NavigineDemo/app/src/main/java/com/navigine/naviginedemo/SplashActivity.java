@@ -67,7 +67,7 @@ public class SplashActivity extends Activity implements ActivityCompat.OnRequest
 
                     @SuppressLint("SetTextI18n")
                     @Override
-                    public void onUploadProgress(int progress, int total) {
+                    public void onDownloadProgress(int progress, int total) {
                         mStatusLabel.setText("Downloading location: " + (progress * 100 / total) + "%");
                     }
 
