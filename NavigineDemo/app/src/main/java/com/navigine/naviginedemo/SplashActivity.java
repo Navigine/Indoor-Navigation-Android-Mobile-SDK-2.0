@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.widget.TextView;
 
@@ -29,10 +30,11 @@ public class SplashActivity extends Activity implements ActivityCompat.OnRequest
 
     TextView mStatusLabel;
 
+    NavigineSdk mNavigineSdk;
     LocationListener mLocationListener;
     LocationManager mLocationManager;
     NavigationManager mNavigationManager;
-    NavigineSdk mNavigineSdk;
+    MeasurementManager mMeasurementManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,9 +90,9 @@ public class SplashActivity extends Activity implements ActivityCompat.OnRequest
                 mLocationManager.addLocationListener(mLocationListener);
                 mLocationManager.setLocationId(D.LOCATION_ID);
 
-                MeasurementManager measurementManager = mNavigineSdk.getMeasurementManager();
+                mMeasurementManager = mNavigineSdk.getMeasurementManager();
                 Vector3d values = new Vector3d(0, 0, 0);
-                measurementManager.addExternalSensorMeasurement(new SensorMeasurement(ACCELEROMETER, values));
+                mMeasurementManager.addExternalSensorMeasurement(new SensorMeasurement(ACCELEROMETER, values));
             }
         }
     }
