@@ -16,8 +16,14 @@ import android.widget.TextView;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationListener;
 import com.navigine.idl.java.LocationManager;
+import com.navigine.idl.java.MeasurementManager;
+import com.navigine.idl.java.NavigationManager;
 import com.navigine.idl.java.NavigineSdk;
+import com.navigine.idl.java.SensorMeasurement;
+import com.navigine.idl.java.Vector3d;
 import com.navigine.sdk.Navigine;
+
+import static com.navigine.idl.java.SensorType.ACCELEROMETER;
 
 public class SplashActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -25,6 +31,7 @@ public class SplashActivity extends Activity implements ActivityCompat.OnRequest
 
     LocationListener mLocationListener;
     LocationManager mLocationManager;
+    NavigationManager mNavigationManager;
     NavigineSdk mNavigineSdk;
 
     @Override
@@ -57,6 +64,7 @@ public class SplashActivity extends Activity implements ActivityCompat.OnRequest
                 NavigineSdk.setUserHash(D.USER_HASH);
                 mNavigineSdk = NavigineSdk.getInstance();
                 mLocationManager = mNavigineSdk.getLocationManager();
+                mNavigationManager = mNavigineSdk.getNavigationManager(mLocationManager);
                 mLocationListener = new LocationListener() {
                     @Override
                     public void onLocationLoaded(Location location) {
@@ -78,7 +86,11 @@ public class SplashActivity extends Activity implements ActivityCompat.OnRequest
                     }
                 };
                 mLocationManager.addLocationListener(mLocationListener);
-                mLocationManager.setLocation(D.LOCATION_ID);
+                mLocationManager.setLocationId(D.LOCATION_ID);
+
+                MeasurementManager measurementManager = mNavigineSdk.getMeasurementManager();
+                Vector3d values = new Vector3d(0, 0, 0);
+                measurementManager.addExternalSensorMeasurement(new SensorMeasurement(ACCELEROMETER, values));
             }
         }
     }
