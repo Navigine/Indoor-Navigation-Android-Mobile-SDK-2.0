@@ -37,7 +37,7 @@ public class NavigineApp extends Application implements LifecycleObserver {
     private String TAG = this.getClass().getName();
 
     public static final String      DEFAULT_SERVER_URL = "https://api.navigine.com";
-    public static final String      DEFAULT_USER_HASH  = "4EE6-9A3F-F126-5FE6";
+    public static final String      DEFAULT_USER_HASH  = "0000-0000-0000-0000";
 
     @SuppressLint("StaticFieldLeak")
     public static Context     Context     = null;
