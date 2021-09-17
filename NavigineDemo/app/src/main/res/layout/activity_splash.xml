@@ -1,33 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".SplashActivity"
-    android:background="@color/background">
+    android:fitsSystemWindows="true"
+    android:background="#152D47">
 
-    <ImageView
-        android:id="@+id/splash_mode__logo_image"
+    <!-- Main layout -->
+    <ScrollView
+        android:id="@+id/login__scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/splash"
-        tools:ignore="ContentDescription"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center|top"
+                android:gravity="center"
+                android:text="Welcome"
+                android:textColor="@color/whiteColor"
+                android:textSize="34sp"
+                android:fontFamily="@font/circe_reg"/>
+
+            <EditText
+                android:id="@+id/login__login_edit"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center|top"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/login_login_edit"
+                android:gravity="center|start"
+                android:hint="E-mail"
+                android:maxLength="255"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textColor="#3464A4"
+                android:textColorHint="#D1D9E2"
+                android:textSize="14sp"
+                android:fontFamily="@font/circe_reg"/>
+
+<!--            <EditText-->
+<!--                android:id="@+id/login__password_edit"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="center|top"-->
+<!--                android:layout_marginStart="16dp"-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:background="@drawable/login_password_edit"-->
+<!--                android:gravity="center|start"-->
+<!--                android:hint="Password"-->
+<!--                android:inputType="textPassword"-->
+<!--                android:maxLength="255"-->
+<!--                android:paddingLeft="12dp"-->
+<!--                android:paddingRight="12dp"-->
+<!--                android:scrollHorizontally="true"-->
+<!--                android:singleLine="true"-->
+<!--                android:textColor="#3464A4"-->
+<!--                android:textColorHint="#D1D9E2"-->
+<!--                android:textSize="14sp"-->
+<!--                android:fontFamily="@font/circe_reg"/>-->
+
+            <Button
+                android:id="@+id/login__done_button"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center|top"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/login_done_button"
+                android:text="Login"
+                android:textColor="@color/whiteColor"
+                android:textSize="17sp"
+                android:fontFamily="@font/circe_bold"
+                android:textAllCaps="false"
+                style="?android:attr/borderlessButtonStyle"/>
+
+            <TextView
+                android:id="@+id/login__status_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text=""
+                android:textColor="#FF576B"
+                android:textSize="16sp"
+                android:fontFamily="@font/circe_reg"
+                android:visibility="visible"/>
+
+        </LinearLayout>
+    </ScrollView>
 
     <TextView
-        android:id="@+id/splash__status_label"
+        android:id="@+id/login__change_host"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_alignParentEnd="true"
+        android:text="Change host"
+        android:textColor="#3462A3"
+        android:textSize="17sp"
+        android:fontFamily="@font/circe_reg"
+        android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="60dp"
-        android:gravity="center"
-        android:textSize="16sp"
-        android:maxLines="5"
-        android:textColor="@color/white"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="75dp">
+
+    <LinearLayout
+        android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        android:gravity="center|start">
+
+        <TextView android:id="@+id/logs_list_item__name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/colorAccent"
+            android:textSize="16sp"
+            android:fontFamily="@font/circe_reg"
+            android:padding="5dp" />
+
+    </LinearLayout>
+</FrameLayout>

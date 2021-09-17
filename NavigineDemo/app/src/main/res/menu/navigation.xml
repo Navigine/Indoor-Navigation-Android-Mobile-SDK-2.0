@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation__menu_locations"
+        android:icon="@drawable/ic_locations"
+        android:title="Locations"/>
+    <item
+        android:id="@+id/navigation__menu_navigation"
+        android:icon="@drawable/ic_navigation"
+        android:title="Navigation"/>
+    <item
+        android:id="@+id/navigation__menu_beacons"
+        android:icon="@drawable/ic_beacons"
+        android:title="Add beacon"/>
+    <item
+        android:id="@+id/navigation__menu_debug"
+        android:icon="@drawable/ic_debug"
+        android:title="Debug"/>
+    <item
+        android:id="@+id/navigation__menu_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile"/>
+</menu>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".NavigationFragment">
+
+        <Button
+            android:id="@+id/swap_sublocations"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp"
+            android:text="Levels"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="10sp"
+            android:textAllCaps="false"
+            android:background="@drawable/swap_button"
+            android:elevation="2dp"/>
+
+        <com.navigine.view.LocationView
+            android:id="@+id/location_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/beacons"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start"
+                android:layout_marginTop="100dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/swap_button"
+                android:text="Beacons"
+                android:textColor="#00b1ff"
+                android:textSize="7sp"
+                android:textAllCaps="false"
+                android:elevation="2dp"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/eddystones"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start"
+                android:layout_marginTop="150dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/swap_button"
+                android:text="Eddys"
+                android:textColor="#ffaa00"
+                android:textSize="7sp"
+                android:textAllCaps="false"
+                android:elevation="2dp"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/wifis"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start"
+                android:layout_marginTop="200dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/swap_button"
+                android:text="Wifis"
+                android:textColor="#2aff61"
+                android:textSize="7sp"
+                android:textAllCaps="false"
+                android:elevation="2dp"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/venues"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start"
+                android:layout_marginTop="250dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/swap_button"
+                android:text="Venues"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="7sp"
+                android:textAllCaps="false"
+                android:elevation="2dp"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/record"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="100dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/swap_button"
+                android:text="Rec"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:elevation="2dp"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/attach_to_position"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end|bottom"
+                android:layout_marginBottom="150dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/swap_button"
+                android:text=">"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:elevation="2dp"
+                tools:ignore="HardcodedText" />
+
+        </com.navigine.view.LocationView>
+
+        <GridView
+            android:id="@+id/sub_loc_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/whiteColor"
+            android:paddingTop="80dp"
+            android:paddingBottom="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:numColumns="2"
+            android:verticalSpacing="15dp"
+            android:horizontalSpacing="10dp"
+            android:scrollbars="none"
+            android:overScrollMode="never"
+            android:visibility="gone"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/navigation_fragment__venue_sheet"
+        layout="@layout/venue_bottom_sheet"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

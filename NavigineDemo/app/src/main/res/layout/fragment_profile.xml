@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark">
+
+        <!-- Top bar layout -->
+        <LinearLayout android:id="@+id/logs__top_view"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimaryDark">
+
+            <Button android:id="@+id/logs_update_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="5dp"/>
+
+            <TextView android:id="@+id/venue__title_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Logs"
+                android:textColor="@color/whiteColor"
+                android:fontFamily="@font/circe_bold"
+                android:textSize="20sp"/>
+
+            <View
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="5dp"/>
+
+        </LinearLayout>
+
+        <FrameLayout android:id="@+id/logs__main_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/logs__top_view"
+            android:background="#F3F3F3">
+
+            <ListView android:id="@+id/logs__log_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"/>
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+    <include
+        android:id="@+id/logs__bottom_sheet"
+        layout="@layout/logs_dialog"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

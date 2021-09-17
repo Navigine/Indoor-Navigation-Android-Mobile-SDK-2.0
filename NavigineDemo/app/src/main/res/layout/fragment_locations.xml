@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/locations_fragment__layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3F3F3">
+
+    <com.navigine.navigine.demo.CustomEditText
+        android:id="@+id/locations_fragment__search_field"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="@drawable/search_edit_text_selector"
+        android:layout_marginTop="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:drawableStart="@drawable/edit_text_drawable_selector"
+        android:drawablePadding="8dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:hint="Search locations"
+        android:textSize="17sp"
+        android:singleLine="true"
+        android:inputType="textFilter"
+        android:imeOptions="actionDone"
+        android:fontFamily="@font/circe_reg"
+        android:textColorHint="@color/colorPrimaryDarkHint"
+        android:textColor="@color/colorPrimaryDark"/>
+
+
+    <com.navigine.navigine.demo.ListView
+        android:id="@+id/locations_fragment__list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/locations_fragment__search_field"
+        android:layout_marginTop="8dp"
+        android:divider="@null"
+        android:scrollbars="none"
+        android:textColor="#14273D"/>
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/locations_fragment__no_location_layout"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:visibility="gone">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/locations_fragment__no_location_image"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintWidth_percent="0.4"-->
+<!--            app:layout_constraintDimensionRatio="1:1"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            android:layout_marginTop="120dp"-->
+<!--            android:background="@drawable/ic_locations"/>-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/locations_fragment__no_location_text"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/locations_fragment__no_location_image"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            android:layout_marginTop="32dp"-->
+<!--            android:text="No locations"-->
+<!--            android:fontFamily="@font/circe_reg"-->
+<!--            android:textSize="34sp"-->
+<!--            android:textColor="@color/colorPrimaryDark" />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/locations_fragment__no_location_text"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            android:layout_marginTop="4dp"-->
+<!--            android:gravity="center"-->
+<!--            android:text="You have to visit client.navigine.com\n and create new locations."-->
+<!--            android:fontFamily="@font/circe_reg"-->
+<!--            android:textSize="17sp"-->
+<!--            android:textColor="@color/colorPrimaryDark"/>-->
+
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+</RelativeLayout>
