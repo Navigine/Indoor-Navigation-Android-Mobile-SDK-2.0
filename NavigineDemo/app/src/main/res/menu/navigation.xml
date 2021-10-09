@@ -9,10 +9,6 @@
         android:icon="@drawable/ic_navigation"
         android:title="Navigation"/>
     <item
-        android:id="@+id/navigation__menu_beacons"
-        android:icon="@drawable/ic_beacons"
-        android:title="Add beacon"/>
-    <item
         android:id="@+id/navigation__menu_debug"
         android:icon="@drawable/ic_debug"
         android:title="Debug"/>

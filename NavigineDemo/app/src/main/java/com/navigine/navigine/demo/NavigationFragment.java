@@ -19,16 +19,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.navigine.idl.java.AnimationType;
 import com.navigine.idl.java.CircleMapObject;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationListener;
 import com.navigine.idl.java.Notification;
+import com.navigine.idl.java.NavigationManager;
 import com.navigine.idl.java.NotificationListener;
 import com.navigine.idl.java.NotificationManager;
 import com.navigine.idl.java.Point;
+import com.navigine.idl.java.Position;
+import com.navigine.idl.java.PositionListener;
 import com.navigine.idl.java.Sublocation;
+import com.navigine.idl.java.MapObject;
+import com.navigine.view.TouchInput;
 import com.navigine.view.LocationView;
-import com.navigine.view.internal.TouchInput;
+//import com.navigine.view.internal.TouchInput;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +56,8 @@ public class NavigationFragment extends Fragment {
     BottomSheetBehavior mVenueBehavior;
 
     NotificationManager mNotificationManager = null;
+
+    MapObject mPosition = null;
 
     Button showBeacons;
     Button showEddys;
@@ -96,10 +104,24 @@ public class NavigationFragment extends Fragment {
             }
         });
 
+        mPosition = locationView.getLocationViewController().addMapObject();
+
+        NavigineApp.NavigationManager.addPositionListener(new PositionListener() {
+            @Override
+            public void onPositionUpdated(Position position) {
+                mPosition.setPositionAnimated(position.getPoint(), 1.0f, AnimationType.CUBIC);
+            }
+
+            @Override
+            public void onPositionError(Error error) {
+
+            }
+        });
+
         attachToPosition = view.findViewById(R.id.attach_to_position);
         attachToPosition.setOnClickListener(view1 -> {
             mAttachedToPosition = !mAttachedToPosition;
-            locationView.attachToPosition(mAttachedToPosition);
+//            locationView.attachToPosition(mAttachedToPosition);
         });
 
         gvMain = view.findViewById(R.id.sub_loc_list);
@@ -154,7 +176,7 @@ public class NavigationFragment extends Fragment {
         TextView category = mVenueBottomSheet.findViewById(R.id.venue_dialog__category_tv);
         TextView description = mVenueBottomSheet.findViewById(R.id.venue_dialog__description);
 
-        locationView.getTouchInput().setTapResponder(new TouchInput.TapResponder() {
+        locationView.getLocationViewController().getTouchInput().setTapResponder(new TouchInput.TapResponder() {
             @Override
             public boolean onSingleTapUp(float v, float v1) {
                 return false;
@@ -162,36 +184,36 @@ public class NavigationFragment extends Fragment {
 
             @Override
             public boolean onSingleTapConfirmed(float x, float y) {
-                CircleMapObject object = locationView.getObjectAt(new Point(x, y));
+//                CircleMapObject object = locationView.getObjectAt(new Point(x, y));
                 return true;
             }
         });
 
-        locationView.getTouchInput().setLongPressResponder((x, y) -> locationView.setTargetPoint(new Point(x, y)));
+//        locationView.getTouchInput().setLongPressResponder((x, y) -> locationView.setTargetPoint(new Point(x, y)));
 
         showBeacons = view.findViewById(R.id.beacons);
         showBeacons.setOnClickListener(view1 ->
         {
             mBeaconsVisibility = !mBeaconsVisibility;
-            locationView.showBeacons(mBeaconsVisibility);
+//            locationView.showBeacons(mBeaconsVisibility);
         });
         showEddys = view.findViewById(R.id.eddystones);
         showEddys.setOnClickListener(view1 ->
         {
             mEddysVisibility = !mEddysVisibility;
-            locationView.showEddystones(mEddysVisibility);
+//            locationView.showEddystones(mEddysVisibility);
         });
         showWifis = view.findViewById(R.id.wifis);
         showWifis.setOnClickListener(view1 ->
         {
             mWifisVisibility = !mWifisVisibility;
-            locationView.showWifis(mWifisVisibility);
+//            locationView.showWifis(mWifisVisibility);
         });
         showVenues = view.findViewById(R.id.venues);
         showVenues.setOnClickListener(view1 ->
         {
             mVenuesVisibility = !mVenuesVisibility;
-            locationView.showVenues(mVenuesVisibility);
+//            locationView.showVenues(mVenuesVisibility);
         });
 
         mNotificationManager = NavigineApp.NotificationManager;
@@ -259,9 +281,10 @@ public class NavigationFragment extends Fragment {
             titleTextView.setText(sublocationName);
 
             view.setOnClickListener(v -> {
-                locationView.setSublocation(sublocation.getId());
+                locationView.getLocationViewController().setSublocationId(sublocation.getId());
                 gvMain.setVisibility(View.GONE);
 //                NavigineApp.MeasurementManager.addBeaconGenerator("F7826DA6-4FA2-4E98-8024-BC5B71E0893E", 1, 1, -72, 1000, -75, -55);
+//                NavigineApp.MeasurementManager.addBeaconGenerator("F7826DA6-4FA2-4E98-8024-BC5B71E089AA", 47213, 11741, -72, 1000, -75, -55);
 //                NavigineApp.MeasurementManager.addEddystoneGenerator("11111111111111111111", "000000000ffd", -72, 1000, -75, -55);
 //                NavigineApp.MeasurementManager.addWifiGenerator("703ACBBDE624", 1000, -75, -55);
 //                NavigineApp.MeasurementManager.addWifiRttGenerator("703ACBBDE624", 0.3f, 1000, -75, -55);

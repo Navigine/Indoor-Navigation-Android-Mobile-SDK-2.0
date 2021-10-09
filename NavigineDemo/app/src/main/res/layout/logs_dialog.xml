@@ -37,7 +37,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"
         android:layout_marginStart="16dp"
-        android:background="@drawable/ic_share"/>
+        android:background="@drawable/ic_menu_upload"/>
 
     <TextView
         android:id="@+id/logs_dialog__share"
@@ -50,7 +50,7 @@
         android:textColor="@color/selectorActiveColor"
         android:textSize="17sp"
         android:fontFamily="@font/circe_reg"
-        android:text="Share"/>
+        android:text="Upload"/>
 
     <View
         android:layout_width="match_parent"
@@ -65,37 +65,6 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         app:layout_constraintTop_toBottomOf="@id/logs_dialog__share"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="33dp"
-        android:layout_marginStart="16dp"
-        android:background="@drawable/ic_send_support"/>
-
-    <TextView
-        android:id="@+id/logs_dialog__send"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/logs_dialog__share"
-        android:layout_marginTop="33dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="@color/selectorActiveColor"
-        android:textSize="17sp"
-        android:fontFamily="@font/circe_reg"
-        android:text="Send to Navigine Support via mail"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        app:layout_constraintTop_toBottomOf="@id/logs_dialog__send"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:background="#DADADA"/>
-
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        app:layout_constraintTop_toBottomOf="@id/logs_dialog__send"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="33dp"
         android:layout_marginStart="16dp"
@@ -105,7 +74,7 @@
         android:id="@+id/logs_dialog__delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/logs_dialog__send"
+        app:layout_constraintTop_toBottomOf="@id/logs_dialog__share"
         android:layout_marginTop="33dp"
         android:layout_marginStart="56dp"
         android:layout_marginEnd="16dp"

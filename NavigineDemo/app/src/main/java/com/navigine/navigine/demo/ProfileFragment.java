@@ -7,12 +7,15 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.navigine.idl.java.BitmapRegionDecoder;
@@ -80,11 +83,6 @@ public class ProfileFragment extends Fragment {
                 title.setText(getItem(i));
                 mBottomSheet.findViewById(R.id.logs_dialog__share).setOnClickListener(view2 ->
                 {
-                    // TODO:
-                    mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                });
-                mBottomSheet.findViewById(R.id.logs_dialog__send).setOnClickListener(view2 ->
-                {
                     emailLogs(getItem(i));
                     mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 });
@@ -106,16 +104,15 @@ public class ProfileFragment extends Fragment {
     }
 
     private void emailLogs(String item) {
-        System.out.println("Wanna upload log file!");
         NavigineApp.ResourceManager.uploadLogFile(item, new ResourceUploadListener() {
             @Override
             public void onUploaded() {
-                System.out.println("Uploaded to user files");
+                Toast.makeText(getContext(), "Log uploaded", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailed(Error error) {
-                System.out.println("Error is " + error.getMessage());
+                Toast.makeText(getContext(), "Logfile uploading failed", Toast.LENGTH_SHORT).show();
             }
         });
     }

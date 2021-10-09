@@ -13,7 +13,6 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager       mFragmentManager    = getSupportFragmentManager();
     private Fragment              mLocationsFragment  = new LocationsFragment();
     private Fragment              mNavigationFragment = new NavigationFragment();
-    private Fragment              mAddBeaconFragment  = new AddBeaconFragment();
     private Fragment              mDebugFragment      = new DebugFragment();
     private Fragment              mProfileFragment    = new ProfileFragment();
     private Fragment              mLastActive         = mLocationsFragment;
@@ -31,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
         mFragmentManager.beginTransaction().add(R.id.main__frame_layout, mProfileFragment,    "Profile").   hide(mProfileFragment).   commitAllowingStateLoss();
         mFragmentManager.beginTransaction().add(R.id.main__frame_layout, mDebugFragment,      "Debug").     hide(mDebugFragment).     commitAllowingStateLoss();
-        mFragmentManager.beginTransaction().add(R.id.main__frame_layout, mAddBeaconFragment,  "AddBeacon"). hide(mAddBeaconFragment). commitAllowingStateLoss();
         mFragmentManager.beginTransaction().add(R.id.main__frame_layout, mNavigationFragment, "Navigation").hide(mNavigationFragment).commitAllowingStateLoss();
         mFragmentManager.beginTransaction().add(R.id.main__frame_layout, mLocationsFragment,  "Locations").                           commitAllowingStateLoss();
 
@@ -64,10 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation__menu_navigation:
                     mFragmentManager.beginTransaction().hide(mLastActive).show(mNavigationFragment).commitAllowingStateLoss();
                     mLastActive = mNavigationFragment;
-                    return true;
-                case R.id.navigation__menu_beacons:
-                    mFragmentManager.beginTransaction().hide(mLastActive).show(mAddBeaconFragment).commitAllowingStateLoss();
-                    mLastActive = mAddBeaconFragment;
                     return true;
                 case R.id.navigation__menu_debug:
                     mFragmentManager.beginTransaction().hide(mLastActive).show(mDebugFragment).commitAllowingStateLoss();
