@@ -1,46 +1,32 @@
 package com.navigine.navigine.demo;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.navigine.idl.java.BitmapRegionDecoder;
-import com.navigine.idl.java.Image;
-import com.navigine.idl.java.LocationEditManager;
 import com.navigine.idl.java.LocationListManager;
 import com.navigine.idl.java.LocationManager;
 import com.navigine.idl.java.MeasurementManager;
 import com.navigine.idl.java.NavigationManager;
-import com.navigine.idl.java.Notification;
-import com.navigine.idl.java.NotificationListener;
-import com.navigine.idl.java.NotificationManager;
 import com.navigine.idl.java.NavigineSdk;
-import com.navigine.idl.java.Polygon;
-import com.navigine.idl.java.Position;
-import com.navigine.idl.java.PositionListener;
+import com.navigine.idl.java.NotificationManager;
 import com.navigine.idl.java.ResourceManager;
 import com.navigine.idl.java.RouteManager;
-import com.navigine.idl.java.SensorMeasurement;
-import com.navigine.idl.java.SignalMeasurement;
 import com.navigine.sdk.Navigine;
 
 public class NavigineApp extends Application implements LifecycleObserver {
-    private String TAG = this.getClass().getName();
+    private final String TAG = this.getClass().getName();
 
     public static final String      DEFAULT_SERVER_URL = "https://api.navigine.com";
     public static final String      DEFAULT_USER_HASH  = "0000-0000-0000-0000";
 
-    @SuppressLint("StaticFieldLeak")
-    public static Context     Context     = null;
     public static NavigineSdk mNavigineSdk = null;
 
     // Display settings
@@ -69,8 +55,7 @@ public class NavigineApp extends Application implements LifecycleObserver {
 
     public synchronized static void createInstance(Context context)
     {
-        Context = context;
-        Navigine.initialize(Context);
+        Navigine.initialize(context);
         Navigine.setMode(Navigine.Mode.NORMAL);
 
         Settings = context.getSharedPreferences("Navigine", 0);

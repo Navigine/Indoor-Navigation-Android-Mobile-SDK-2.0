@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +90,7 @@ public class SplashActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     if (!checkSinglePermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                            !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                         requestPermissions(new String[]{
                                         Manifest.permission.ACCESS_FINE_LOCATION,
                                         Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -164,6 +165,18 @@ public class SplashActivity extends AppCompatActivity {
                     }
                 }
             }
+            else {
+                if (!checkSinglePermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                    !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    requestPermissions(new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            },
+                            PERMISSION_REQUEST_FINE_LOCATION);
+                    }
+                }
 
         }
     }
