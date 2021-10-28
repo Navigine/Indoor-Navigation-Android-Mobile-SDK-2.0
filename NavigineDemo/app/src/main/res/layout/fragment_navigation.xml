@@ -31,65 +31,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <Button
-                android:id="@+id/beacons"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="start"
-                android:layout_marginTop="100dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/swap_button"
-                android:text="Beacons"
-                android:textColor="#00b1ff"
-                android:textSize="7sp"
-                android:textAllCaps="false"
-                android:elevation="2dp"
-                tools:ignore="HardcodedText" />
-
-            <Button
-                android:id="@+id/eddystones"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="start"
-                android:layout_marginTop="150dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/swap_button"
-                android:text="Eddys"
-                android:textColor="#ffaa00"
-                android:textSize="7sp"
-                android:textAllCaps="false"
-                android:elevation="2dp"
-                tools:ignore="HardcodedText" />
-
-            <Button
-                android:id="@+id/wifis"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="start"
-                android:layout_marginTop="200dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/swap_button"
-                android:text="Wifis"
-                android:textColor="#2aff61"
-                android:textSize="7sp"
-                android:textAllCaps="false"
-                android:elevation="2dp"
-                tools:ignore="HardcodedText" />
-
-            <Button
-                android:id="@+id/venues"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="start"
-                android:layout_marginTop="250dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/swap_button"
-                android:text="Venues"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="7sp"
-                android:textAllCaps="false"
-                android:elevation="2dp"
-                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/record"
@@ -106,20 +47,7 @@
                 android:elevation="2dp"
                 tools:ignore="HardcodedText" />
 
-            <Button
-                android:id="@+id/attach_to_position"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="end|bottom"
-                android:layout_marginBottom="150dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/swap_button"
-                android:text=">"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="12sp"
-                android:textAllCaps="false"
-                android:elevation="2dp"
-                tools:ignore="HardcodedText" />
+
 
         </com.navigine.view.LocationView>
 
@@ -140,9 +68,5 @@
             android:visibility="gone"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <include
-        android:id="@+id/navigation_fragment__venue_sheet"
-        layout="@layout/venue_bottom_sheet"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
