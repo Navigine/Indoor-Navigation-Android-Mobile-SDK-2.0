@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.navigine.idl.java.AnimationType;
 import com.navigine.idl.java.IconMapObject;
+import com.navigine.idl.java.CircleMapObject;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationListener;
 import com.navigine.idl.java.LocationPoint;
@@ -202,6 +203,8 @@ public class NavigationFragment extends Fragment {
                 mPosition = locationView.getLocationViewController().addIconMapObject();
                 mPosition.setSize(30, 30);
                 mPosition.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.blue_dot));
+
+
             });
 
             return view;
