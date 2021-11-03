@@ -90,7 +90,9 @@ public class NavigationFragment extends Fragment {
             }
 
             @Override
-            public void onPositionError(Error error) { }
+            public void onPositionError(Error error) {
+                Log.d("NAVIGINE_LOG", error.getMessage());
+            }
         });
 
         gvMain = view.findViewById(R.id.sub_loc_list);
