@@ -28,6 +28,9 @@ import com.navigine.idl.java.Point;
 import com.navigine.idl.java.Position;
 import com.navigine.idl.java.PositionListener;
 import com.navigine.idl.java.Sublocation;
+import com.navigine.idl.java.Zone;
+import com.navigine.idl.java.ZoneListener;
+import com.navigine.idl.java.ZoneManager;
 import com.navigine.view.LocationView;
 import com.navigine.view.TouchInput;
 
@@ -68,6 +71,10 @@ public class NavigationFragment extends Fragment {
 
         locationView = view.findViewById(R.id.location_view);
 
+        mPosition = locationView.getLocationViewController().addIconMapObject();
+        mPosition.setSize(30, 30);
+        mPosition.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.blue_dot));
+
         record = view.findViewById(R.id.record);
         record.setOnClickListener(view1 -> {
             if (isRecording) {
@@ -96,6 +103,18 @@ public class NavigationFragment extends Fragment {
         });
 
         gvMain = view.findViewById(R.id.sub_loc_list);
+
+        NavigineApp.ZoneManager.addZoneListener(new ZoneListener() {
+            @Override
+            public void onEnterZone(Zone zone) {
+                Log.println(Log.INFO, "NAVIGINE_ZONES", "Enter zone" + zone.getName());
+            }
+
+            @Override
+            public void onLeaveZone(Zone zone) {
+                Log.println(Log.INFO, "NAVIGINE_ZONES", "Leave zone" + zone.getName());
+            }
+        });
 
         NavigineApp.LocationManager.addLocationListener(new LocationListener() {
             @Override
@@ -202,11 +221,6 @@ public class NavigationFragment extends Fragment {
             view.setOnClickListener(v -> {
                 locationView.getLocationViewController().setSublocationId(sublocation.getId());
                 gvMain.setVisibility(View.GONE);
-                mPosition = locationView.getLocationViewController().addIconMapObject();
-                mPosition.setSize(30, 30);
-                mPosition.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.blue_dot));
-
-
             });
 
             return view;

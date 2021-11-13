@@ -19,6 +19,7 @@ import com.navigine.idl.java.NavigineSdk;
 import com.navigine.idl.java.NotificationManager;
 import com.navigine.idl.java.ResourceManager;
 import com.navigine.idl.java.RouteManager;
+import com.navigine.idl.java.ZoneManager;
 import com.navigine.sdk.Navigine;
 
 public class NavigineApp extends Application implements LifecycleObserver {
@@ -50,6 +51,7 @@ public class NavigineApp extends Application implements LifecycleObserver {
     public static NotificationManager NotificationManager = null;
     public static MeasurementManager  MeasurementManager  = null;
     public static RouteManager        RouteManager        = null;
+    public static ZoneManager         ZoneManager     = null;
 
     public static int LocationId = 0;
 
@@ -84,6 +86,7 @@ public class NavigineApp extends Application implements LifecycleObserver {
             MeasurementManager = mNavigineSdk.getMeasurementManager();
             RouteManager = mNavigineSdk.getRouteManager(LocationManager, NavigationManager);
             NotificationManager = mNavigineSdk.getNotificationManager(LocationManager);
+            ZoneManager = mNavigineSdk.getZoneManager(LocationManager, NavigationManager);
         } catch (Exception e) {
             return false;
         }
