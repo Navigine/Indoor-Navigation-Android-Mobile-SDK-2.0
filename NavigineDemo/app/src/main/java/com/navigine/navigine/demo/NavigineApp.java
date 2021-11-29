@@ -4,12 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
-import android.util.Log;
-
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
-import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.navigine.idl.java.LocationListManager;
 import com.navigine.idl.java.LocationManager;
@@ -22,8 +16,7 @@ import com.navigine.idl.java.RouteManager;
 import com.navigine.idl.java.ZoneManager;
 import com.navigine.sdk.Navigine;
 
-public class NavigineApp extends Application implements LifecycleObserver {
-    private final String TAG = this.getClass().getName();
+public class NavigineApp extends Application {
 
     public static final String      DEFAULT_SERVER_URL = "https://api.navigine.com";
     public static final String      DEFAULT_USER_HASH  = "0000-0000-0000-0000";
@@ -58,7 +51,6 @@ public class NavigineApp extends Application implements LifecycleObserver {
     public synchronized static void createInstance(Context context)
     {
         Navigine.initialize(context);
-        Navigine.setMode(Navigine.Mode.NORMAL);
 
         Settings = context.getSharedPreferences("Navigine", 0);
         LocationServer = Settings.getString ("location_server", DEFAULT_SERVER_URL);
@@ -91,41 +83,5 @@ public class NavigineApp extends Application implements LifecycleObserver {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onEnterForeground() {
-        Navigine.setMode(Navigine.Mode.NORMAL);
-        Log.d(TAG, "Lifecycle.Event.ON_START onAppForegrounded!");
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void onResume() {
-        Navigine.setMode(Navigine.Mode.NORMAL);
-        Log.d(TAG, "Lifecycle.Event.ON_RESUME");
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    public void onPause() {
-        Navigine.setMode(Navigine.Mode.BACKGROUND);
-        Log.d(TAG, "Lifecycle.Event.ON_PAUSE");
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onEnterBackground() {
-        Navigine.setMode(Navigine.Mode.BACKGROUND);
-        Log.d(TAG, "Lifecycle.Event.ON_STOP onAppBackgrounded!");
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroy() {
-        Navigine.setMode(Navigine.Mode.BACKGROUND);
-        Log.d(TAG, "Lifecycle.Event.ON_DESTROY");
     }
 }
