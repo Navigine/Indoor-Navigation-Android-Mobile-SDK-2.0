@@ -129,7 +129,7 @@ public class SplashActivity extends AppCompatActivity {
                 }
             } else {
                 if (!checkAllPermissions()) {
-                    if (this.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+//                    if (this.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                         builder.setTitle("This app needs background location access");
                         builder.setMessage("Please grant location access so this app can detect beacons in the background.");
@@ -150,7 +150,7 @@ public class SplashActivity extends AppCompatActivity {
                             }
                         });
                         builder.show();
-                    }
+//                    }
                 } else {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Functionality limited");

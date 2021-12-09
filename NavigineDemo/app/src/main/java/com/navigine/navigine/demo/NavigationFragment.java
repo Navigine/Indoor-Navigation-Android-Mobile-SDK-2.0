@@ -21,10 +21,12 @@ import com.navigine.idl.java.CircleMapObject;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationListener;
 import com.navigine.idl.java.LocationPoint;
+import com.navigine.idl.java.MapObjectPickResult;
 import com.navigine.idl.java.Notification;
 import com.navigine.idl.java.NotificationListener;
 import com.navigine.idl.java.NotificationManager;
 import com.navigine.idl.java.Point;
+import com.navigine.idl.java.PickListener;
 import com.navigine.idl.java.Position;
 import com.navigine.idl.java.PositionListener;
 import com.navigine.idl.java.Sublocation;
@@ -70,6 +72,15 @@ public class NavigationFragment extends Fragment {
         });
 
         locationView = view.findViewById(R.id.location_view);
+
+        locationView.getLocationViewController().setPickListener(new PickListener() {
+            @Override
+            public void onMapObjectPickComplete(MapObjectPickResult mapObjectPickResult, Point point) {
+                if (mapObjectPickResult != null) {
+                    Log.d("NAVIGINE_LOG", "map object pucked: " + mapObjectPickResult.getMapObject().getId());
+                }
+            }
+        });
 
         mPosition = locationView.getLocationViewController().addIconMapObject();
         mPosition.setSize(30, 30);
@@ -150,6 +161,7 @@ public class NavigationFragment extends Fragment {
 
             @Override
             public boolean onSingleTapConfirmed(float x, float y) {
+                locationView.getLocationViewController().pickMapObjectAt(x, y);
                 return true;
             }
         });
