@@ -37,6 +37,7 @@ import com.navigine.view.LocationView;
 import com.navigine.view.TouchInput;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class NavigationFragment extends Fragment {
@@ -76,8 +77,16 @@ public class NavigationFragment extends Fragment {
         locationView.getLocationViewController().setPickListener(new PickListener() {
             @Override
             public void onMapObjectPickComplete(MapObjectPickResult mapObjectPickResult, Point point) {
-                if (mapObjectPickResult != null) {
-                    Log.d("NAVIGINE_LOG", "map object pucked: " + mapObjectPickResult.getMapObject().getId());
+
+            }
+
+            @Override
+            public void onMapFeaturePickComplete(HashMap<String, String> hashMap, Point point) {
+
+                for ( HashMap.Entry<String, String> entry : hashMap.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    Log.d("NAVIGINE_LOG", key + " -> " +value);
                 }
             }
         });
@@ -161,7 +170,7 @@ public class NavigationFragment extends Fragment {
 
             @Override
             public boolean onSingleTapConfirmed(float x, float y) {
-                locationView.getLocationViewController().pickMapObjectAt(x, y);
+                locationView.getLocationViewController().pickMapFeaturetAt(x, y);
                 return true;
             }
         });
