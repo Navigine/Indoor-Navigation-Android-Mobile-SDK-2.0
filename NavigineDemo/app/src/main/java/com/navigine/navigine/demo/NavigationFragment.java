@@ -3,6 +3,7 @@ package com.navigine.navigine.demo;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,13 +77,15 @@ public class NavigationFragment extends Fragment {
 
         locationView.getLocationViewController().setPickListener(new PickListener() {
             @Override
-            public void onMapObjectPickComplete(MapObjectPickResult mapObjectPickResult, Point point) {
+            public void onMapObjectPickComplete(MapObjectPickResult mapObjectPickResult, PointF point) {
 
             }
 
             @Override
-            public void onMapFeaturePickComplete(HashMap<String, String> hashMap, Point point) {
-
+            public void onMapFeaturePickComplete(HashMap<String, String> hashMap, PointF point) {
+                if (hashMap == null) {
+                    return;
+                }
                 for ( HashMap.Entry<String, String> entry : hashMap.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
@@ -165,12 +168,18 @@ public class NavigationFragment extends Fragment {
         locationView.getLocationViewController().getTouchInput().setTapResponder(new TouchInput.TapResponder() {
             @Override
             public boolean onSingleTapUp(float v, float v1) {
-                return false;
+
+
+                return true;
             }
 
             @Override
             public boolean onSingleTapConfirmed(float x, float y) {
                 locationView.getLocationViewController().pickMapFeaturetAt(x, y);
+                PointF location = new PointF(x, y);
+                Point meters = locationView.getLocationViewController().screenPositionToMeters(location);
+                PointF res = locationView.getLocationViewController().metersToScreenPosition(meters, false);
+                Log.println(Log.INFO, "NAVIGINE_LOG", location + " -> " + meters + " -> " + res);
                 return true;
             }
         });
