@@ -28,7 +28,6 @@ import com.navigine.navigine.demo.ui.custom.ListView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class LocationsFragment extends Fragment {
 
@@ -139,7 +138,7 @@ public class LocationsFragment extends Fragment {
             View view = convertView;
             if (view == null)
             {
-                LayoutInflater inflater = (LayoutInflater) Objects.requireNonNull(getActivity()).getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.location_list_item, null);
             }
 
@@ -176,7 +175,7 @@ public class LocationsFragment extends Fragment {
                    }
 
                    @Override
-                   public void onDownloadProgress(int i, int i1) {
+                   public void onDownloadProgress(int i, int i1, int i2) {
                        int state = (int) (i * 100.f / i1);
                        if (state >= 0 & state < 100) {
                            loadingProgressBar.setProgress(state);
@@ -187,11 +186,16 @@ public class LocationsFragment extends Fragment {
                    }
 
                    @Override
-                   public void onLocationFailed(Error error) {
+                   public void onLocationFailed(int i, Error error) {
                        loadingProgressBar.setProgressAnimated(100);
                        loadingProgressPercent.setVisibility(View.GONE);
                        locationSelected.setVisibility(View.GONE);
                        NavigineApp.LocationManager.removeLocationListener(this);
+                   }
+
+                   @Override
+                   public void onLocationCancelled(int i) {
+
                    }
                });
                NavigineApp.LocationId = locationId;

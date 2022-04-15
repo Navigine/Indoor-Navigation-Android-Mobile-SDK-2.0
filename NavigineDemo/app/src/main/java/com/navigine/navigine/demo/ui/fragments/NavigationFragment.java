@@ -154,13 +154,19 @@ public class NavigationFragment extends Fragment {
             }
 
             @Override
-            public void onDownloadProgress(int i, int i1) {
+            public void onDownloadProgress(int i, int i1, int i2) {
 
             }
 
             @Override
-            public void onLocationFailed(Error error) {
+            public void onLocationFailed(int i, Error error) {
                 System.out.println(error.getMessage());
+
+            }
+
+            @Override
+            public void onLocationCancelled(int i) {
+
             }
         });
 
