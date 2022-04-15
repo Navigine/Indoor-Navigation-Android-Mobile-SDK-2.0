@@ -1,28 +1,27 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.ui.fragments;
 
 import android.annotation.SuppressLint;
-import android.hardware.Sensor;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.navigine.idl.java.MeasurementListener;
 import com.navigine.idl.java.SensorMeasurement;
 import com.navigine.idl.java.SensorType;
 import com.navigine.idl.java.SignalMeasurement;
 import com.navigine.idl.java.Vector3d;
+import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.application.NavigineApp;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 public class DebugFragment extends Fragment {

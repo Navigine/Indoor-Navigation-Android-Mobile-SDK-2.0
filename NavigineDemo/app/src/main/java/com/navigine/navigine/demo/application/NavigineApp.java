@@ -1,4 +1,4 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.application;
 
 import android.app.Application;
 import android.content.Context;

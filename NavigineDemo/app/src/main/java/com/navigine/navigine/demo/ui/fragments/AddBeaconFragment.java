@@ -1,19 +1,14 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.ui.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.navigine.idl.java.Location;
-import com.navigine.idl.java.LocationEditListener;
-import com.navigine.idl.java.LocationListener;
-import com.navigine.idl.java.Point;
+import androidx.fragment.app.Fragment;
 
-import static com.navigine.navigine.demo.NavigineApp.LocationManager;
+import com.navigine.idl.java.Location;
+import com.navigine.navigine.demo.R;
 
 public class AddBeaconFragment extends Fragment {
 

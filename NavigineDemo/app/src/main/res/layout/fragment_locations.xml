@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/locations_fragment__layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F3F3F3">
 
-    <com.navigine.navigine.demo.CustomEditText
+    <com.navigine.navigine.demo.ui.custom.CustomEditText
         android:id="@+id/locations_fragment__search_field"
         android:layout_width="match_parent"
         android:layout_height="36dp"
@@ -29,7 +27,7 @@
         android:textColor="@color/colorPrimaryDark"/>
 
 
-    <com.navigine.navigine.demo.ListView
+    <com.navigine.navigine.demo.ui.custom.ListView
         android:id="@+id/locations_fragment__list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

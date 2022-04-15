@@ -5,31 +5,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.activities.MainActivity">
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <com.navigine.navigine.demo.ui.custom.SaveStateBottomNavigation
         android:id="@+id/main__bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:itemBackground="@color/colorPrimaryDark"
         app:itemIconTint="@drawable/bnb_color_selector"
-        app:itemTextColor="@drawable/bnb_color_selector"
         app:itemTextAppearanceActive="@style/BottomNavigationViewTextStyle"
         app:itemTextAppearanceInactive="@style/BottomNavigationViewTextStyle"
-        app:menu="@menu/navigation"
-        app:labelVisibilityMode="labeled"/>
+        app:itemTextColor="@drawable/bnb_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/navigation" />
 
-    <FrameLayout
-        android:id="@+id/main__frame_layout"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment_activity_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="56dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toTopOf="@id/main__bottom_navigation"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="56dp"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

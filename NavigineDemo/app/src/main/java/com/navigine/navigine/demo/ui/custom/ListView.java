@@ -1,8 +1,7 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.ui.custom;
 
-import android.content.*;
-import android.util.*;
-import java.lang.*;
+import android.content.Context;
+import android.util.AttributeSet;
 
 public class ListView extends android.widget.ListView
 {

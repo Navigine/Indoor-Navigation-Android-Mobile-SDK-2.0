@@ -1,4 +1,4 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.services;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -15,6 +15,9 @@ import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+
+import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.ui.activities.MainActivity;
 
 public class NotificationService extends Service {
     private static final int ID_SERVICE = 101;

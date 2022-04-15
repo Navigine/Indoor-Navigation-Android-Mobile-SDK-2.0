@@ -1,4 +1,4 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 
 import com.navigine.idl.java.AnimationType;
 import com.navigine.idl.java.IconMapObject;
-import com.navigine.idl.java.CircleMapObject;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationListener;
 import com.navigine.idl.java.LocationPoint;
@@ -26,14 +25,15 @@ import com.navigine.idl.java.MapObjectPickResult;
 import com.navigine.idl.java.Notification;
 import com.navigine.idl.java.NotificationListener;
 import com.navigine.idl.java.NotificationManager;
-import com.navigine.idl.java.Point;
 import com.navigine.idl.java.PickListener;
+import com.navigine.idl.java.Point;
 import com.navigine.idl.java.Position;
 import com.navigine.idl.java.PositionListener;
 import com.navigine.idl.java.Sublocation;
 import com.navigine.idl.java.Zone;
 import com.navigine.idl.java.ZoneListener;
-import com.navigine.idl.java.ZoneManager;
+import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.application.NavigineApp;
 import com.navigine.view.LocationView;
 import com.navigine.view.TouchInput;
 

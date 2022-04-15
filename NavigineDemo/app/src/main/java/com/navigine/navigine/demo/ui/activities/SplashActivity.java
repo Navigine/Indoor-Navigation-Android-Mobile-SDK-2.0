@@ -1,9 +1,4 @@
-package com.navigine.navigine.demo;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+package com.navigine.navigine.demo.ui.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -24,15 +19,18 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.application.NavigineApp;
+import com.navigine.navigine.demo.services.NotificationService;
 
 import java.util.Objects;
 
@@ -57,8 +55,10 @@ public class SplashActivity extends AppCompatActivity {
         mEditHost    = findViewById(R.id.login__change_host);
 
         mLoginButton.setOnClickListener(view -> {
-            if (NavigineApp.initializeSdk())
+            if (NavigineApp.initializeSdk()) {
                 startActivity(new Intent(this, MainActivity.class));
+                finish();
+            }
         });
 
         mUserHash.addTextChangedListener(new TextWatcher() {

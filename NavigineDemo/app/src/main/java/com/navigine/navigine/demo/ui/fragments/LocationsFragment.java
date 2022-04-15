@@ -1,11 +1,8 @@
-package com.navigine.navigine.demo;
+package com.navigine.navigine.demo.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -16,10 +13,17 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationInfo;
 import com.navigine.idl.java.LocationListListener;
 import com.navigine.idl.java.LocationListener;
+import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.application.NavigineApp;
+import com.navigine.navigine.demo.ui.custom.CircularProgressBar;
+import com.navigine.navigine.demo.ui.custom.CustomEditText;
+import com.navigine.navigine.demo.ui.custom.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +32,7 @@ import java.util.Objects;
 
 public class LocationsFragment extends Fragment {
 
-    private ListView            mListView          = null;
+    private ListView mListView          = null;
     private List<LocationInfo>  mInfoList          = new ArrayList<>();
     private List<Integer>       mHiddenInfoIndices = new ArrayList<>();
 
@@ -142,7 +146,7 @@ public class LocationsFragment extends Fragment {
             TextView  titleTextView    = view.findViewById(R.id.locations_list_item__location_title);
             TextView  versionTextView  = view.findViewById(R.id.locations_list_item__location_version);
 
-            CircularProgressBar  loadingProgressBar     = view.findViewById(R.id.locations_list_item__progress_bar);
+            CircularProgressBar loadingProgressBar     = view.findViewById(R.id.locations_list_item__progress_bar);
             TextView             loadingProgressPercent = view.findViewById(R.id.locations_list_item__progress_percent);
             ImageView            locationSelected       = view.findViewById(R.id.locations_list_item__location_selected);
             RelativeLayout       progressLayout         = view.findViewById(R.id.locations_list_item__progress_view);

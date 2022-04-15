@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_profile"
+    app:startDestination="@id/fr_profile">
+
+    <fragment
+        android:id="@+id/fr_profile"
+        android:name="com.navigine.navigine.demo.ui.fragments.ProfileFragment"
+        android:label="e"
+        tools:layout="@layout/fragment_profile" />
+
+</navigation>
