@@ -1,6 +1,7 @@
 package com.navigine.navigine.demo.ui.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,6 +36,7 @@ import com.navigine.navigine.demo.services.NotificationService;
 
 import java.util.Objects;
 
+@SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
     private static final int PERMISSION_REQUEST_BACKGROUND_LOCATION = 2;
@@ -50,47 +53,18 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        mLoginButton = findViewById(R.id.login__done_button);
-        mUserHash    = findViewById(R.id.login__login_edit);
-        mEditHost    = findViewById(R.id.login__change_host);
-
-        mLoginButton.setOnClickListener(view -> {
-            if (NavigineApp.initializeSdk()) {
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
-            }
-        });
-
-        mUserHash.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                NavigineApp.UserHash = mUserHash.getText().toString();
-                SharedPreferences.Editor editor = NavigineApp.Settings.edit();
-                editor.putString ("user_hash", NavigineApp.UserHash);
-                editor.apply();
-            }
-        });
-
-        mEditHost.setOnClickListener(view -> {
-            showPopUp();
-        });
-
-        mDialog = new Dialog(this);
-
+        initViews();
+        setViewsListeners();
         initNavigineSDK();
-
         verifyBluetooth();
+        permissionsRequest();
+    }
 
+    private void permissionsRequest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (!checkSinglePermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                    !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     requestPermissions(new String[]{
                                     Manifest.permission.ACCESS_FINE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -130,26 +104,26 @@ public class SplashActivity extends AppCompatActivity {
             } else {
                 if (!checkAllPermissions()) {
 //                    if (this.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle("This app needs background location access");
-                        builder.setMessage("Please grant location access so this app can detect beacons in the background.");
-                        builder.setPositiveButton(android.R.string.ok, null);
-                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("This app needs background location access");
+                    builder.setMessage("Please grant location access so this app can detect beacons in the background.");
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
 
-                            @TargetApi(23)
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                requestPermissions(new String[]{
-                                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                                        },
-                                        PERMISSION_REQUEST_BACKGROUND_LOCATION);
-                            }
-                        });
-                        builder.show();
+                        @TargetApi(23)
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            requestPermissions(new String[]{
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                    },
+                                    PERMISSION_REQUEST_BACKGROUND_LOCATION);
+                        }
+                    });
+                    builder.show();
 //                    }
                 } else {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -167,7 +141,7 @@ public class SplashActivity extends AppCompatActivity {
         }
         else {
             if (!checkSinglePermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    !checkSinglePermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 requestPermissions(new String[]{
                                 Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -175,9 +149,46 @@ public class SplashActivity extends AppCompatActivity {
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE
                         },
                         PERMISSION_REQUEST_FINE_LOCATION);
-                }
             }
+        }
+    }
 
+    private void setViewsListeners() {
+        mLoginButton.setOnClickListener(view -> {
+            if (NavigineApp.initializeSdk()) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            } else {
+                Toast.makeText(this, "SDK not initialized", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mUserHash.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                NavigineApp.UserHash = mUserHash.getText().toString();
+                SharedPreferences.Editor editor = NavigineApp.Settings.edit();
+                editor.putString ("user_hash", NavigineApp.UserHash);
+                editor.apply();
+            }
+        });
+
+        mEditHost.setOnClickListener(view -> {
+            showPopUp();
+        });
+    }
+
+    private void initViews() {
+        mLoginButton = findViewById(R.id.login__done_button);
+        mUserHash    = findViewById(R.id.login__login_edit);
+        mEditHost    = findViewById(R.id.login__change_host);
+        mDialog      = new Dialog(this);
     }
 
     @Override

@@ -27,7 +27,7 @@
         android:textColor="@color/colorPrimaryDark"/>
 
 
-    <com.navigine.navigine.demo.ui.custom.ListView
+    <ListView
         android:id="@+id/locations_fragment__list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

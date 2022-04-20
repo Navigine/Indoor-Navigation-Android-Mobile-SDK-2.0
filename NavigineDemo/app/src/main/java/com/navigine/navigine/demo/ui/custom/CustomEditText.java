@@ -38,4 +38,3 @@ public class CustomEditText extends AppCompatEditText
     }
 
 }
-

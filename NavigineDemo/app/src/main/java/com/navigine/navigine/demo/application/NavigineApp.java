@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 
+import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationListManager;
 import com.navigine.idl.java.LocationManager;
 import com.navigine.idl.java.MeasurementManager;
@@ -13,6 +14,7 @@ import com.navigine.idl.java.NavigineSdk;
 import com.navigine.idl.java.NotificationManager;
 import com.navigine.idl.java.ResourceManager;
 import com.navigine.idl.java.RouteManager;
+import com.navigine.idl.java.Sublocation;
 import com.navigine.idl.java.ZoneManager;
 import com.navigine.sdk.Navigine;
 
@@ -44,17 +46,19 @@ public class NavigineApp extends Application {
     public static NotificationManager NotificationManager = null;
     public static MeasurementManager  MeasurementManager  = null;
     public static RouteManager        RouteManager        = null;
-    public static ZoneManager         ZoneManager     = null;
+    public static ZoneManager         ZoneManager         = null;
 
-    public static int LocationId = 0;
+    public static int         LocationId         = -1;
+    public static Location    CurrentLocation    = null;
+    public static Sublocation CurrentSublocation = null;
 
     public synchronized static void createInstance(Context context)
     {
         Navigine.initialize(context);
 
-        Settings = context.getSharedPreferences("Navigine", 0);
+        Settings       = context.getSharedPreferences("Navigine", 0);
         LocationServer = Settings.getString ("location_server", DEFAULT_SERVER_URL);
-        UserHash = Settings.getString ("user_hash", DEFAULT_USER_HASH);
+        UserHash       = Settings.getString ("user_hash", DEFAULT_USER_HASH);
 
         // Initializing display parameters
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -72,13 +76,13 @@ public class NavigineApp extends Application {
             NavigineSdk.setServer(LocationServer);
             mNavigineSdk = NavigineSdk.getInstance();
             LocationListManager = mNavigineSdk.getLocationListManager();
-            LocationManager = mNavigineSdk.getLocationManager();
-            ResourceManager = mNavigineSdk.getResourceManager(LocationManager);
-            NavigationManager = mNavigineSdk.getNavigationManager(LocationManager);
-            MeasurementManager = mNavigineSdk.getMeasurementManager();
-            RouteManager = mNavigineSdk.getRouteManager(LocationManager, NavigationManager);
+            LocationManager     = mNavigineSdk.getLocationManager();
+            ResourceManager     = mNavigineSdk.getResourceManager(LocationManager);
+            NavigationManager   = mNavigineSdk.getNavigationManager(LocationManager);
+            MeasurementManager  = mNavigineSdk.getMeasurementManager();
+            RouteManager        = mNavigineSdk.getRouteManager(LocationManager, NavigationManager);
             NotificationManager = mNavigineSdk.getNotificationManager(LocationManager);
-            ZoneManager = mNavigineSdk.getZoneManager(LocationManager, NavigationManager);
+            ZoneManager         = mNavigineSdk.getZoneManager(LocationManager, NavigationManager);
         } catch (Exception e) {
             return false;
         }

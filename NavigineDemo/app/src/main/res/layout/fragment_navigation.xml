@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context=".ui.fragments.NavigationFragment">
 
         <Button
             android:id="@+id/swap_sublocations"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="20dp"
+            android:background="@drawable/swap_button"
+            android:elevation="2dp"
             android:text="Levels"
+            android:textAllCaps="false"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="10sp"
-            android:textAllCaps="false"
-            android:background="@drawable/swap_button"
-            android:elevation="2dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.navigine.view.LocationView
             android:id="@+id/location_view"
@@ -40,33 +38,119 @@
                 android:layout_marginTop="100dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/swap_button"
+                android:elevation="2dp"
                 android:text="Rec"
+                android:textAllCaps="false"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="12sp"
-                android:textAllCaps="false"
-                android:elevation="2dp"
                 tools:ignore="HardcodedText" />
 
 
-
         </com.navigine.view.LocationView>
+
+
+        <RelativeLayout
+            android:id="@+id/navigation_fragment__direction_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="85dp"
+            android:background="@drawable/btn_zoom_background"
+            android:elevation="1dp"
+            android:visibility="visible"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/navigation_fragment__direction_image"
+                android:layout_width="wrap_content"
+                android:layout_height="16dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/navigation_fragment__direction_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="12dp"
+                android:layout_toEndOf="@id/navigation_fragment__direction_image"
+                android:fontFamily="@font/circe_bold"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorPrimary"
+                android:textSize="22sp" />
+
+        </RelativeLayout>
+
 
         <GridView
             android:id="@+id/sub_loc_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/whiteColor"
-            android:paddingTop="80dp"
-            android:paddingBottom="20dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:numColumns="2"
-            android:verticalSpacing="15dp"
             android:horizontalSpacing="10dp"
-            android:scrollbars="none"
+            android:numColumns="2"
             android:overScrollMode="never"
-            android:visibility="gone"/>
+            android:paddingStart="20dp"
+            android:paddingTop="80dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="20dp"
+            android:scrollbars="none"
+            android:verticalSpacing="15dp"
+            android:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/navigation_fragment__venue_sheet"
+        layout="@layout/venue_bottom_sheet" />
+
+    <LinearLayout
+        android:id="@+id/navigation_fragment__route_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#FAFAFA"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/navigation_fragment__route_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#40979797"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/navigation_fragment__route_button"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/login_done_button"
+            android:fontFamily="@font/circe_bold"
+            android:text="Route"
+            android:textAllCaps="false"
+            android:textColor="@color/whiteColor"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/navigation_fragment__make_route_sheet"
+        layout="@layout/make_route_sheet" />
+
+    <include
+        android:id="@+id/navigation_fragment__cancel_route_sheet"
+        layout="@layout/cancel_route_sheet" />
+
+    <include
+        android:id="@+id/navigation_fragment__venues_sheet"
+        layout="@layout/venues_list_sheet" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
