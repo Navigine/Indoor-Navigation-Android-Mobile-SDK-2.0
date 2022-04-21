@@ -5,6 +5,8 @@
     <color name="colorPrimaryDarkHint">#60152D47</color>
     <color name="colorAccent">#3464A4</color>
     <color name="whiteColor">#FFFFFF</color>
+    <color name="gray">#979797</color>
     <color name="selectorActiveColor">#4BADD4</color>
     <color name="removeColor">#EF6C6C</color>
+    <color name="pinColor">#E93F90</color>
 </resources>
