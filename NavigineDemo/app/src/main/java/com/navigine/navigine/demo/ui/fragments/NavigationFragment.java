@@ -165,6 +165,12 @@ public class NavigationFragment extends Fragment {
         addListeners();
         initLocationViewObjects();
 
+        /**
+         * Attention, this is not a ready-to-use method!
+         * This is just a small tutorial how to make route
+         */
+        //TODO:        makeRoute();
+
         return view;
     }
 
@@ -662,8 +668,105 @@ public class NavigationFragment extends Fragment {
         targetPoint.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_to_point_png));
     }
 
+
+    private void makeRoute() {
+        /**
+         * MAKE A ROUTE TO AN ARBITRARY POINT (MAP OBJECT)
+         *
+         * First, you need to set the end point of the route.
+         * End point can be as existing at the location feature map object (e.g. venue) or map object
+         * (e.g. pin), defined by user.
+         * If you want to set an arbitrary destination point at a location and display this on the
+         * location view first you need to create IconMapObject by adding it to location view through LocationViewController.
+         * Also set icon size and image.
+         */
+        targetPoint = locationView.getLocationViewController().addIconMapObject();
+        targetPoint.setSize(24, 84);
+        targetPoint.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_to_point_png));
+
+        /**
+         * Then to add the created target point to a location, you must perform long-press action on
+         * the desired position on the map. To handle this event set LongPressResponder to the
+         * LocationViewController of the location view:
+         */
+        locationView.getLocationViewController().getTouchInput().setLongPressResponder(new TouchInput.LongPressResponder() {
+            @Override
+            public void onLongPress(float x, float y) {
+                if (hasTarget()) return; //if target already exist then cancel
+                NavigineApp.RouteManager.clearTargets(); //removing all the target points to where the routes were built.
+                Point p = locationView.getLocationViewController().screenPositionToMeters(new PointF(x, y)); // transform screen coordinates to location view coordinates
+                handleLongClick(p); // logic for setting a target point (pin) on the location
+            }
+        });
+
+
+        /**
+         * MAKE A ROUTE TO A VENUE (FEATURE OBJECT)
+         *
+         * First, set PickListener to LocationViewController of location view. This methods will be invoked
+         * when map object or feature map object will be picked by user.
+         */
+
+        locationView.getLocationViewController().setPickListener(new PickListener() {
+            @Override
+            public void onMapObjectPickComplete(MapObjectPickResult mapObjectPickResult, PointF point) {
+                if(mapObjectPickResult == null) {
+                    return;
+                }
+                Log.d("NAVIGINE_LOG", "map object {id " + mapObjectPickResult.getMapObject().getId() + " type " + mapObjectPickResult.getMapObject().getType() + "}");
+            }
+
+            @Override
+            public void onMapFeaturePickComplete(HashMap<String, String> hashMap, PointF point) {
+                if (hashMap == null) { // the click was not made on the feature map object
+                    return;
+                }
+                for (int i = 0; i < mSublocation.getVenues().size(); i++) {
+                    Venue v = mSublocation.getVenues().get(i); // get venue of current sublocation
+                    if (v.getName().equals(hashMap.get("name"))) { // find picked venue by name
+                        mPinVenue = v; // set picked feature object (venue)
+                        showVenueBottomSheet(); // show venue info
+                        break;
+                    }
+                }
+            }
+        });
+
+        /**
+         *
+         * If you setup PickListener, select the desired feature object (e.g. venue) on the location by perform single-tap action.
+         * To properly handle this event, set TapResponder to the LocationViewController of the location view.
+         * When you click by map feature object (e.g. venue) onSingleTapConfirmed will be invoked.
+         */
+        locationView.getLocationViewController().getTouchInput().setTapResponder(new TouchInput.TapResponder() {
+            @Override
+            public boolean onSingleTapUp(float x, float y) {
+                return true;
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(float x, float y) {
+                handleClick(x, y); //handle click with x,y screen coordinates
+                return true;
+            }
+        });
+
+        /**
+         * Let's say when setting a target point (e.g.pin or venue) you show a dialog containing
+         * route information and a 'start' button. By pressing the 'start' button, you must call the method (e.g. onMakeRoute())
+         * in which the target point is set by calling method setTarget of RouteManager and after that
+         * add RouteListener to RouteManager.
+         */
+        onMakeRoute(); // call this by clicking 'start' button in your route info dialog
+
+
+        /**
+         * Don't forget to remove RouteListener after using
+         */
+    }
+
     public void onMakeRoute() {
-        hideAndShowBottomSheets(mSheetBehavior, mVenuesBehavior, mMakeRouteBehavior, BottomSheetBehavior.STATE_HIDDEN);
+        hideAndShowBottomSheets(mSheetBehavior, mVenuesBehavior, mMakeRouteBehavior, BottomSheetBehavior.STATE_HIDDEN); // hide route sheet
 
         if (mPinPoint != null) {
             mTargetPoint = mPinPoint;
@@ -674,7 +777,7 @@ public class NavigationFragment extends Fragment {
 
             Log.d("NAVIGINE_LOG", "Set target point");
 
-            NavigineApp.RouteManager.setTarget(mTargetPoint); // set pin as endpoint
+            NavigineApp.RouteManager.setTarget(mTargetPoint); // set target point (pin) to RouteManager
 
         } else if (mToVenue != null) {
             mTargetVenue = mToVenue;
@@ -685,7 +788,7 @@ public class NavigationFragment extends Fragment {
 
             Log.d("NAVIGINE_LOG", "Set venue target " + mTargetVenue.getId());
 
-            NavigineApp.RouteManager.setTarget(new LocationPoint(mTargetVenue.getPoint(), mLocation.getId(), mSublocation.getId())); // set venue as endpoint
+            NavigineApp.RouteManager.setTarget(new LocationPoint(mTargetVenue.getPoint(), mLocation.getId(), mSublocation.getId())); // set venue as target point to RouteManager
         }
 
         /*
@@ -697,16 +800,19 @@ public class NavigationFragment extends Fragment {
     }
 
     private void handleClick(float x, float y) {
+
         if (mLocation == null || mCurrentSubLocationIndex < 0)
             return;
 
         if (mTargetPoint != null || mTargetVenue != null || mPinPoint != null || mPinVenue != null || mMakeRouteBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-            cancelPin(); // if the route is built then cancel it
-            hideAndShowBottomSheets(mMakeRouteBehavior, mSheetBehavior, mVenuesBehavior, BottomSheetBehavior.STATE_HIDDEN);
+            cancelPin(); // if target point (pin) set and the route isn't built yet then cancel it
+            hideAndShowBottomSheets(mMakeRouteBehavior, mSheetBehavior, mVenuesBehavior, BottomSheetBehavior.STATE_HIDDEN); // hide venue sheet
             return;
         }
 
-        locationView.getLocationViewController().pickMapFeaturetAt(x, y); // pick feature object on location view
+        // pick feature object on location view
+        // this will trigger a method onMapFeaturePickComplete invoke
+        locationView.getLocationViewController().pickMapFeaturetAt(x, y);
     }
 
     private void cancelPin() {
@@ -730,6 +836,7 @@ public class NavigationFragment extends Fragment {
     }
 
     private void handleLongClick(Point p) {
+        // check if location exist and there is at least 1 sublocation
         if (mLocation == null || mCurrentSubLocationIndex < 0)
             return;
 
@@ -749,12 +856,13 @@ public class NavigationFragment extends Fragment {
         if (hasTarget())
             return;
 
-        mPinPoint = new LocationPoint(P, mLocation.getId(), mSublocation.getId()); // create pin point
+        mPinPoint = new LocationPoint(P, mLocation.getId(), mSublocation.getId()); // create a location point representing target point (pin)
         mPinVenue = null;
         targetPoint.setPosition(mPinPoint); // place pin icon on location view at the specific position
         targetPoint.setVisible(true);
+
         mToText.setText("To:       Point (" + String.format("%.1f", mPinPoint.getPoint().getX()) + ", " + String.format("%.1f", mPinPoint.getPoint().getY()) + ")");
-        hideAndShowBottomSheets(mSheetBehavior, mVenuesBehavior, mMakeRouteBehavior, BottomSheetBehavior.STATE_EXPANDED);
+        hideAndShowBottomSheets(mSheetBehavior, mVenuesBehavior, mMakeRouteBehavior, BottomSheetBehavior.STATE_EXPANDED); // show dialog with route info
     }
 
 

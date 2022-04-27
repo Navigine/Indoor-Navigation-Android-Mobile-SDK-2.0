@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             initNavigationView();
 
         // if you do not have a real beacon device, you can simulate the operation of it's
-//         addBeaconGenerator();
+         addBeaconGenerator();
     }
 
     @Override
