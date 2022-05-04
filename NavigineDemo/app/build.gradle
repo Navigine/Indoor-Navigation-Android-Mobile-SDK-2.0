@@ -65,3 +65,10 @@ dependencies {
     //navigine
     implementation project(":libnavigine")
 }
+
+task moveDebugApk(type: Copy) {
+    from file("$projectDir/build/intermediates/apk/debug/app-debug.apk")
+    into file("$rootDir")
+    rename("app-debug.apk", "NavigineDemo-debug.apk")
+}
+
