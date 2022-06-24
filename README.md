@@ -25,11 +25,11 @@ To get the Navigine demo application for Android,
 - Either [download the precompiled APK file](https://github.com/Navigine/Android-SDK-2.0/blob/master/NavigineDemo/NavigineDemo-debug.apk).
 - Or compile the application yourself [using sources, available at GitHub](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemo).
 
-For complete guidelines on using the Demo, refer to the [corresponding sections in the Navigine User Manual](http://docs.navigine.com/ud_android_demo.html), or refer to the Help file incorporated into the application.
+For complete guidelines on using the Demo, refer to the [corresponding sections in the Navigine User Manual](https://docs.navigine.com/en/Using_Navigine_Application_for_Android), or refer to the Help file incorporated into the application.
 
 Below, you can see some screenshots of the Demo representing locations list, defined location levels, navigation bar, and debug process.
 
-  <img src="img/locations_android.jpg" alt="img/locations_android.jpg" width="250"/><img src="img/levels_android.jpg" alt="img/levels_android.jpg" width="250"/><img src="img/navigation_android.jpg" alt="img/navigation_android.jpg" width="250"/><img src="img/debug_android.jpg" alt="img/debug_android.jpg" width="250"/>
+  <img src="img/locations_android.png" alt="img/locations_android.png" width="250"/><img src="img/levels_android.png" alt="img/levels_android.png" width="250"/><img src="img/navigation_android.png" alt="img/navigation_android.png" width="250"/><img src="img/debug_android.png" alt="img/debug_android.png" width="250"/>
 
 ## Navigation SDK and Implementation
 
