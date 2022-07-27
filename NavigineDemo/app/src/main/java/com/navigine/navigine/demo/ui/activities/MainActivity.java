@@ -1,51 +1,55 @@
 package com.navigine.navigine.demo.ui.activities;
 
-import android.os.Bundle;
 
-import androidx.annotation.NonNull;
+import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_LOCATION_ID;
+import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SUBLOCATION_ID;
+import static com.navigine.navigine.demo.utils.Constants.KEY_ID_LOCATION;
+import static com.navigine.navigine.demo.utils.Constants.KEY_ID_SUBLOCATION;
+import static com.navigine.navigine.demo.utils.Constants.LOCATION_CHANGED;
+import static com.navigine.navigine.demo.utils.Constants.TAG;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.navigine.navigine.demo.R;
-import com.navigine.navigine.demo.application.NavigineApp;
-import com.navigine.navigine.demo.model.BeaconMock;
-import com.navigine.navigine.demo.ui.custom.SaveStateBottomNavigation;
+import com.navigine.navigine.demo.models.BeaconMock;
+import com.navigine.navigine.demo.ui.custom.navigation.SavedBottomNavigationView;
+import com.navigine.navigine.demo.utils.NavigineSdkManager;
+import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SaveStateBottomNavigation mBottomNavigation = null;
-    private NavHostFragment           navHostFragment   = null;
-    private List<Integer>             navGraphIds       = null;
-    private LiveData<NavController>   mNavController    = null;
+    private SharedViewModel viewModel = null;
+
+    private SavedBottomNavigationView mBottomNavigation = null;
+    private List<Integer> navGraphIds = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (NavigineApp.mNavigineSdk == null) {
-            finish();
-            return;
-        }
-
-        if (savedInstanceState == null)
-            initNavigationView();
-
-        // if you do not have a real beacon device, you can simulate the operation of it's
-         addBeaconGenerator();
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+        initViewModel();
         initNavigationView();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handleIntent();
+    }
+
+    private void initViewModel() {
+        viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+    }
 
     private void initNavigationView() {
         mBottomNavigation = findViewById(R.id.main__bottom_navigation);
@@ -55,32 +59,39 @@ public class MainActivity extends AppCompatActivity {
                 R.navigation.navigation_debug,
                 R.navigation.navigation_profile);
 
-        mNavController = mBottomNavigation.setupWithNavController(
+        mBottomNavigation.setupWithNavController(
                 navGraphIds,
                 getSupportFragmentManager(),
-                R.id.nav_host_fragment_activity_main,
-                getIntent());
+                R.id.nav_host_fragment_activity_main);
     }
 
-    /*
-     * Add a beacon generator, that emulates the operation of a real beacon.
-     * Identifiers (uuid, major, minor) of a specific beacon are taken from your location on the client.navigine.com.
-     * Params: s  - beacon uuid
-     *         i  - beacon major value
-     *         i1 - beacon minor value
-     *         i2 - beacon power
-     *         i3 - timeout
-     *         i4 - rssi min
-     *         i5 - rssi max
-     */
+    private void handleIntent() {
+        Uri qrData = getIntent().getData();
+        if (qrData != null) {
+            try {
+                int locationId    = Integer.parseInt(qrData.getQueryParameter(DL_QUERY_LOCATION_ID));
+                int sublocationId = Integer.parseInt(qrData.getQueryParameter(DL_QUERY_SUBLOCATION_ID));
+                Intent intent = new Intent(LOCATION_CHANGED);
+                intent.putExtra(KEY_ID_LOCATION, locationId);
+                intent.putExtra(KEY_ID_SUBLOCATION, sublocationId);
+                NavigineSdkManager.LocationManager.setLocationId(locationId);
+                sendBroadcast(intent);
+            } catch (NullPointerException npe) {
+                Log.e(TAG, getString(R.string.err_deep_link));
+            }
+            getIntent().setData(null);
+        }
+    }
+
+
     private void addBeaconGenerator() {
-        NavigineApp.MeasurementManager.addBeaconGenerator(
-                BeaconMock.UUID,
+        NavigineSdkManager.MeasurementManager.addBeaconGenerator(BeaconMock.UUID,
                 BeaconMock.MAJOR,
                 BeaconMock.MINOR,
                 BeaconMock.POWER,
                 BeaconMock.TIMEOUT,
-                BeaconMock.RSSI_MIN,
-                BeaconMock.RSSI_MAX);
+                BeaconMock.RSS_MIN,
+                BeaconMock.RSS_MAX
+        );
     }
 }

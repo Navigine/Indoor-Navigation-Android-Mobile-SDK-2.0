@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camera_barcode_detecting">Point your camera at a barcode</string>
+    <string name="camera_barcode_confirming">Move closer to search</string>
+    <string name="camera_barcode_searching">Searching&#8230;</string>
+    <string name="waiting_for_response">waiting for response...</string>
+    <string name="server_correct">The server is correct</string>
+    <string name="server_incorrect">The server is incorrect</string>
+</resources>

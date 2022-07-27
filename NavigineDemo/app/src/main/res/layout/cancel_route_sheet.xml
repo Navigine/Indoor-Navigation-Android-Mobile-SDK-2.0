@@ -8,15 +8,6 @@
     app:behavior_peekHeight="67dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <View
-        android:layout_width="24dp"
-        android:layout_height="4dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bottom_sheet_up"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!-- Cancel route view -->
     <RelativeLayout
         android:id="@+id/cancel_route_sheet__cancel_route_view"
@@ -29,43 +20,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+
         <TextView
-            android:id="@+id/cancel_route_sheet__distance_tv"
+            android:id="@+id/cancel_route_sheet__time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/circe_bold"
             android:textColor="@color/colorPrimary"
             android:textSize="17sp" />
 
         <TextView
-            android:id="@+id/cancel_route_sheet__time_tv"
+            android:id="@+id/cancel_route_sheet__distance_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginStart="8dp"
             android:layout_marginTop="10dp"
-            android:layout_toEndOf="@id/cancel_route_sheet__distance_tv"
+            android:layout_toEndOf="@id/cancel_route_sheet__time_tv"
             android:fontFamily="@font/circe_reg"
-            android:textColor="@color/colorPrimary"
             android:textSize="17sp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel_route_sheet__cancel_button"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            style="@style/AppTheme.Sheet.Button.Close"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="13dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/ic_cancel_settings" />
+            android:layout_marginEnd="16dp" />
 
     </RelativeLayout>
 
-    <com.navigine.navigine.demo.ui.custom.BottomSheetListView
+    <com.navigine.navigine.demo.ui.custom.lists.BottomSheetListView
         android:id="@+id/cancel_route_sheet__list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

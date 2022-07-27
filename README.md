@@ -29,7 +29,7 @@ For complete guidelines on using the Demo, refer to the [corresponding sections 
 
 Below, you can see some screenshots of the Demo representing locations list, defined location levels, navigation bar, and debug process.
 
-  <img src="img/locations_android.png" alt="img/locations_android.png" width="250"/><img src="img/levels_android.png" alt="img/levels_android.png" width="250"/><img src="img/navigation_android.png" alt="img/navigation_android.png" width="250"/><img src="img/debug_android.png" alt="img/debug_android.png" width="250"/>
+  <img src="img/locations.png" alt="img/locations.png" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/navigation.png" alt="img/navigation.png" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/debug.png" alt="img/debug.png" width="250"/>
 
 ## Navigation SDK and Implementation
 

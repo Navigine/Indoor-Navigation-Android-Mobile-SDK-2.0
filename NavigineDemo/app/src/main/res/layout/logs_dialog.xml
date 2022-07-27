@@ -26,7 +26,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:textSize="20sp"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorPrimary"
             android:fontFamily="@font/circe_bold"/>
     </FrameLayout>
 
@@ -47,7 +47,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginStart="56dp"
         android:layout_marginEnd="16dp"
-        android:textColor="@color/selectorActiveColor"
+        android:textColor="@color/colorTextPrimary"
         android:textSize="17sp"
         android:fontFamily="@font/circe_reg"
         android:text="Upload"/>
@@ -79,7 +79,7 @@
         android:layout_marginStart="56dp"
         android:layout_marginEnd="16dp"
         android:paddingBottom="40dp"
-        android:textColor="@color/removeColor"
+        android:textColor="@color/colorError"
         android:textSize="17sp"
         android:fontFamily="@font/circe_reg"
         android:text="Delete"/>

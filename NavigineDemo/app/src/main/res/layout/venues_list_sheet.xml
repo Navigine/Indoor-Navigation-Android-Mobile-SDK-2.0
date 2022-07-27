@@ -37,7 +37,7 @@
 
     </RelativeLayout>
 
-    <com.navigine.navigine.demo.ui.custom.BottomSheetListView
+    <com.navigine.navigine.demo.ui.custom.lists.BottomSheetListView
         android:id="@+id/venues__list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

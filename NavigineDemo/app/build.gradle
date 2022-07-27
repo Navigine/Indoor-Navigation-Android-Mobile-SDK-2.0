@@ -1,16 +1,19 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
 
     defaultConfig {
         applicationId "com.navigine.navigine.demo"
         minSdkVersion 23
-        targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 32
+        versionCode 2
+        versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "DEFAULT_SERVER_URL", "\"https://api.navigine.com\"")
+        buildConfigField "String", "DEFAULT_USER_HASH", "\"0000-0000-0000-0000\""
     }
 
     buildTypes {
@@ -38,8 +41,14 @@ dependencies {
     def glide_version          = "4.13.0"
     def junit_version          = "4.13.2"
     def espresso_version       = "3.4.0"
+    def lottie_version         = "5.0.3"
+    def volley_version         = "1.2.1"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //navigine sdk
+    implementation project(":libnavigine")
+    //camera
+    implementation project(path: ':camera')
     //test
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
@@ -62,8 +71,11 @@ dependencies {
     //Glide
     implementation      "com.github.bumptech.glide:glide:$glide_version"
     annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
-    //navigine
-    implementation project(":libnavigine")
+    //Lottie
+    implementation "com.airbnb.android:lottie:$lottie_version"
+    //Volley
+    implementation "com.android.volley:volley:$volley_version"
+
 }
 
 task moveDebugApk(type: Copy) {

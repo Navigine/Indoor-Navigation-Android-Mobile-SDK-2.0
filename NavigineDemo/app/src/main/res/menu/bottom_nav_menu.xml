@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_locations"
+        android:icon="@drawable/ic_locations"
+        android:title="@string/menu_item_locations" />
+    <item
+        android:id="@+id/navigation_navigation"
+        android:icon="@drawable/ic_navigation"
+        android:title="@string/menu_item_navigation" />
+    <item
+        android:id="@+id/navigation_debug"
+        android:icon="@drawable/ic_debug"
+        android:title="@string/menu_item_debug" />
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/menu_item_profile" />
+</menu>

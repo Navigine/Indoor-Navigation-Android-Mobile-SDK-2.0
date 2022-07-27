@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="camera_action_bar_height">64dp</dimen>
+    <dimen name="camera_action_bar_padding_horizontal">8dp</dimen>
+    <dimen name="camera_action_button_padding">12dp</dimen>
+    <dimen name="camera_search_progress_bar_size">48dp</dimen>
+    <dimen name="camera_bottom_prompt_chip_margin_bottom">28dp</dimen>
+    <dimen name="camera_bottom_prompt_chip_text_size">14sp</dimen>
+    <dimen name="camera_bottom_prompt_chip_corner_radius">8dp</dimen>
+    <dimen name="barcode_bottom_sheet_padding_vertical">12dp</dimen>
+    <dimen name="barcode_field_padding_vertical">12dp</dimen>
+    <dimen name="barcode_field_padding_horizontal">24dp</dimen>
+    <dimen name="barcode_field_value_padding">12dp</dimen>
+    <dimen name="barcode_field_value_size">16sp</dimen>
+    <dimen name="barcode_field_label_padding">4dp</dimen>
+    <dimen name="barcode_field_label_size">12sp</dimen>
+    <dimen name="barcode_reticle_corner_radius">8dp</dimen>
+    <dimen name="barcode_reticle_stroke_width">4dp</dimen>
+    <dimen name="barcode_reticle_ripple_size_offset">40dp</dimen>
+    <dimen name="barcode_reticle_ripple_stroke_width">4dp</dimen>
+</resources>

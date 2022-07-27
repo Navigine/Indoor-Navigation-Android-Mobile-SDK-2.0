@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_adjust_btn_ripple" />
+    <item android:drawable="@drawable/adjust_mode_circular" />
+    <item
+        android:drawable="@drawable/ic_adjust_mode"
+        android:gravity="center" />
+</layer-list>

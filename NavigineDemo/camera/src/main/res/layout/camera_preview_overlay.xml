@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.navigine.camera.ui.custom.GraphicOverlay
+        android:id="@+id/camera_preview_graphic_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/static_overlay_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/bottom_prompt_chip"
+            style="@style/Widget.MaterialComponents.Chip.Entry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="@dimen/camera_bottom_prompt_chip_margin_bottom"
+            android:checkable="false"
+            android:clickable="false"
+            android:fontFamily="@font/circe_reg"
+            android:textColor="@color/colorOnBackground"
+            android:textSize="@dimen/camera_bottom_prompt_chip_text_size"
+            android:visibility="gone"
+            app:chipCornerRadius="@dimen/camera_bottom_prompt_chip_corner_radius"
+            app:chipSurfaceColor="@color/camera_chip_bg"
+            app:closeIconVisible="false" />
+
+    </FrameLayout>
+
+</merge>

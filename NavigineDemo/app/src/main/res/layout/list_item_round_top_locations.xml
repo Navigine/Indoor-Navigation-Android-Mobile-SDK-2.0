@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/locations_list_item__container"
+    style="@style/AppTheme.List.Item.Round.Top.Locations"
+    android:weightSum="1">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/locations_list_item__title_text_view"
+        style="@style/AppTheme.List.Item.TextView.Locations"
+        android:layout_marginStart="6dp"
+        android:layout_weight="0.9"
+        tools:text="title" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/locations_list_item__check"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:layout_weight="0.1"
+        app:lottie_speed="2"
+        android:scaleType="centerInside"
+        app:lottie_autoPlay="false"
+        app:lottie_loop="false"
+        app:lottie_rawRes="@raw/done" />
+
+</LinearLayout>

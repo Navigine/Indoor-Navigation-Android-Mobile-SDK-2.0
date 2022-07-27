@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppTheme.List.Item.Round.Top"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/li_debug_beacons__title"
+        style="@style/AppTheme.List.Item.TextView.Debug"
+        android:layout_width="match_parent"
+        android:drawableEnd="@drawable/ic_arrow_circle_down"
+        android:gravity="start|center"
+        android:textColor="@color/colorTextSecondary"
+        tools:text="Devices (0)" />
+
+</LinearLayout>
