@@ -1,63 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile__main_view"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:animateLayoutChanges="true"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/profile__card"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/profile_avatar_card_height"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/ic_card_avatar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profile__user_image"
+        android:layout_width="@dimen/profile_avatar_size"
+        android:layout_height="@dimen/profile_avatar_size"
+        android:layout_marginTop="80dp"
+        android:background="@color/colorPrimaryLight"
+        android:elevation="1dp"
+        android:padding="5dp"
+        android:src="@drawable/ic_avatar_mock"
+        app:layout_constraintEnd_toEndOf="@id/profile__card"
+        app:layout_constraintStart_toStartOf="@id/profile__card"
+        app:layout_constraintTop_toTopOf="@id/profile__card"
+        app:shapeAppearanceOverlay="@style/AppTheme.Profile.Avatar"
+        app:strokeColor="@color/colorBackground"
+        app:strokeWidth="5dp" />
+
+
+    <TextView
+        android:id="@+id/profile__user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/circe_bold"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile__user_image" />
+
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile__user_name"
+        app:layout_constraintVertical_bias="0">
 
-        <!-- Top bar layout -->
-        <LinearLayout android:id="@+id/logs__top_view"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/profile_info_height"
+            android:background="@drawable/bg_rounded"
+            android:gravity="start|center"
             android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:background="@color/colorPrimaryDark">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:weightSum="1">
 
-            <Button
-                android:id="@+id/logs_update_button"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/refrsh_icon"
-                android:padding="10dp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".9"
+                android:orientation="vertical">
 
-            <TextView android:id="@+id/venue__title_text_view"
+                <TextView
+                    style="@style/AppTheme.Profile.Info.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_user" />
+
+                <TextView
+                    android:id="@+id/profile__user_id"
+                    style="@style/AppTheme.Profile.Info.Content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    tools:text="D038-9DA9-FE5B-E310" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/profile__copy"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="Logs"
-                android:textColor="@color/whiteColor"
-                android:fontFamily="@font/circe_bold"
-                android:textSize="20sp"/>
+                android:layout_weight=".1"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_copy"
+                android:tooltipText="copy" />
 
-            <View
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="5dp"/>
 
         </LinearLayout>
 
-        <FrameLayout android:id="@+id/logs__main_layout"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_below="@+id/logs__top_view"
-            android:background="#F3F3F3">
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
 
-            <ListView android:id="@+id/logs__log_list"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/profile_info_height"
+            android:background="@drawable/bg_rounded"
+            android:gravity="start|center"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp">
 
-        </FrameLayout>
+            <TextView
+                style="@style/AppTheme.Profile.Info.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_company" />
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/profile__user_company"
+                style="@style/AppTheme.Profile.Info.Content"
 
-    <include
-        android:id="@+id/logs__bottom_sheet"
-        layout="@layout/logs_dialog"/>
+                android:clickable="true"
+                android:focusable="true"
+                tools:text="Navigine" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/profile_info_height"
+            android:background="@drawable/bg_rounded"
+            android:gravity="start|center"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp">
+
+
+            <TextView
+                style="@style/AppTheme.Profile.Info.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_email" />
+
+            <TextView
+                android:id="@+id/profile__user_email"
+                style="@style/AppTheme.Profile.Info.Content"
+                android:clickable="true"
+                android:focusable="true"
+                tools:text="alexkonst@navigine.com" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

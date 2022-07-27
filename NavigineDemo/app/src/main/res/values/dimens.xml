@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    shared-->
+    <dimen name="list_item_height">55dp</dimen>
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="btn_icon_inset">0dp</dimen>
+    <dimen name="margin_side_bar_top">16dp</dimen>
+    <dimen name="margin_top_bar_top">36dp</dimen>
+    <dimen name="margin_top_location">100dp</dimen>
+    <dimen name="progress_circular_size">62dp</dimen>
+    <dimen name="control_panel_item_size">48dp</dimen>
+    <dimen name="margin_bottom">16dp</dimen>
+    <!--    login screen-->
+    <dimen name="login_items_height">52dp</dimen>
+    <dimen name="login_bottom_sheet_height">218dp</dimen>
+    <dimen name="login_sheet_title_margin">20dp</dimen>
+    <dimen name="login_sheet_close">28dp</dimen>
+    <dimen name="login_sheet_close_icon">8dp</dimen>
+    <!--    search view-->
+    <dimen name="search_container_height">100dp</dimen>
+    <dimen name="search_height">37dp</dimen>
+    <dimen name="search_from_icon_padding">-12dp</dimen>
+    <dimen name="search_margin_end_nav_btn">8dp</dimen>
+    <!--    locations-->
+    <dimen name="location_li_title">17sp</dimen>
+    <dimen name="locations_list_height">454dp</dimen>
+    <!--    navigation & measure-->
+    <dimen name="control_panel_list_height_max">145dp</dimen>
+    <dimen name="margin_top_arrow_up">102dp</dimen>
+    <dimen name="margin_top_arrow_down">294dp</dimen>
+    <!--    venues-->
+    <dimen name="venue_icon_group_height">80dp</dimen>
+    <dimen name="venue_icon_group_width">70dp</dimen>
+    <dimen name="venue_icon_group_space">20dp</dimen>
+    <dimen name="venue_list_item_padding">16dp</dimen>
+    <dimen name="venue_list_margin_top">5dp</dimen>
+    <dimen name="venue_layouts_padding_top">100dp</dimen>
+    <dimen name="venue_icons_space">10dp</dimen>
+    <!--    debug-->
+    <dimen name="debug_li_text_size">14sp</dimen>
+    <!--    profile screen-->
+    <dimen name="profile_avatar_card_height">184dp</dimen>
+    <dimen name="profile_avatar_size">170dp</dimen>
+    <dimen name="profile_info_height">64dp</dimen>
+</resources>

@@ -1,16 +1,305 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <item name="colorAccent">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryLight</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+        <item name="android:textColorHint">@color/colorTextSecondary</item>
+        <item name="android:textColorSecondary">@color/colorTextSecondary</item>
+        <item name="colorControlHighlight">?attr/colorPrimary</item>
+        <item name="android:textColorHighlight">?attr/colorPrimaryVariant</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:statusBarColor">@color/colorBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowAnimationStyle">@null</item>
+        <item name="materialAlertDialogTheme">@style/AppTheme.Dialog</item>
+        <item name="android:fontFamily">@font/circe_reg</item>
+        <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheet.Theme</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:listChoiceBackgroundIndicator">@color/colorPrimaryLight</item>
     </style>
 
-    <style name="BottomNavigationViewTextStyle">
+    <style name="AppTheme.Activity.Fullscreen" parent="AppTheme">
+        <item name="android:actionBarStyle">@style/AppTheme.ActionBar.Fullscreen</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/colorOnBackground</item>
+    </style>
+
+    <style name="AppTheme.ThemeOverlay.FullscreenContainer" parent="">
+        <item name="android:background">@color/colorOnBackground</item>
+    </style>
+
+    <style name="AppTheme.Arrow.Back.ImageView" parent="AppTheme">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="colorControlHighlight">@color/colorOnBackground</item>
+        <item name="android:src">@drawable/ic_arrow_back</item>
+    </style>
+
+    <style name="AppTheme.Activity.Notification.Button.Back" parent="AppTheme.Arrow.Back.ImageView">
+        <item name="colorControlHighlight">@android:color/darker_gray</item>
+        <item name="android:tint">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.Activity.Notification.TextView.Title" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="AppTheme.BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="itemBackground">@null</item>
+        <item name="itemActiveIndicatorStyle">@null</item>
+        <item name="itemIconTint">@color/selector_bottom_navigation</item>
+        <item name="itemTextColor">@color/selector_bottom_navigation</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemRippleColor">@null</item>
+        <item name="itemTextAppearanceActive">@style/AppTheme.TextAppearance.Active</item>
+        <item name="itemTextAppearanceInactive">@style/AppTheme.TextAppearance.InActive</item>
+        <item name="menu">@menu/bottom_nav_menu</item>
+    </style>
+
+    <style name="AppTheme.TextAppearance.Active" parent="">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppTheme.TextAppearance.InActive" parent="">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="AppTheme.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog.Centered">
+        <item name="materialAlertDialogBodyTextStyle">@style/AppTheme.Dialog.Body</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Body" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="AppTheme.Info.TextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@null</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColorLink">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Info.Title.TextView" parent="AppTheme.Info.TextView">
+        <item name="android:textSize">32sp</item>
+        <item name="fontFamily">@font/circe_bold</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="AppTheme.Info.Attention.TextView" parent="AppTheme.Info.TextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/colorError</item>
+    </style>
+
+    <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/list_item_height</item>
+        <item name="backgroundTint">@color/colorOnBackground</item>
+        <item name="android:background">@drawable/bg_rounded_et</item>
+        <item name="android:maxLength">255</item>
+        <item name="android:scrollHorizontally">true</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+        <item name="android:textColorHint">@color/colorTextSecondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppTheme.EditText.Dialog" parent="AppTheme.EditText">
+        <item name="android:background">@drawable/dialog_bg_et</item>
+        <item name="backgroundTint">@color/colorBackground</item>
+        <item name="android:backgroundTintMode">multiply</item>
+    </style>
+
+    <style name="AppTheme.Button.Blue" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/list_item_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="backgroundTint">@color/selector_btn_blue</item>
+        <item name="android:textColor">@color/colorOnBackground</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">@font/circe_bold</item>
+    </style>
+
+    <style name="AppTheme.Sheet.Button.Close" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">@dimen/login_sheet_close</item>
+        <item name="android:layout_height">@dimen/login_sheet_close</item>
+        <item name="iconTint">@color/colorTextPrimary</item>
+        <item name="backgroundTint">@color/grayLight</item>
+        <item name="rippleColor">@android:color/darker_gray</item>
+        <item name="icon">@drawable/ic_close</item>
+        <item name="iconSize">@dimen/login_sheet_close_icon</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:padding">@dimen/btn_icon_inset</item>
+        <item name="iconPadding">@dimen/btn_icon_inset</item>
+        <item name="android:insetTop">@dimen/btn_icon_inset</item>
+        <item name="android:insetBottom">@dimen/btn_icon_inset</item>
+        <item name="android:insetLeft">@dimen/btn_icon_inset</item>
+        <item name="android:insetRight">@dimen/btn_icon_inset</item>
+        <item name="shapeAppearanceOverlay">
+            @style/AppTheme.Activity.Login.BottomSheet.Button.Close.Shape
+        </item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="AppTheme.Activity.Login.BottomSheet.Button.Close.Shape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+
+    <style name="AppTheme.Button.Dialog" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/login_items_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="backgroundTint">@color/selector_btn_blue</item>
+        <item name="android:textColor">@color/colorOnBackground</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">@font/circe_bold</item>
+    </style>
+
+    <style name="AppTheme.BottomSheet.Theme" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
+        <item name="bottomSheetStyle">@style/AppTheme.BottomSheet.Style</item>
+    </style>
+
+    <style name="AppTheme.BottomSheet.Style" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearance">@style/AppTheme.BottomSheet.Shape</item>
+    </style>
+
+    <style name="AppTheme.BottomSheet.Shape" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
+
+    <style name="AppTheme.Search" parent="Widget.AppCompat.SearchView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/search_height</item>
+        <item name="android:background">@drawable/bg_rounded_search</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:inputType">textFilter</item>
+        <item name="android:textSize">17sp</item>
+        <item name="defaultQueryHint">@string/search</item>
+        <item name="iconifiedByDefault">false</item>
+        <item name="searchIcon">@drawable/ic_search</item>
+    </style>
+
+    <style name="AppTheme.List.Item" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/list_item_height</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:background">@color/colorOnBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="AppTheme.List.Item.Round.Top" parent="AppTheme.List.Item">
+        <item name="android:background">@drawable/bg_rounded_top</item>
+    </style>
+
+    <style name="AppTheme.List.Item.Round.Bottom" parent="AppTheme.List.Item">
+        <item name="android:background">@drawable/bg_rounded_bottom</item>
+    </style>
+
+    <style name="AppTheme.List.Item.Locations" parent="AppTheme.List.Item">
+        <item name="android:background">@color/selector_li_bg_locations</item>
+    </style>
+
+    <style name="AppTheme.List.Item.Round.Top.Locations" parent="AppTheme.List.Item.Locations">
+        <item name="android:background">@drawable/bg_rounded_top_select</item>
+    </style>
+
+    <style name="AppTheme.List.Item.Round.Bottom.Locations" parent="AppTheme.List.Item.Locations">
+        <item name="android:background">@drawable/bg_rounded_bottom_select</item>
+    </style>
+
+    <style name="AppTheme.List.Item.TextView.Locations" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">start|center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">@font/circe_reg</item>
+        <item name="android:textSize">@dimen/location_li_title</item>
+    </style>
+
+    <style name="AppTheme.List.Item.TextView.Venue.Name" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">17sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center|start</item>
+    </style>
+
+    <style name="AppTheme.List.Item.TextView.Venue.Sublocation" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/colorTextSecondary</item>
+        <item name="android:singleLine">true</item>
+        <item name="maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center|end</item>
+    </style>
+
+    <style name="AppTheme.Search.Companion.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/search_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/colorOnBackground</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="AppTheme.List.Item.TextView.Debug" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">@font/circe_reg</item>
+        <item name="android:textSize">@dimen/debug_li_text_size</item>
+    </style>
+
+    <style name="AppTheme.Profile.Avatar" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="AppTheme.Profile.Info.Title" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/circe_reg</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+
+    <style name="AppTheme.Profile.Info.Content" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/circe_reg</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
     </style>
 
 </resources>

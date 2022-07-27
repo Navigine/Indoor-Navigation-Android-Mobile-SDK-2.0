@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/control_panel_item_size"
+    android:background="@color/selector_li_bg_subloc"
+    android:ellipsize="end"
+    android:gravity="center"
+    android:padding="5dp"
+    android:singleLine="true"
+    android:textColor="@color/selector_li_tv_subloc"
+    android:textSize="20sp" />

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#30AAD9</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+    <color name="colorTextPrimary">#1F1F1F</color>
+    <color name="camera_chip_bg">#9A000000</color>
+    <color name="camera_reticle_stroke">#40000000</color>
+    <color name="camera_reticle_background">#99000000</color>
+</resources>

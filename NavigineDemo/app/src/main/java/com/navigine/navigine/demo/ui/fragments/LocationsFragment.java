@@ -3,261 +3,217 @@ package com.navigine.navigine.demo.ui.fragments;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.view.Window;
+import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.navigine.idl.java.Location;
+import com.google.android.material.snackbar.Snackbar;
 import com.navigine.idl.java.LocationInfo;
 import com.navigine.idl.java.LocationListListener;
-import com.navigine.idl.java.LocationListener;
 import com.navigine.navigine.demo.R;
-import com.navigine.navigine.demo.application.NavigineApp;
-import com.navigine.navigine.demo.ui.custom.CustomEditText;
+import com.navigine.navigine.demo.adapters.locations.LocationListAdapter;
+import com.navigine.navigine.demo.utils.NavigineSdkManager;
+import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-public class LocationsFragment extends Fragment {
+public class LocationsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
 
-    private ListView              mListView          = null;
-    private List<LocationInfo>    mInfoList          = new ArrayList<>();
-    private List<Integer>         mHiddenInfoIndices = new ArrayList<>();
-    private LocationLoaderAdapter mLoaderAdapter     = null;
-    private CustomEditText        mSearchField       = null;
+    private SharedViewModel viewModel = null;
 
+    private Window                    window                     = null;
+    private SwipeRefreshLayout        mSwipeRefreshLayout        = null;
+    private SearchView                mSearchField               = null;
+    private RecyclerView              mListView                  = null;
+    private FrameLayout               mCircularProgress          = null;
+    private CircularProgressIndicator mCircularProgressIndicator = null;
+    private DividerItemDecoration     mDivider                   = null;
+
+    private SortedSet<LocationInfo>   mInfoList           = new TreeSet<>(new InfoComparator());
+
+    private LocationListAdapter       mLocationsListAdapter = null;
+
+    private Handler mHandler = new Handler();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initViewModel();
+        checkNetworkConnection();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         View view = inflater.inflate(R.layout.fragment_locations, container, false);
 
         initViews(view);
-        setViewsListeners();
+        setViewsParams();
         initAdapters();
-        addListeners();
+        setAdapters();
+        setViewsListeners();
+        setObservers();
 
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        addListeners();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground));
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mSearchField.setQuery("", true);
+    }
+
+    private void initViewModel() {
+        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+    }
+
+    private void checkNetworkConnection() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        viewModel.checkNetworkConnection(connectivityManager);
+    }
+
+    private void initViews(View view) {
+        window                     = requireActivity().getWindow();
+        mSwipeRefreshLayout        = view.findViewById(R.id.locations_fragment__swipe_layout);
+        mListView                  = view.findViewById(R.id.locations_fragment__list_view);
+        mSearchField               = view.findViewById(R.id.locations_fragment__search_field);
+        mCircularProgress          = view.findViewById(R.id.locations_fragment__progress_circular);
+        mCircularProgressIndicator = view.findViewById(R.id.locations_fragment__progress_circular_indicator);
+        mDivider                   = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
+    }
+
+    private void setViewsParams() {
+        mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(requireActivity(), R.color.colorPrimary));
+        mDivider.setDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.li_divider_transparent));
+        mListView.addItemDecoration(mDivider);
+    }
+
+    private void initAdapters() { mLocationsListAdapter = new LocationListAdapter(); }
+
+    private void setAdapters() { mListView.setAdapter(mLocationsListAdapter); }
+
+    private void setViewsListeners() {
+        mSwipeRefreshLayout.  setOnRefreshListener(this);
+        mSearchField.         setOnQueryTextListener(this);
+        mSearchField.         setOnQueryTextFocusChangeListener((v, hasFocus) -> mSearchField.setBackgroundResource(hasFocus ? R.drawable.bg_rounded_search_light : R.drawable.bg_rounded_search));
+        mLocationsListAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                hideCircularProgress();
+                if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void setObservers() {
+        viewModel.mNetworkAvailable.observe(getViewLifecycleOwner(), isAvailable -> {
+            if (isAvailable)
+                if (mCircularProgress.getVisibility() == VISIBLE)
+                    NavigineSdkManager.LocationListManager.updateLocationList();
+                else
+                    updateList(NavigineSdkManager.LocationListManager.getLocationList());
+        });
+    }
 
     private void addListeners() {
-        /*
-         * GET LIST OF LOADED LOCATIONS
-         *
-         * To get a list of downloaded locations, add LocationListListener to LocationListManager.
-         * If list of location successfully loaded and is not empty, then incoming hasMap contains
-         * location id as a key and location info (id, name, version) as a value.
-         * If an error occurred while loading the list of locations, then the onLocationListFailed
-         * will be called.
-         */
-        NavigineApp.LocationListManager.addLocationListListener(new LocationListListener() {
-
+        NavigineSdkManager.LocationListManager.addLocationListListener(new LocationListListener() {
             @Override
             public void onLocationListLoaded(HashMap<Integer, LocationInfo> hashMap) {
-                mInfoList.clear();
-                mInfoList.addAll(hashMap.values());
-                mLoaderAdapter.updateList();
+                updateList(hashMap);
             }
 
             @Override
             public void onLocationListFailed(Error error) {
-                System.out.println("Error is " + error.getMessage());
-            }
-        });
-
-    }
-
-    private void initViews(View view) {
-        mSearchField = view.findViewById(R.id.locations_fragment__search_field);
-        mListView = view.findViewById(R.id.locations_fragment__list_view);
-    }
-
-    private void setViewsListeners() {
-        mSearchField.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                mHiddenInfoIndices.clear();
-                if (!charSequence.equals("")) {
-                    String cs = charSequence.toString().toLowerCase();
-                    for (int j = 0; j < mInfoList.size(); ++j) {
-                        if (!mInfoList.get(j).getName().toLowerCase().contains(cs))
-                            mHiddenInfoIndices.add(j);
-                    }
-                }
-                mLoaderAdapter.updateList();
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
+                hideCircularProgress();
+                if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
+                Snackbar.make(getView(), R.string.err_locations_update, Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(requireActivity(), R.color.colorError))
+                        .setTextColor(Color.WHITE)
+                        .setAnchorView(R.id.main__bottom_navigation)
+                        .show();
             }
         });
     }
 
-    private void initAdapters() {
-        mLoaderAdapter = new LocationLoaderAdapter();
-        mListView.setAdapter(mLoaderAdapter);
+    @Override
+    public void onRefresh() {
+        NavigineSdkManager.LocationListManager.updateLocationList();
     }
 
-    // location loader to list view
-    private class LocationLoaderAdapter extends BaseAdapter {
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mLocationsListAdapter.filter(newText);
+        return true;
+    }
+
+    private void updateList(HashMap<Integer, LocationInfo> hashMap) {
+        mInfoList.clear();
+        mInfoList.addAll(hashMap.values());
+        mLocationsListAdapter.submitList(mInfoList);
+    }
+
+    private void hideCircularProgress() {
+        mCircularProgressIndicator.hide();
+        mHandler.postDelayed(() -> mCircularProgress.setVisibility(GONE), 700);
+    }
+
+    private class InfoComparator implements Comparator<LocationInfo>
+    {
         @Override
-        public int getCount() {
-            return mInfoList.size() - mHiddenInfoIndices.size();
-        }
+        public int compare(LocationInfo o1, LocationInfo o2) {
+            final String locationTitle1 = o1.getName().toLowerCase();
+            final String locationTitle2 = o2.getName().toLowerCase();
 
-        @Override
-        public Object getItem(int i) {
-            return mInfoList.get(i);
-        }
+            if (locationTitle1.length() == 0)
+                return -1;
+            if (locationTitle2.length() == 0)
+                return 1;
 
-        @Override
-        public long getItemId(int pos) {
-            return pos;
-        }
-
-        private void updateList() {
-            notifyDataSetChanged();
-        }
-
-
-        @SuppressLint({"InflateParams", "ClickableViewAccessibility"})
-        @Override
-        public View getView(int i, View convertView, ViewGroup viewGroup) {
-            for (Integer hiddenInfoIndex : mHiddenInfoIndices)
-                if (hiddenInfoIndex <= i)
-                    ++i;
-
-            final int position = i;
-
-            final LocationInfo locationInfo = mInfoList.get(position);
-
-            final int    locationId      = locationInfo.getId();
-            final int    locationVersion = locationInfo.getVersion();
-            final String locationTitle   = locationInfo.getName();
-
-            View view = convertView;
-            if (view == null) {
-                LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                view = inflater.inflate(R.layout.location_list_item, null);
-            }
-
-            TextView titleTextView   = view.findViewById(R.id.locations_list_item__location_title);
-            TextView versionTextView = view.findViewById(R.id.locations_list_item__location_version);
-
-            CircularProgressIndicator loadingProgressBar     = view.findViewById(R.id.locations_list_item__progress_bar);
-            TextView                  loadingProgressPercent = view.findViewById(R.id.locations_list_item__progress_percent);
-            ImageView                 locationSelected       = view.findViewById(R.id.locations_list_item__location_selected);
-            RelativeLayout            progressLayout         = view.findViewById(R.id.locations_list_item__progress_view);
-
-            boolean isSelected = locationId == NavigineApp.LocationId;
-
-            if (isSelected) {
-                progressLayout.setVisibility(VISIBLE);
-                loadingProgressBar.setProgress(100);
-                locationSelected.setVisibility(VISIBLE);
-                loadingProgressPercent.setVisibility(GONE);
-            } else {
-                progressLayout.setVisibility(GONE);
-            }
-
-            String titleText = locationTitle;
-            if (titleText.length() > 30)
-                titleText = titleText.substring(0, 28) + "...";
-            titleTextView.setText(titleText);
-
-            versionTextView.setText(String.valueOf(locationVersion));
-
-            view.setOnClickListener(v -> {
-
-                progressLayout.        setVisibility(VISIBLE);
-                loadingProgressBar.    setVisibility(VISIBLE);
-                loadingProgressPercent.setVisibility(VISIBLE);
-                locationSelected      .setVisibility(GONE);
-
-                loadingProgressBar.setProgress(0);
-                loadingProgressPercent.setText("0%");
-
-
-                /*
-                 * CHECK IF SELECTED LOCATION LOADED OR GET DOWNLOAD PROGRESS
-                 *
-                 * To monitor the location loading process, add LocationListener to LocationManager.
-                 * Location loading progress can be found in onDownloadProgress callback.
-                 * params:
-                 *          i  - location id
-                 *          i1 - amount of loaded content (location map)
-                 *          i2 - content (location map) size
-                 * When location loading is complete, then onLocationLoaded called.
-                 * params:
-                 *          location - loaded location
-                 *If an error occurs during download process, then  onLocationFailed will be called.
-                 * params:
-                 *          i - location id
-                 *          error - an error occurred during loading
-                 * If another location is selected during download, then onLocationCancelled
-                 * will be called.
-                 * params:
-                 *          i - location id of new selected
-                 */
-                NavigineApp.LocationManager.addLocationListener(new LocationListener() {
-                    @Override
-                    public void onLocationLoaded(Location location) {
-                        if (location.getId() == locationId) {
-                            NavigineApp.LocationId = location.getId();
-                            NavigineApp.CurrentLocation = location;
-                            NavigineApp.CurrentSublocation = location.getSublocations().get(0);
-                            NavigineApp.LocationManager.removeLocationListener(this);
-                            updateList();
-                        }
-                    }
-
-                    @Override
-                    public void onDownloadProgress(int i, int i1, int i2) {
-                        if (i == locationId) {
-                            int state = (int) (i1 * 100.f / i2);
-                            if (state >= 0 & state < 100) {
-                                loadingProgressBar.setProgress(state);
-                                loadingProgressPercent.setText(state + "%");
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onLocationFailed(int i, Error error) {
-                    }
-
-                    @Override
-                    public void onLocationCancelled(int i) {
-                        if (i != locationId) {
-                            NavigineApp.LocationManager.removeLocationListener(this);
-                        }
-                    }
-
-                });
-
-                NavigineApp.LocationManager.setLocationId(locationId);//set selected location as current
-            });
-
-            return view;
+            return locationTitle1.compareTo(locationTitle2);
         }
     }
+
+
 }

@@ -26,7 +26,7 @@
         android:layout_marginTop="24dp"
         android:fontFamily="@font/circe_bold"
         android:text="Name"
-        android:textColor="@color/colorPrimaryDark"
+        android:textColor="@color/colorPrimary"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -64,7 +64,7 @@
                     android:layout_marginStart="16dp"
                     android:fontFamily="@font/circe_reg"
                     android:text="Phone "
-                    android:textColor="@color/colorPrimaryDark"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="17sp" />
 
                 <TextView
@@ -74,7 +74,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/venue_dialog__category"
                     android:fontFamily="@font/circe_reg"
-                    android:textColor="@color/colorPrimaryDark"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="17sp" />
 
                 <Button
@@ -95,7 +95,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/circe_reg"
                     android:text="Category"
-                    android:textColor="@color/colorPrimaryDark"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="17sp" />
 
                 <TextView
@@ -107,7 +107,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_toEndOf="@id/venue_dialog__category"
                     android:fontFamily="@font/circe_reg"
-                    android:textColor="@color/colorPrimaryDark"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="17sp" />
 
             </RelativeLayout>
@@ -128,7 +128,7 @@
                 android:fontFamily="@font/circe_reg"
                 android:lineSpacingExtra="4dp"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/colorPrimary"
                 android:textSize="17sp" />
 
             <ImageView

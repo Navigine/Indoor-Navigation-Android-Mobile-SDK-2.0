@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="horizontal"
+    android:padding="@dimen/venue_list_item_padding"
+    android:weightSum="1">
+
+    <TextView
+        android:id="@+id/li_venue_name"
+        style="@style/AppTheme.List.Item.TextView.Venue.Name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".7"
+        tools:text="Pet Shop 1" />
+
+    <TextView
+        android:id="@+id/li_venue_sublocation"
+        style="@style/AppTheme.List.Item.TextView.Venue.Sublocation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".3"
+        tools:text="Name of floor" />
+
+</LinearLayout>

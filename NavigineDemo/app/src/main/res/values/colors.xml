@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3564a1</color>
-    <color name="colorPrimaryDark">#152D47</color>
-    <color name="colorPrimaryDarkHint">#60152D47</color>
-    <color name="colorAccent">#3464A4</color>
-    <color name="whiteColor">#FFFFFF</color>
-    <color name="gray">#979797</color>
-    <color name="selectorActiveColor">#4BADD4</color>
-    <color name="removeColor">#EF6C6C</color>
-    <color name="pinColor">#E93F90</color>
+    <color name="colorPrimary">#30AAD9</color>
+    <color name="colorPrimary_70">#B330AAD9</color>
+    <color name="colorPrimaryLight">#D2EFFB</color>
+    <color name="colorTextPrimary">#1F1F1F</color>
+    <color name="colorTextSecondary">#79858A</color>
+    <color name="colorSuccess">#27AE60</color>
+    <color name="colorError">#FF5758</color>
+    <color name="colorBackground">#F5F8FB</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+    <color name="colorOnBackground_80">#CCFFFFFF</color>
+    <color name="grayLight">#EAEEF1</color>
 </resources>

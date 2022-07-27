@@ -1,0 +1,48 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M16.6833,13.3063V16.1063C16.6833,19.8397 15.2167,21.333 11.55,21.333H8.0667C4.4,21.333 2.9334,19.8397 2.9334,16.1063V12.5597C2.9334,8.8263 4.4,7.333 8.0667,7.333H10.8167"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/selector_btn_copy"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M16.6833,13.3063H13.75C11.55,13.3063 10.8167,12.5597 10.8167,10.3197V7.333L16.6833,13.3063Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/selector_btn_copy"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M11.7334,2.666H15.4001"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/selector_btn_copy"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M7.5168,5.466C7.5168,3.9167 8.7452,2.666 10.2668,2.666H12.6685"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/selector_btn_copy"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M21.2668,8.2666V14.0439C21.2668,15.4906 20.1118,16.6666 18.6909,16.6666"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/selector_btn_copy"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M21.2668,8.266H18.5168C16.4543,8.266 15.7668,7.566 15.7668,5.466V2.666L21.2668,8.266Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/selector_btn_copy"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
