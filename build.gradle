@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'com.navigine.sdk'
+version '20220728'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+shadowJar {
+    archiveName = "$baseName-$version.$extension"
+}
+
+artifacts {
+    archives shadowJar
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
+}
