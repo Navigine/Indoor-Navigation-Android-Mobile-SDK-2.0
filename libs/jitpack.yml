@@ -1,3 +1,0 @@
-install: 
-  - FILE="-Dfile=libnavigine.aar" 
-  - mvn install:install-file $FILE -DgroupId=com.navigine -DartifactId=sdk -Dversion=1.0 -Dpackaging=aar -DgeneratePom=true
