@@ -52,3 +52,8 @@ Find formal description of Navigine-SDK API including the list of classes and th
 ### Using with Jitpack
 
 Will be added soon...
+
+### Android&HW compatibility
+Indoor positioning SDK and applications requires Android 8.0 or higher as your smartphone should have BLE 4.0 or higher.
+We are testing our SDK and Apps on the following smartphones:
+Nexus Pixel 3	(Android 12),  Honor 30 pro (Android	10), Xiaomi Redmi	9C (Android	10), Samsung A20 (Android 10, 11), Huawei P20 lite (Android	9), Xiaomi Note	 (Android	8).
