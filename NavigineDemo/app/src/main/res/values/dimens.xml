@@ -42,4 +42,7 @@
     <dimen name="profile_avatar_card_height">184dp</dimen>
     <dimen name="profile_avatar_size">170dp</dimen>
     <dimen name="profile_info_height">64dp</dimen>
+    <!--    dialogs-->
+    <dimen name="dialog_rounded_corners">10dp</dimen>
+    <dimen name="dialog_rounded_text">20sp</dimen>
 </resources>

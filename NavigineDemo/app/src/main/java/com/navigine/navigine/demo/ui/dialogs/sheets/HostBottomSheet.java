@@ -188,7 +188,7 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
     private void onHealthCheckSuccess() {
         updateLocationServer();
         hideLoadingAnimation();
-        updateHostField(true, getString(R.string.server_correct));
+        updateHostField(true, getString(R.string.dialog_host_subtitle_server_correct));
     }
 
     private void updateLocationServer() {
@@ -242,7 +242,7 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
         String message;
 
         if (error instanceof NetworkError) {
-            message = getString(R.string.server_incorrect);
+            message = getString(R.string.err_network_server_incorrect);
         } else if (error instanceof ServerError) {
             message = getString(R.string.err_network_server);
         } else if (error instanceof AuthFailureError) {
@@ -253,7 +253,7 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
             message = getString(R.string.err_network_no_connection);
         } else if (error instanceof TimeoutError) {
             message = getString(R.string.err_network_timeout);
-        } else message = getString(R.string.server_incorrect);
+        } else message = getString(R.string.err_network_server_incorrect);
 
         return message;
     }

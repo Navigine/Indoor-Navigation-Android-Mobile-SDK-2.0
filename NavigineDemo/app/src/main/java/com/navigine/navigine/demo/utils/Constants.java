@@ -11,7 +11,7 @@ public class Constants {
     public static final String DL_QUERY_USERHASH       = "userhash";
     public static final String DL_QUERY_LOCATION_ID    = "loc";
     public static final String DL_QUERY_SUBLOCATION_ID = "subloc";
-
+    public static final String DL_QUERY_VENUE_ID       = "venue_id";
 
     // notifications
     public static final String NOTIFICATION_CHANNEL_ID   = BuildConfig.APPLICATION_ID + ".PUSH";

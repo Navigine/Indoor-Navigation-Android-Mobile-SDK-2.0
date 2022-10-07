@@ -46,7 +46,7 @@ public class DebugAdapterBeacons extends DebugAdapterBase<DebugViewHolderBaseBea
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     if (event.getX() >= holder.title.getWidth() - holder.title.getTotalPaddingEnd()) {
                         if (mCurrentList.size() <= LIST_SIZE_DEFAULT)
-                            Toast.makeText(mRecyclerView.getContext(), R.string.nothing_expand, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mRecyclerView.getContext(), R.string.debug_expand_list_nothing, Toast.LENGTH_SHORT).show();
                         else {
                             expand = !expand;
                             notifyDataSetChanged();

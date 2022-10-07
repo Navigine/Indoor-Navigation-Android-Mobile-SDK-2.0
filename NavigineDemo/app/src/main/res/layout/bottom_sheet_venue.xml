@@ -79,7 +79,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/venue_dialog__route_button"
         style="@style/AppTheme.Button.Blue"
-        android:text="@string/route"
+        android:text="@string/navigation_venue_route_btn_title"
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

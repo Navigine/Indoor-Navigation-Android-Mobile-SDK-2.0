@@ -1,108 +1,66 @@
 package com.navigine.navigine.demo.ui.activities;
 
+import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_LOCATION_ID;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SERVER;
+import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SUBLOCATION_ID;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_USERHASH;
+import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_VENUE_ID;
+import static com.navigine.navigine.demo.utils.Constants.TAG;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavDeepLinkBuilder;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputLayout;
 import com.navigine.camera.ui.activity.BarcodeScannerActivity;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.models.UserSession;
 import com.navigine.navigine.demo.ui.dialogs.sheets.HostBottomSheet;
 import com.navigine.navigine.demo.utils.NavigineSdkManager;
+import com.navigine.navigine.demo.utils.NetworkUtils;
+import com.navigine.navigine.demo.utils.PermissionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private TextInputLayout mLoginField    = null;
-    private EditText        mUserHash      = null;
-    private Button          mLoginButton   = null;
-    private HostBottomSheet mDialog        = null;
-    private TextView        mEditHost      = null;
+    private final int WARNING_DURATION = 1500;
 
-    private List<String> PERMISSIONS = new ArrayList<>(Arrays.asList
-            (Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION));
+    private TextInputLayout           mLoginField        = null;
+    private EditText                  mUserHash          = null;
+    private Button                    mLoginButton       = null;
+    private HostBottomSheet           mDialog            = null;
+    private TextView                  mEditHost          = null;
+    private TextView                  mWarningTv         = null;
+    private CircularProgressIndicator mProgressIndicator = null;
 
-    private ActivityResultLauncher<Intent> qrScannerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-        if (result.getResultCode() == RESULT_OK) {
-            Intent dlIntent = new Intent(result.getData());
-            dlIntent.setClass(this, MainActivity.class);
-            Uri qrData = dlIntent.getData();
-            if (qrData != null) {
-                UserSession.LOCATION_SERVER = qrData.getQueryParameter(DL_QUERY_SERVER);
-                UserSession.USER_HASH       = qrData.getQueryParameter(DL_QUERY_USERHASH);
-            }
+    private final View.OnClickListener mLoginClickListener = v -> onHandleLoginAction();
 
-            if (NavigineSdkManager.initializeSdk())
-                startActivity(dlIntent);
-        }
-    });
+    private final ActivityResultLauncher<String[]> permissionLauncher
+            = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onRequestPermissions);
 
-    private ActivityResultLauncher<String[]> requestPermissionLauncher
-            = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+    private final ActivityResultLauncher<String> permissionLauncherCamera
+            = registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::onRequestCamera);
 
-        for (Map.Entry<String, Boolean> permissionEntry : result.entrySet()) {
-
-            String permission = permissionEntry.getKey();
-            boolean granted = permissionEntry.getValue();
-
-            switch (permission) {
-                case Manifest.permission.ACCESS_COARSE_LOCATION:
-                case Manifest.permission.ACCESS_FINE_LOCATION:
-                    if (granted) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1000);
-                        }
-                    } else {
-                        new MaterialAlertDialogBuilder(this).setTitle(R.string.dialog_permission_title_location)
-                                .setMessage(R.string.dialog_permission_body_location)
-                                .setPositiveButton(R.string.dialog_permission_ok, null)
-                                .show();
-                    }
-                    break;
-                case Manifest.permission.ACCESS_BACKGROUND_LOCATION:
-                    if (!granted) {
-                        new MaterialAlertDialogBuilder(this).setTitle(R.string.dialog_permission_title_location_bg)
-                                .setMessage(R.string.dialog_permission_body_location_bg)
-                                .setPositiveButton(R.string.dialog_permission_ok, null)
-                                .show();
-                    }
-                    break;
-                case Manifest.permission.BLUETOOTH_SCAN:
-                case Manifest.permission.BLUETOOTH_CONNECT:
-                    if (!granted) {
-                        new MaterialAlertDialogBuilder(this).setTitle(R.string.dialog_permission_title_bluetooth)
-                                .setMessage(R.string.dialog_permission_body_bluetooth)
-                                .setPositiveButton(R.string.dialog_permission_ok, null)
-                                .show();
-                    }
-                    break;
-                case Manifest.permission.CAMERA:
-                    if (granted) qrScannerLauncher.launch(new Intent(LoginActivity.this, BarcodeScannerActivity.class));
-                    break;
-            }
-        }
-    });
+    private final ActivityResultLauncher<Intent> qrScannerLauncher
+            = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onHandleQrScanResult);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,23 +79,23 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void permissionsRequest() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            PERMISSIONS.addAll(Arrays.asList(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT));
-        requestPermissionLauncher.launch(PERMISSIONS.toArray(new String[]{}));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.BLUETOOTH_SCAN});
+        } else {
+            permissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION});
+        }
     }
 
     private void setViewsListeners() {
 
-        mLoginField.setEndIconOnClickListener(v -> requestPermissionLauncher.launch(new String[]{Manifest.permission.CAMERA}));
+        mLoginField.setEndIconOnClickListener(v -> permissionLauncherCamera.launch(Manifest.permission.CAMERA));
 
-        mLoginButton.setOnClickListener(view -> {
-            if (!NavigineSdkManager.initializeSdk()) {
-                Toast.makeText(this, R.string.err_sdk_not_init, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-        });
+        mLoginButton.setOnClickListener(mLoginClickListener);
 
         mUserHash.addTextChangedListener(new TextWatcher() {
             @Override
@@ -150,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                UserSession.USER_HASH = editable.toString().trim();
+                updateUserHash(editable.toString().trim());
             }
         });
 
@@ -158,11 +116,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mLoginField  = findViewById(R.id.login__login_layout);
-        mUserHash    = findViewById(R.id.login__login_edit);
-        mLoginButton = findViewById(R.id.login__done_button);
-        mEditHost    = findViewById(R.id.login__change_host);
-        mDialog      = new HostBottomSheet();
+        mWarningTv         = findViewById(R.id.login__warning_tv);
+        mLoginField        = findViewById(R.id.login__login_layout);
+        mUserHash          = findViewById(R.id.login__login_edit);
+        mLoginButton       = findViewById(R.id.login__done_button);
+        mProgressIndicator = findViewById(R.id.login__progress);
+        mEditHost          = findViewById(R.id.login__change_host);
+        mDialog            = new HostBottomSheet();
     }
 
     private void setViewsParams() {
@@ -172,4 +132,122 @@ public class LoginActivity extends AppCompatActivity {
     private void showBottomSheet() {
         mDialog.show(getSupportFragmentManager(), null);
     }
+
+    private void onHandleLoginAction() {
+        showLoginProgress();
+        if (NetworkUtils.isNetworkActive(this)) {
+            if (sdkInit()) startActivity(new Intent(this, MainActivity.class));
+            else {
+                showTempWarningMessage(getString(R.string.err_sdk_not_init));
+                hideLoginProgress();
+            }
+        }
+        else {
+            showTempWarningMessage(getString(R.string.err_network_no_connection));
+            hideLoginProgress();
+        }
+    }
+
+    private void showTempWarningMessage(String message) {
+        showWarningMessage(message);
+        mWarningTv.postDelayed(this::hideWarningMessage, WARNING_DURATION);
+    }
+
+    private void showWarningMessage(String message) {
+        mWarningTv.setText(message);
+        mWarningTv.setVisibility(View.VISIBLE);
+    }
+
+    private void hideWarningMessage() {
+        mWarningTv.setVisibility(View.INVISIBLE);
+    }
+
+    private boolean sdkInit() {
+        return NavigineSdkManager.initializeSdk();
+    }
+
+    private void showLoginProgress() {
+        mLoginButton.setText(null);
+        mLoginButton.setOnClickListener(null);
+        mProgressIndicator.show();
+    }
+
+    private void hideLoginProgress() {
+        mProgressIndicator.hide();
+        mLoginButton.setText(getString(R.string.login_btn_title));
+        mLoginButton.setOnClickListener(mLoginClickListener);
+    }
+
+    private void updateUserHash(String value) {
+        UserSession.USER_HASH = value;
+    }
+
+    private void onRequestPermissions(Map<String, Boolean> result) {
+        for (Map.Entry<String, Boolean> permissionEntry : result.entrySet()) {
+            switch (permissionEntry.getKey()) {
+                case Manifest.permission.ACCESS_COARSE_LOCATION:
+                case Manifest.permission.ACCESS_FINE_LOCATION:
+                    if (permissionEntry.getValue()) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                            if (!PermissionUtils.hasLocationBackgroundPermission(this))
+                                PermissionUtils.showBackgroundPermissionRationale(this);
+                    }
+                    break;
+                case Manifest.permission.BLUETOOTH_SCAN:
+                    if (!permissionEntry.getValue()) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                            PermissionUtils.showBluetoothPermissionRationale(this);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void onRequestCamera(Boolean result) {
+        if (result)
+            qrScannerLauncher.launch(new Intent(LoginActivity.this, BarcodeScannerActivity.class));
+        else
+            showTempWarningMessage(getString(R.string.err_permission_camera));
+    }
+
+    private void onHandleQrScanResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            Uri data = result.getData().getData();
+            if (data != null) {
+                try {
+                    String locationServer = data.getQueryParameter(DL_QUERY_SERVER);
+                    String userHash       = data.getQueryParameter(DL_QUERY_USERHASH);
+                    String venueId        = data.getQueryParameter(DL_QUERY_VENUE_ID);
+
+                    UserSession.LOCATION_SERVER = locationServer;
+                    UserSession.USER_HASH       = userHash;
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString(DL_QUERY_LOCATION_ID, data.getQueryParameter(DL_QUERY_LOCATION_ID));
+                    bundle.putString(DL_QUERY_SUBLOCATION_ID, data.getQueryParameter(DL_QUERY_SUBLOCATION_ID));
+                    bundle.putString(DL_QUERY_VENUE_ID, data.getQueryParameter(DL_QUERY_VENUE_ID));
+
+                    if (NavigineSdkManager.initializeSdk()) {
+                        try {
+                            createDeepLink(bundle).send();
+                        } catch (PendingIntent.CanceledException e) {
+                            Log.e(TAG, getString(R.string.err_deep_link_send));
+                        }
+                    }
+                } catch (UnsupportedOperationException | NullPointerException e) {
+                    Log.e(TAG, getString(R.string.err_deep_link_parse));
+                }
+            }
+        }
+    }
+
+    private PendingIntent createDeepLink(Bundle bundle) {
+        return new NavDeepLinkBuilder(this)
+                .setGraph(R.navigation.navigation_navigation)
+                .setDestination(R.id.navigation_navigation)
+                .setArguments(bundle)
+                .setComponentName(MainActivity.class)
+                .createPendingIntent();
+    }
+
 }

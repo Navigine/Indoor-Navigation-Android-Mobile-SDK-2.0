@@ -116,7 +116,7 @@ public class ProfileFragment extends Fragment
         mCopy.setOnClickListener(v -> {
             ClipData data = ClipData.newPlainText("user hash", mUserHash.getText());
             clipboardManager.setPrimaryClip(data);
-            Snackbar.make(v, R.string.copied, 500)
+            Snackbar.make(v, R.string.profile_action_copy, 500)
                     .setBackgroundTint(ContextCompat.getColor(requireActivity(), R.color.colorPrimary))
                     .setTextColor(Color.WHITE)
                     .setAnchorView(R.id.main__bottom_navigation)

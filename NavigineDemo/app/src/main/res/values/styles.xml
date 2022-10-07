@@ -201,7 +201,7 @@
         <item name="android:imeOptions">actionDone</item>
         <item name="android:inputType">textFilter</item>
         <item name="android:textSize">17sp</item>
-        <item name="defaultQueryHint">@string/search</item>
+        <item name="defaultQueryHint">@string/search_title</item>
         <item name="iconifiedByDefault">false</item>
         <item name="searchIcon">@drawable/ic_search</item>
     </style>
@@ -300,6 +300,25 @@
         <item name="android:fontFamily">@font/circe_reg</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="AppTheme.MaterialAlertDialog.Rounded" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">
+            @style/AppTheme.MaterialAlertDialog.Rounded.ShapeAppearanceOverlay
+        </item>
+        <item name="materialAlertDialogBodyTextStyle">
+            @style/AppTheme.MaterialAlertDialog.Rounded.Body
+        </item>
+    </style>
+
+    <style name="AppTheme.MaterialAlertDialog.Rounded.ShapeAppearanceOverlay">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/dialog_rounded_corners</item>
+    </style>
+
+    <style name="AppTheme.MaterialAlertDialog.Rounded.Body" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:textSize">@dimen/dialog_rounded_text</item>
+        <item name="android:gravity">center</item>
     </style>
 
 </resources>

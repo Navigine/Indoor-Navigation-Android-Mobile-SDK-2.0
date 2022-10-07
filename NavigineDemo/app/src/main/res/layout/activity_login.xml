@@ -10,27 +10,30 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintVertical_bias=".4"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".4">
 
         <com.google.android.material.textview.MaterialTextView
             style="@style/AppTheme.Info.Title.TextView"
-            android:text="@string/login_screen_title" />
+            android:text="@string/login_title" />
 
         <Space
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/login__status_label"
-            tools:text="Invalid userhash"
+            android:id="@+id/login__warning_tv"
             style="@style/AppTheme.Info.Attention.TextView"
-            android:layout_width="match_parent"/>
+            android:layout_width="match_parent"
+            android:visibility="invisible"
+            tools:text="Invalid userhash"
+            tools:visibility="visible" />
 
         <Space
             android:layout_width="match_parent"
@@ -40,12 +43,12 @@
             android:id="@+id/login__login_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/list_item_height"
-            android:hint="@string/hint_login"
+            android:hint="@string/login_userhash_hint"
             app:endIconDrawable="@drawable/ic_qr_code"
             app:endIconMode="custom"
             app:expandedHintEnabled="false"
             app:hintEnabled="false"
-            app:placeholderText="@string/hint_login"
+            app:placeholderText="@string/login_userhash_hint"
             app:placeholderTextColor="@color/colorTextSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -60,11 +63,29 @@
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/login__done_button"
-            style="@style/AppTheme.Button.Blue"
-            android:text="@string/login"
-            android:textAllCaps="false" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/login__done_button"
+                style="@style/AppTheme.Button.Blue"
+                android:text="@string/login_btn_title"
+                android:textAllCaps="false" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/login__progress"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:hideAnimationBehavior="inward"
+                app:indicatorColor="@color/colorBackground"
+                app:showAnimationBehavior="outward"
+                app:trackColor="@android:color/transparent" />
+        </FrameLayout>
+
 
     </LinearLayout>
 
@@ -75,7 +96,7 @@
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:text="@string/change_server"
+        android:text="@string/login_action_change_host"
         android:textAllCaps="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

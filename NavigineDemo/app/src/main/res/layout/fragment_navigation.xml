@@ -244,7 +244,7 @@
                         android:id="@+id/navigation_fragment__search_btn"
                         style="@style/AppTheme.Search.Companion.Button"
                         android:layout_gravity="center"
-                        android:text="@string/search"
+                        android:text="@string/search_title"
                         android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
@@ -286,7 +286,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:fontFamily="@font/circe_reg"
-                android:text="@string/no_location"
+                android:text="@string/no_location_title"
                 android:textSize="34sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -299,7 +299,7 @@
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/circe_reg"
                 android:gravity="center"
-                android:text="@string/no_location_info"
+                android:text="@string/no_location_subtitle"
                 android:textSize="17sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -312,7 +312,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="@dimen/margin_bottom"
-                android:text="@string/choose_map"
+                android:text="@string/no_location_choose_map"
                 android:textAllCaps="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

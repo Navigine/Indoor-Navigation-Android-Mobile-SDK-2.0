@@ -2,7 +2,6 @@ package com.navigine.navigine.demo.adapters.debug;
 
 import static com.navigine.navigine.demo.utils.Constants.LIST_SIZE_DEFAULT;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,7 +13,6 @@ import androidx.annotation.NonNull;
 import com.navigine.idl.java.SignalMeasurement;
 import com.navigine.navigine.demo.R;
 
-import java.util.List;
 import java.util.Locale;
 
 public class DebugAdapterWifi extends DebugAdapterBase<DebugViewHolderBase, SignalMeasurement> {
@@ -48,7 +46,7 @@ public class DebugAdapterWifi extends DebugAdapterBase<DebugViewHolderBase, Sign
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     if (event.getX() >= holder.title.getWidth() - holder.title.getTotalPaddingEnd()) {
                         if (mCurrentList.size() <= LIST_SIZE_DEFAULT)
-                            Toast.makeText(mRecyclerView.getContext(), R.string.nothing_expand, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mRecyclerView.getContext(), R.string.debug_expand_list_nothing, Toast.LENGTH_SHORT).show();
                         else {
                             expand = !expand;
                             notifyDataSetChanged();

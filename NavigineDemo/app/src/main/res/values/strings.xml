@@ -5,7 +5,18 @@
     <string name="menu_item_navigation">Navigation</string>
     <string name="menu_item_debug">Debug</string>
     <string name="menu_item_profile">Profile</string>
-    <!--    dialogs-->
+    <!--    login screen-->
+    <string name="login_title">Welcome to Navigine \nindoor positioning app</string>
+    <string name="login_userhash_hint">USERHASH</string>
+    <string name="login_btn_title">Login</string>
+    <string name="login_action_change_host">Change server</string>
+    <!--    navigation screen-->
+    <string name="navigation_venue_route_btn_title">Route</string>
+    <!--    dialog host-->
+    <string name="dialog_host_hint">Host</string>
+    <string name="dialog_host_btn_title">Change</string>
+    <string name="dialog_host_subtitle_server_correct">The server is correct</string>
+    <!--    dialog permission-->
     <string name="dialog_permission_title_location">This app needs location access</string>
     <string name="dialog_permission_title_location_bg">This app needs background location access</string>
     <string name="dialog_permission_title_bluetooth">This app needs bluetooth access</string>
@@ -13,39 +24,40 @@
     <string name="dialog_permission_body_location_bg">Please grant location access so this app can detect beacons in the background</string>
     <string name="dialog_permission_body_bluetooth">Please grant bluetooth access so this app can interact with beacons</string>
     <string name="dialog_permission_ok">UNDERSTAND</string>
-    <string name="login_screen_title">Welcome to Navigine \nindoor positioning app</string>
-    <string name="hint_login">USERHASH</string>
-    <string name="login">Login</string>
-    <string name="change_server">Change server</string>
-    <string name="host">Host</string>
-    <string name="change">Change</string>
-    <string name="server_correct">The server is correct</string>
-    <string name="server_incorrect">The server is incorrect</string>
-    <!--    search-->
-    <string name="search">Search</string>
-    <!--    navigation-->
-    <string name="no_location">No location</string>
-    <string name="no_location_info">You have to choose map in locations\n tab to work in this mode</string>
-    <string name="choose_map">Choose map</string>
-    <string name="route">Route</string>
+    <string name="dialog_action_ok">ok</string>
+    <string name="dialog_action_understand">understand</string>
+    <!--    no location layout-->
+    <string name="no_location_title">No location</string>
+    <string name="no_location_subtitle">You have to choose map in locations\n tab to work in this mode</string>
+    <string name="no_location_choose_map">Choose map</string>
+    <!--    debug-->
+    <string name="debug_expand_list_nothing">Nothing to expand</string>
     <!--    profile-->
     <string name="profile_user">User</string>
     <string name="profile_company">Company</string>
     <string name="profile_email">E-mail</string>
+    <string name="profile_action_copy">Copied!</string>
     <!--    errors-->
     <string name="err_sdk_not_init">SDK not initialized</string>
     <string name="err_profile_update_auth">Failed update user info. Authentication error</string>
     <string name="err_locations_update">Failed to download locations list</string>
     <string name="err_position_update">Position update error</string>
     <string name="err_position_define">Position isn\'t defined</string>
-    <string name="err_deep_link">Intent keys are null</string>
     <string name="err_network">Cannot connect to host…Please check your connection!</string>
     <string name="err_network_server">The server could not be found. Please try again after some time</string>
     <string name="err_network_auth">Authentication error</string>
     <string name="err_network_parse">Parsing error. Please try again after some time</string>
-    <string name="err_network_no_connection">Cannot connect to Internet…Please check your connection</string>
+    <string name="err_network_no_connection">No network connection</string>
     <string name="err_network_timeout">Connection TimeOut. Please check your internet connection</string>
+    <string name="err_network_server_incorrect">The server is incorrect</string>
+    <string name="err_permission_camera">Camera permission required</string>
+    <string name="err_deep_link">Intent keys are null</string>
+    <string name="err_deep_link_send">Failed to send pending intent with deep link</string>
+    <string name="err_deep_link_parse">Error while parsing deep link params</string>
     <!--    miscellaneous-->
-    <string name="copied">Copied!</string>
-    <string name="nothing_expand">Nothing to expand</string>
+    <string name="search_title">Search</string>
+    <!--    permissions-->
+    <string name="permission_rationale_message_bg_access">In order to ensure correct and effective navigation and positioning services, the application has to collect location data.
+For push notifications, the application has to work in background mode</string>
+    <string name="permission_rationale_message_bluetooth">To use all the features of the application grant bluetooth permission</string>
 </resources>
