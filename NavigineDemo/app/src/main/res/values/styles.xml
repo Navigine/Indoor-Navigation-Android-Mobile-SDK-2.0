@@ -181,7 +181,7 @@
 
     <style name="AppTheme.BottomSheet.Theme" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
-        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
         <item name="bottomSheetStyle">@style/AppTheme.BottomSheet.Style</item>
     </style>
 

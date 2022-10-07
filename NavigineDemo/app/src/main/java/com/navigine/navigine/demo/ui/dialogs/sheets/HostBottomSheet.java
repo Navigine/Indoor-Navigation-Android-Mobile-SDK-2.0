@@ -4,6 +4,7 @@ import static com.navigine.navigine.demo.utils.Constants.ENDPOINT_HEALTH_CHECK;
 import static com.navigine.navigine.demo.utils.Constants.HOST_VERIFY_TAG;
 import static com.navigine.navigine.demo.utils.Constants.SIZE_FAILED;
 import static com.navigine.navigine.demo.utils.Constants.SIZE_SUCCESS;
+import static com.navigine.navigine.demo.utils.Constants.TAG;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -11,13 +12,13 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -185,8 +186,9 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
                             message = "Cannot connect to Internet...Please check your connection";
                         } else if (error instanceof TimeoutError) {
                             message = "Connection TimeOut. Please check your internet connection";
-                        }
-                        Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
+                        } else message = "Cannot connect to host";
+
+                        Log.e(TAG, message);
                     });
 
             stringRequest.setTag(HOST_VERIFY_TAG);
