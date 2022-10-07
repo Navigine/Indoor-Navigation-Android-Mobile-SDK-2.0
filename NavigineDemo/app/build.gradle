@@ -12,7 +12,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "DEFAULT_SERVER_URL", "\"https://api.navigine.com\"")
+        buildConfigField("String", "DEFAULT_SERVER_URL", "\"https://ips.navigine.com\"")
         buildConfigField "String", "DEFAULT_USER_HASH", "\"0000-0000-0000-0000\""
     }
 
