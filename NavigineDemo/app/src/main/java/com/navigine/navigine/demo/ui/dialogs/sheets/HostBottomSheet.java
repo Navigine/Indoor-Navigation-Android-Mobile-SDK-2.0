@@ -35,6 +35,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -43,6 +44,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.models.UserSession;
 import com.navigine.navigine.demo.utils.DimensionUtils;
+import com.navigine.navigine.demo.utils.NetworkUtils;
 
 public class HostBottomSheet extends BottomSheetDialogFragment {
 
@@ -62,11 +64,7 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
 
     private TextWatcher textWatcherHost  = null;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestQueue = Volley.newRequestQueue(requireActivity());
-    }
+    private final int ANIM_DURATION = 500;
 
     @Nullable
     @Override
@@ -103,11 +101,7 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() >= 1) {
-                    mChangeButton.setEnabled(true);
-                } else {
-                    mChangeButton.setEnabled(false);
-                }
+                mChangeButton.setEnabled(charSequence.length() >= 1);
             }
 
             @Override
@@ -120,16 +114,12 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
         statusAnim.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                TransitionManager.beginDelayedTransition((ViewGroup) getView(), new ChangeBounds());
-                statusAnim.clearAnimation();
-                statusAnim.setVisibility(View.GONE);
-                animContainer.setVisibility(View.GONE);
+                hideStatusAnimation();
                 dismiss();
             }
         });
         mCloseButton.setOnClickListener((view) -> {
-            requestQueue.cancelAll(HOST_VERIFY_TAG);
+            if (requestQueue != null) requestQueue.cancelAll(HOST_VERIFY_TAG);
             dismiss();
         });
 
@@ -137,66 +127,16 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
 
         mChangeButton.setOnClickListener((view) ->
         {
+            cancelHealthCheckRequest();
+            showLoadingAnimation();
+            disableChangeHostButton();
 
-            requestQueue.cancelAll(HOST_VERIFY_TAG);
-            String url = mHostEdit.getText().toString() + ENDPOINT_HEALTH_CHECK;
-
-            StringRequest stringRequest = new StringRequest(Request.Method.HEAD, url,
-                    response -> {
-                        progressIndicator.hide();
-                        animContainer.postDelayed(() -> {
-                            statusAnim.setAnimation(R.raw.verify);
-                            float pixels = DimensionUtils.pxFromDp(SIZE_SUCCESS);
-                            statusAnim.getLayoutParams().height = (int) pixels;
-                            statusAnim.setMinProgress(0);
-                            statusAnim.setVisibility(View.VISIBLE);
-                            statusAnim.playAnimation();
-                            mSubtitle.setText(R.string.server_correct);
-                            mSubtitle.setTextColor(colorSuccess);
-                            mHostEditStroke.setStroke(4, colorSuccess);
-
-                            UserSession.LOCATION_SERVER = mHostEdit.getText().toString();
-                        }, 500);
-                    },
-                    error -> {
-                        progressIndicator.hide();
-                        animContainer.postDelayed(() -> {
-                            statusAnim.setAnimation(R.raw.failed);
-                            float pixels = DimensionUtils.pxFromDp(SIZE_FAILED);
-                            statusAnim.getLayoutParams().height = (int) pixels;
-                            statusAnim.setMinProgress(.2f);
-                            statusAnim.setVisibility(View.VISIBLE);
-                            statusAnim.playAnimation();
-                            mSubtitle.setText(R.string.server_incorrect);
-                            mSubtitle.setTextColor(colorFailed);
-                            mHostEditStroke.setStroke(4, colorFailed);
-                        }, 500);
-
-                        String message = null;
-
-                        if (error instanceof NetworkError) {
-                            message = getString(R.string.err_network);
-                        } else if (error instanceof ServerError) {
-                            message = getString(R.string.err_network_server);
-                        } else if (error instanceof AuthFailureError) {
-                            message = getString(R.string.err_network_auth);
-                        } else if (error instanceof ParseError) {
-                            message = getString(R.string.err_network_parse);
-                        } else if (error instanceof NoConnectionError) {
-                            message = getString(R.string.err_network_no_connection);
-                        } else if (error instanceof TimeoutError) {
-                            message = getString(R.string.err_network_timeout);
-                        } else message = getString(R.string.err_network);
-
-                        Log.e(TAG, message);
-                    });
-
-            stringRequest.setTag(HOST_VERIFY_TAG);
-            TransitionManager.beginDelayedTransition((ViewGroup) getView(), new ChangeBounds());
-            animContainer.setVisibility(View.VISIBLE);
-            progressIndicator.show();
-            mChangeButton.setEnabled(false);
-            requestQueue.add(stringRequest);
+            if (NetworkUtils.isNetworkActive(view.getContext())) {
+                sendHealthCheckRequest(createHealthCheckRequest());
+            } else {
+                hideLoadingAnimation();
+                updateHostField(false, getString(R.string.err_network_no_connection));
+            }
         });
     }
 
@@ -204,5 +144,117 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
         colorSuccess = ContextCompat.getColor(requireActivity(), R.color.colorSuccess);
         colorFailed = ContextCompat.getColor(requireActivity(), R.color.colorError);
         mHostEdit.setText(UserSession.LOCATION_SERVER);
+    }
+
+    private void hideStatusAnimation() {
+        TransitionManager.beginDelayedTransition((ViewGroup) getView(), new ChangeBounds());
+        statusAnim.clearAnimation();
+        statusAnim.setVisibility(View.GONE);
+        animContainer.setVisibility(View.GONE);
+    }
+
+    private void showLoadingAnimation() {
+        TransitionManager.beginDelayedTransition((ViewGroup) getView(), new ChangeBounds());
+        animContainer.setVisibility(View.VISIBLE);
+        progressIndicator.show();
+    }
+
+    private void hideLoadingAnimation() {
+        progressIndicator.hide();
+    }
+
+    private void cancelHealthCheckRequest() {
+        if (requestQueue != null) requestQueue.cancelAll(HOST_VERIFY_TAG);
+    }
+
+    private Request<String> createHealthCheckRequest() {
+        if (requestQueue == null) requestQueue = Volley.newRequestQueue(requireActivity());
+
+        StringRequest stringRequest = new StringRequest(Request.Method.HEAD, getHealthCheckUrl(),
+                response -> onHealthCheckSuccess(),
+                error -> onHealthCheckFail(error));
+
+        stringRequest.setTag(HOST_VERIFY_TAG);
+
+        return stringRequest;
+    }
+
+    private void onHealthCheckFail(VolleyError error) {
+        hideLoadingAnimation();
+        updateHostField(false, getErrorMessage(error));
+        Log.e(TAG, error.toString());
+    }
+
+    private void onHealthCheckSuccess() {
+        updateLocationServer();
+        hideLoadingAnimation();
+        updateHostField(true, getString(R.string.server_correct));
+    }
+
+    private void updateLocationServer() {
+        UserSession.LOCATION_SERVER = mHostEdit.getText().toString();
+    }
+
+    private void sendHealthCheckRequest(Request<String> request) {
+        if (requestQueue != null) requestQueue.add(request);
+    }
+
+    private void disableChangeHostButton() {
+        mChangeButton.setEnabled(false);
+    }
+
+    @NonNull
+    private String getHealthCheckUrl() {
+        return mHostEdit.getText().toString() + ENDPOINT_HEALTH_CHECK;
+    }
+
+    private void updateHostField(boolean isOperationSuccess, String infoMessage) {
+
+        int animRes, animSize, animColor;
+        float animStartProgress;
+
+        if (isOperationSuccess) {
+            animRes = R.raw.verify;
+            animSize = (int) DimensionUtils.pxFromDp(SIZE_SUCCESS);
+            animColor = colorSuccess;
+            animStartProgress = 0f;
+        } else {
+            animRes = R.raw.failed;
+            animSize = (int) DimensionUtils.pxFromDp(SIZE_FAILED);
+            animColor = colorFailed;
+            animStartProgress = .2f;
+        }
+
+        animContainer.postDelayed(() -> {
+            statusAnim.setAnimation(animRes);
+            statusAnim.getLayoutParams().height = animSize;
+            statusAnim.setMinProgress(animStartProgress);
+            statusAnim.setVisibility(View.VISIBLE);
+            statusAnim.playAnimation();
+            mSubtitle.setText(infoMessage);
+            mSubtitle.setTextColor(animColor);
+            mHostEditStroke.setStroke(4, animColor);
+        }, ANIM_DURATION);
+    }
+
+    @NonNull
+    private String getErrorMessage(VolleyError error) {
+        String message;
+
+        if (error instanceof NetworkError) {
+            message = getString(R.string.server_incorrect);
+        } else if (error instanceof ServerError) {
+            message = getString(R.string.err_network_server);
+        } else if (error instanceof AuthFailureError) {
+            message = getString(R.string.err_network_auth);
+        } else if (error instanceof ParseError) {
+            message = getString(R.string.err_network_parse);
+        } else if (error instanceof NoConnectionError) {
+            message = getString(R.string.err_network_no_connection);
+        } else if (error instanceof TimeoutError) {
+            message = getString(R.string.err_network_timeout);
+        } else message = getString(R.string.server_incorrect);
+
+        return message;
     }
 }
