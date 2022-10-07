@@ -39,6 +39,12 @@
     <string name="err_position_update">Position update error</string>
     <string name="err_position_define">Position isn\'t defined</string>
     <string name="err_deep_link">Intent keys are null</string>
+    <string name="err_network">Cannot connect to host…Please check your connection!</string>
+    <string name="err_network_server">The server could not be found. Please try again after some time</string>
+    <string name="err_network_auth">Authentication error</string>
+    <string name="err_network_parse">Parsing error. Please try again after some time</string>
+    <string name="err_network_no_connection">Cannot connect to Internet…Please check your connection</string>
+    <string name="err_network_timeout">Connection TimeOut. Please check your internet connection</string>
     <!--    miscellaneous-->
     <string name="copied">Copied!</string>
     <string name="nothing_expand">Nothing to expand</string>

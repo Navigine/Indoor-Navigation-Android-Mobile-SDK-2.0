@@ -175,18 +175,18 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
                         String message = null;
 
                         if (error instanceof NetworkError) {
-                            message = "Cannot connect to host...Please check your connection!";
+                            message = getString(R.string.err_network);
                         } else if (error instanceof ServerError) {
-                            message = "The server could not be found. Please try again after some time";
+                            message = getString(R.string.err_network_server);
                         } else if (error instanceof AuthFailureError) {
-                            message = "Authentication error";
+                            message = getString(R.string.err_network_auth);
                         } else if (error instanceof ParseError) {
-                            message = "Parsing error. Please try again after some time";
+                            message = getString(R.string.err_network_parse);
                         } else if (error instanceof NoConnectionError) {
-                            message = "Cannot connect to Internet...Please check your connection";
+                            message = getString(R.string.err_network_no_connection);
                         } else if (error instanceof TimeoutError) {
-                            message = "Connection TimeOut. Please check your internet connection";
-                        } else message = "Cannot connect to host";
+                            message = getString(R.string.err_network_timeout);
+                        } else message = getString(R.string.err_network);
 
                         Log.e(TAG, message);
                     });
