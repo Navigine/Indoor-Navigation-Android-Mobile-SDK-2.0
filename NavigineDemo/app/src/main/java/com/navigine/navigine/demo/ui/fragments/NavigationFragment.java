@@ -1058,7 +1058,7 @@ public class NavigationFragment extends Fragment {
 
     private void adjustDevice(Point point) {
         float zoom = mLocationView.getLocationViewController().getMaxZoomFactor() / ADJUST_ZOOM_FACTOR;
-        Camera camera = new Camera(point, zoom);
+        Camera camera = new Camera(point, zoom, 0f);
         mLocationView.getLocationViewController().flyToCamera(camera, 1000, null);
     }
 
