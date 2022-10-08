@@ -204,6 +204,8 @@
         <item name="defaultQueryHint">@string/search_title</item>
         <item name="iconifiedByDefault">false</item>
         <item name="searchIcon">@drawable/ic_search</item>
+        <item name="android:focusable">false</item>
+        <item name="queryBackground">@null</item>
     </style>
 
     <style name="AppTheme.List.Item" parent="">
@@ -319,6 +321,17 @@
     <style name="AppTheme.MaterialAlertDialog.Rounded.Body" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
         <item name="android:textSize">@dimen/dialog_rounded_text</item>
         <item name="android:gravity">center</item>
+    </style>
+
+    <style name="AppTheme.TextView.Warning" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:background">@color/colorErrorBackground</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/warning_padding</item>
+        <item name="android:textColor">@color/colorOnBackground</item>
+        <item name="android:textSize">@dimen/warning_text</item>
     </style>
 
 </resources>

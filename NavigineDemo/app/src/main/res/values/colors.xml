@@ -7,6 +7,7 @@
     <color name="colorTextSecondary">#79858A</color>
     <color name="colorSuccess">#27AE60</color>
     <color name="colorError">#FF5758</color>
+    <color name="colorErrorBackground">#CCFF5758</color>
     <color name="colorBackground">#F5F8FB</color>
     <color name="colorOnBackground">#FFFFFF</color>
     <color name="colorOnBackground_80">#CCFFFFFF</color>

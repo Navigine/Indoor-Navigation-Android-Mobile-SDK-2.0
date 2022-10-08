@@ -1,46 +1,41 @@
 package com.navigine.navigine.demo.ui.fragments;
 
 import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.google.android.material.snackbar.Snackbar;
 import com.navigine.idl.java.LocationInfo;
 import com.navigine.idl.java.LocationListListener;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.adapters.locations.LocationListAdapter;
 import com.navigine.navigine.demo.utils.NavigineSdkManager;
-import com.navigine.navigine.demo.viewmodel.SharedViewModel;
+import com.navigine.navigine.demo.utils.NetworkUtils;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class LocationsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
 
-    private SharedViewModel viewModel = null;
+    private static final int DELAY_UPDATE   = 3000;
+    private static final int DELAY_PROGRESS = 700;
 
     private Window                    window                     = null;
     private SwipeRefreshLayout        mSwipeRefreshLayout        = null;
@@ -48,19 +43,21 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
     private RecyclerView              mListView                  = null;
     private FrameLayout               mCircularProgress          = null;
     private CircularProgressIndicator mCircularProgressIndicator = null;
+    private TextView                  mWarningTv                 = null;
     private DividerItemDecoration     mDivider                   = null;
 
-    private SortedSet<LocationInfo>   mInfoList           = new TreeSet<>(new InfoComparator());
+    private SortedSet<LocationInfo> mInfoList = new TreeSet<>(new InfoComparator());
 
-    private LocationListAdapter       mLocationsListAdapter = null;
+    private LocationListAdapter mLocationsListAdapter = null;
 
-    private Handler mHandler = new Handler();
+    private LocationListListener mLocationListListener = null;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initViewModel();
-        checkNetworkConnection();
+        initListeners();
+        addListeners();
     }
 
     @Override
@@ -74,38 +71,35 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
         initAdapters();
         setAdapters();
         setViewsListeners();
-        setObservers();
 
         return view;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        addListeners();
+    public void onStart() {
+        super.onStart();
+        updateLocationListDeferred();
     }
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground));
+            updateStatusBar();
+            if (isProgressShown()) updateLocationListForce();
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mSearchField.setQuery("", true);
+        removeListeners();
     }
 
-    private void initViewModel() {
-        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-    }
-
-    private void checkNetworkConnection() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        viewModel.checkNetworkConnection(connectivityManager);
+    @Override
+    public void onRefresh() {
+        updateLocationListForce();
+        hideRefreshViewDeferred();
     }
 
     private void initViews(View view) {
@@ -115,6 +109,7 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
         mSearchField               = view.findViewById(R.id.locations_fragment__search_field);
         mCircularProgress          = view.findViewById(R.id.locations_fragment__progress_circular);
         mCircularProgressIndicator = view.findViewById(R.id.locations_fragment__progress_circular_indicator);
+        mWarningTv                 = view.findViewById(R.id.locations_fragment__warning);
         mDivider                   = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
     }
 
@@ -122,6 +117,7 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
         mSwipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(requireActivity(), R.color.colorPrimary));
         mDivider.setDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.li_divider_transparent));
         mListView.addItemDecoration(mDivider);
+        mWarningTv.setText(R.string.err_locations_update);
     }
 
     private void initAdapters() { mLocationsListAdapter = new LocationListAdapter(); }
@@ -137,44 +133,43 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
             public void onChanged() {
                 super.onChanged();
                 hideCircularProgress();
-                if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
+                hideRefreshView();
+                hideWarningMessage();
             }
         });
     }
 
-    private void setObservers() {
-        viewModel.mNetworkAvailable.observe(getViewLifecycleOwner(), isAvailable -> {
-            if (isAvailable)
-                if (mCircularProgress.getVisibility() == VISIBLE)
-                    NavigineSdkManager.LocationListManager.updateLocationList();
-                else
-                    updateList(NavigineSdkManager.LocationListManager.getLocationList());
-        });
-    }
-
-    private void addListeners() {
-        NavigineSdkManager.LocationListManager.addLocationListListener(new LocationListListener() {
+    private void initListeners() {
+        mLocationListListener = new LocationListListener() {
             @Override
             public void onLocationListLoaded(HashMap<Integer, LocationInfo> hashMap) {
-                updateList(hashMap);
+                if (hashMap != null)
+                    if (isVisible()) {
+                        updateLocationList(hashMap);
+                    }
             }
 
             @Override
             public void onLocationListFailed(Error error) {
-                hideCircularProgress();
-                if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
-                Snackbar.make(getView(), R.string.err_locations_update, Snackbar.LENGTH_SHORT)
-                        .setBackgroundTint(ContextCompat.getColor(requireActivity(), R.color.colorError))
-                        .setTextColor(Color.WHITE)
-                        .setAnchorView(R.id.main__bottom_navigation)
-                        .show();
+                if (isVisible()) {
+                    hideCircularProgress();
+                    hideRefreshView();
+                    showWarningMessage();
+                }
             }
-        });
+        };
     }
 
-    @Override
-    public void onRefresh() {
-        NavigineSdkManager.LocationListManager.updateLocationList();
+    private void addListeners() {
+        NavigineSdkManager.LocationListManager.addLocationListListener(mLocationListListener);
+    }
+
+    private void removeListeners() {
+        NavigineSdkManager.LocationListManager.removeLocationListListener(mLocationListListener);
+    }
+
+    private void updateStatusBar() {
+        window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground));
     }
 
     @Override
@@ -188,15 +183,51 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
         return true;
     }
 
-    private void updateList(HashMap<Integer, LocationInfo> hashMap) {
+    private void updateLocationList(Map<Integer, LocationInfo> locationInfoMap) {
         mInfoList.clear();
-        mInfoList.addAll(hashMap.values());
+        mInfoList.addAll(locationInfoMap.values());
         mLocationsListAdapter.submitList(mInfoList);
+    }
+
+    private void updateLocationListForce() {
+        if (NetworkUtils.isNetworkActive(requireActivity()))
+            NavigineSdkManager.LocationListManager.updateLocationList();
+        else
+            updateLocationList(NavigineSdkManager.LocationListManager.getLocationList());
+    }
+
+    private void updateLocationListDeferred() {
+        if (getView() != null) {
+            getView().postDelayed(() -> {
+                if (isProgressShown()) updateLocationListForce();
+            }, DELAY_UPDATE);
+        }
     }
 
     private void hideCircularProgress() {
         mCircularProgressIndicator.hide();
-        mHandler.postDelayed(() -> mCircularProgress.setVisibility(GONE), 700);
+        mCircularProgressIndicator.postDelayed(() -> mCircularProgress.setVisibility(GONE), DELAY_PROGRESS);
+    }
+
+    private void hideRefreshView() {
+        if (mSwipeRefreshLayout.isRefreshing()) mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void hideRefreshViewDeferred() {
+        if (getView() != null)
+            getView().postDelayed(this::hideRefreshView, DELAY_UPDATE);
+    }
+
+    private boolean isProgressShown() {
+        return mCircularProgressIndicator.isShown();
+    }
+
+    private void showWarningMessage() {
+        mWarningTv.setVisibility(View.VISIBLE);
+    }
+
+    private void hideWarningMessage() {
+        mWarningTv.setVisibility(GONE);
     }
 
     private class InfoComparator implements Comparator<LocationInfo>
@@ -214,6 +245,5 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
             return locationTitle1.compareTo(locationTitle2);
         }
     }
-
 
 }

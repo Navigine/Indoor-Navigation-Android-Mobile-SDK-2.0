@@ -45,4 +45,7 @@
     <!--    dialogs-->
     <dimen name="dialog_rounded_corners">10dp</dimen>
     <dimen name="dialog_rounded_text">20sp</dimen>
+    <!--    warning-->
+    <dimen name="warning_padding">10dp</dimen>
+    <dimen name="warning_text">15sp</dimen>
 </resources>

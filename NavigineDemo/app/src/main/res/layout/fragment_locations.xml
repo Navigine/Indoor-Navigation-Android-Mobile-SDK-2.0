@@ -63,5 +63,10 @@
 
     </FrameLayout>
 
+    <include
+        android:id="@+id/locations_fragment__warning"
+        layout="@layout/warning"
+        android:visibility="gone" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
