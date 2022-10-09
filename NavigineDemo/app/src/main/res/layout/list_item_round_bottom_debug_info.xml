@@ -13,7 +13,7 @@
         style="@style/AppTheme.List.Item.TextView.Debug"
         android:layout_weight=".5"
         android:gravity="start|center"
-        android:textColor="@color/colorTextSecondary"
+        android:textColor="@color/colorTextSecondaryGray"
         tools:text="App version" />
 
 

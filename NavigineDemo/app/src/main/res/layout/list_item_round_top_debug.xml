@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:drawableEnd="@drawable/ic_arrow_circle_down"
         android:gravity="start|center"
-        android:textColor="@color/colorTextSecondary"
+        android:textColor="@color/colorTextSecondaryGray"
         tools:text="Devices (0)" />
 
 </LinearLayout>

@@ -11,7 +11,7 @@
         style="@style/AppTheme.List.Item.TextView.Debug"
         android:layout_width="match_parent"
         android:gravity="start|center"
-        android:textColor="@color/colorTextSecondary"
+        android:textColor="@color/colorTextSecondaryGray"
         android:text="SENSORS"
         tools:text="SENSORS" />
 
