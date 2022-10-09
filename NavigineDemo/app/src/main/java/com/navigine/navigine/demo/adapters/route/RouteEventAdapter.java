@@ -21,7 +21,7 @@ import java.util.Objects;
 
 public class RouteEventAdapter extends BaseAdapter {
     private List<RouteEvent> cancelRouteList = new ArrayList<>();
-    private Sublocation mSublocation = null;
+    private Sublocation      mSublocation    = null;
 
     @Override
     public int getCount() {
@@ -74,7 +74,8 @@ public class RouteEventAdapter extends BaseAdapter {
     }
 
     public void submit(List<RouteEvent> eventsList, Sublocation sublocation) {
-        this.cancelRouteList = eventsList;
+        cancelRouteList.clear();
+        cancelRouteList.addAll(eventsList);
         mSublocation = sublocation;
         notifyDataSetChanged();
     }
