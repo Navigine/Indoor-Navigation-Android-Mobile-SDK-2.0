@@ -179,6 +179,10 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
         return stringRequest;
     }
 
+    private void sendHealthCheckRequest(Request<String> request) {
+        if (requestQueue != null) requestQueue.add(request);
+    }
+
     private void onHealthCheckFail(VolleyError error) {
         hideLoadingAnimation();
         updateHostField(false, getErrorMessage(error));
@@ -193,10 +197,6 @@ public class HostBottomSheet extends BottomSheetDialogFragment {
 
     private void updateLocationServer() {
         UserSession.LOCATION_SERVER = mHostEdit.getText().toString();
-    }
-
-    private void sendHealthCheckRequest(Request<String> request) {
-        if (requestQueue != null) requestQueue.add(request);
     }
 
     private void disableChangeHostButton() {

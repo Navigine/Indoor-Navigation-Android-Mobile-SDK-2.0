@@ -5,6 +5,7 @@ import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SERVER;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SUBLOCATION_ID;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_USERHASH;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_VENUE_ID;
+import static com.navigine.navigine.demo.utils.Constants.ENDPOINT_GET_USER;
 import static com.navigine.navigine.demo.utils.Constants.TAG;
 
 import android.Manifest;
@@ -27,6 +28,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavDeepLinkBuilder;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputLayout;
 import com.navigine.camera.ui.activity.BarcodeScannerActivity;
@@ -135,15 +141,32 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onHandleLoginAction() {
         showLoginProgress();
-        if (NetworkUtils.isNetworkActive(this)) {
-            if (sdkInit()) startActivity(new Intent(this, MainActivity.class));
-            else {
-                showTempWarningMessage(getString(R.string.err_sdk_not_init));
-                hideLoginProgress();
-            }
-        }
+        if (NetworkUtils.isNetworkActive(this)) tryLogin();
         else {
             showTempWarningMessage(getString(R.string.err_network_no_connection));
+            hideLoginProgress();
+        }
+    }
+
+    private void tryLogin() {
+        String url = UserSession.LOCATION_SERVER + ENDPOINT_GET_USER + UserSession.USER_HASH;
+        StringRequest request = new StringRequest(Request.Method.GET, url,
+                response -> onHandleCheckUserHashResponse(),
+                error -> onHandleCheckUserHashError(error));
+        Volley.newRequestQueue(this).add(request);
+    }
+
+    private void onHandleCheckUserHashError(VolleyError error) {
+        if (error instanceof AuthFailureError) {
+            showTempWarningMessage(getString(R.string.err_network_auth));
+        }
+        hideLoginProgress();
+    }
+
+    private void onHandleCheckUserHashResponse() {
+        if (sdkInit()) startActivity(new Intent(this, MainActivity.class));
+        else {
+            showTempWarningMessage(getString(R.string.err_sdk_not_init));
             hideLoginProgress();
         }
     }
