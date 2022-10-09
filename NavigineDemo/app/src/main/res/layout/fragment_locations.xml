@@ -14,10 +14,10 @@
         style="@style/AppTheme.Search"
         android:layout_marginHorizontal="@dimen/screen_padding"
         android:layout_marginTop="@dimen/margin_top_bar_top"
+        app:closeIcon="@drawable/ic_close"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/locations_fragment__swipe_layout"
@@ -61,8 +61,7 @@
 
     <include
         android:id="@+id/locations_fragment__warning"
-        android:visibility="gone"
-        layout="@layout/warning" />
-
+        layout="@layout/warning"
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
