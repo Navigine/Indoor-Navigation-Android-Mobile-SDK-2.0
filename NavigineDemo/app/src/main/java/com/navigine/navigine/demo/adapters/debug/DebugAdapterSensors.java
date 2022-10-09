@@ -43,7 +43,5 @@ public class DebugAdapterSensors extends DebugAdapterBase<DebugViewHolderBaseInf
     }
 
     @Override
-    public int getItemCount() {
-        return mCurrentList.size();
-    }
+    void onCopyContent() {}
 }

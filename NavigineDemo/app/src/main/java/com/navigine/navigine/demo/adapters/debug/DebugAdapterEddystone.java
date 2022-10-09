@@ -1,12 +1,8 @@
 package com.navigine.navigine.demo.adapters.debug;
 
-import static com.navigine.navigine.demo.utils.Constants.LIST_SIZE_DEFAULT;
-
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -15,7 +11,7 @@ import com.navigine.navigine.demo.R;
 
 import java.util.Locale;
 
-public class DebugAdapterEddystone extends DebugAdapterBase<DebugViewHolderBaseBeacons, SignalMeasurement> {
+public class DebugAdapterEddystone extends DebugAdapterBaseExpanded<DebugViewHolderBaseBeacons, SignalMeasurement> {
 
 
     @NonNull
@@ -40,23 +36,7 @@ public class DebugAdapterEddystone extends DebugAdapterBase<DebugViewHolderBaseB
     public void onBindViewHolder(@NonNull DebugViewHolderBaseBeacons holder, int position) {
         if (position == 0) {
             holder.title.setText(String.format(Locale.ENGLISH, "EDDYSTONE (%d), entries/sec: %.1f", mCurrentList.size(), (float) mCurrentList.size()));
-            if (expand) holder.title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_circle_up, 0);
-            else        holder.title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_circle_down, 0);
-            holder.title.setOnTouchListener((v, event) -> {
-                v.performClick();
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (event.getX() >= holder.title.getWidth() - holder.title.getTotalPaddingEnd()) {
-                        if (mCurrentList.size() <= LIST_SIZE_DEFAULT)
-                            Toast.makeText(mRecyclerView.getContext(), R.string.debug_expand_list_nothing, Toast.LENGTH_SHORT).show();
-                        else {
-                            expand = !expand;
-                            notifyDataSetChanged();
-                            mRecyclerView.scheduleLayoutAnimation();
-                        }
-                    }
-                }
-                return true;
-            });
+            super.onBindViewHolder(holder, position);
         }
         else {
             try {

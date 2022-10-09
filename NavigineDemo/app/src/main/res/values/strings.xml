@@ -31,7 +31,21 @@
     <string name="no_location_subtitle">You have to choose map in locations\n tab to work in this mode</string>
     <string name="no_location_choose_map">Choose map</string>
     <!--    debug-->
+    <string name="debug_info_field_1">App version</string>
+    <string name="debug_info_field_2">Device ID</string>
+    <string name="debug_info_field_3">Location</string>
+    <string name="debug_info_field_4">Position</string>
+    <string name="debug_info_field_5_1">Bluetooth</string>
+    <string name="debug_info_field_5_2">Geolocation</string>
+    <string name="debug_info_field_6">Device model</string>
+    <string name="debug_sensor_field_1">Accelerometer</string>
+    <string name="debug_sensor_field_2">Magnetometer</string>
+    <string name="debug_sensor_field_3">Gyroscope</string>
+    <string name="debug_sensor_field_4">Barometer</string>
+    <string name="debug_sensor_field_5">Orientation</string>
     <string name="debug_expand_list_nothing">Nothing to expand</string>
+    <string name="debug_copy_list_content">List content copied</string>
+    <string name="debug_copy_device_id">Device id copied</string>
     <!--    profile-->
     <string name="profile_user">User</string>
     <string name="profile_company">Company</string>

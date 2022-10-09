@@ -5,6 +5,7 @@
     <color name="colorPrimaryLight">#D2EFFB</color>
     <color name="colorTextPrimary">#1F1F1F</color>
     <color name="colorTextSecondary">#79858A</color>
+    <color name="colorTextSecondaryGray">#79858A</color>
     <color name="colorSuccess">#27AE60</color>
     <color name="colorError">#FF5758</color>
     <color name="colorErrorBackground">#CCFF5758</color>

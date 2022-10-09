@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.navigine.navigine.demo.R;
 
+
 public class DebugViewHolderBaseInfo extends RecyclerView.ViewHolder {
 
     protected TextView name  = null;

@@ -1,19 +1,29 @@
 package com.navigine.navigine.demo.adapters.debug;
 
+import android.content.ClipData;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.navigine.navigine.demo.R;
 
+import java.util.List;
+
+
 public class DebugAdapterInfo extends DebugAdapterBase<DebugViewHolderBaseInfo, String[]> {
+
+    private boolean isPressed  = false;
+
+    private String copyContent = null;
 
     @NonNull
     @Override
@@ -36,24 +46,39 @@ public class DebugAdapterInfo extends DebugAdapterBase<DebugViewHolderBaseInfo, 
     @Override
     public void onBindViewHolder(@NonNull DebugViewHolderBaseInfo holder, int position) {
         try {
-            String var1 = mCurrentList.get(position)[0];
-            String var2 = mCurrentList.get(position)[1];
-            if (var1.contains("Bluetooth") && var2.contains("Geolocation")) {
-                Spannable spannableBl = new SpannableString(var1);
-                Spannable spannableGeo = new SpannableString(var2);
+            String name = mCurrentList.get(position)[0];
+            String value = mCurrentList.get(position)[1];
+            if (name.contains(mContext.getString(R.string.debug_info_field_5_1)) && value.contains(mContext.getString(R.string.debug_info_field_5_2))) {
+                Spannable spannableBl  = new SpannableString(name);
+                Spannable spannableGeo = new SpannableString(value);
 
-                holder.name.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextSecondary));
-                holder.value.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextSecondary));
+                holder.name. setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextSecondaryGray));
+                holder.value.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextSecondaryGray));
 
-                spannableBl.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextPrimary)), var1.indexOf(':') + 1, var1.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                spannableGeo.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextPrimary)), var2.indexOf(':') + 1, var2.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableBl. setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextPrimary)), name.indexOf(':') + 1, name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableGeo.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.colorTextPrimary)), value.indexOf(':') + 1, value.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 holder.name.setText(spannableBl);
                 holder.value.setText(spannableGeo);
             }
             else {
-                holder.name.setText(mCurrentList.get(position)[0]);
-                holder.value.setText(mCurrentList.get(position)[1]);
+                holder.name.setText(name);
+                holder.value.setText(value);
+
+                if (name.contains(mContext.getString(R.string.debug_info_field_2))) {
+                    holder.value.setOnTouchListener((v, event) -> {
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            isPressed = false;
+                            v.performClick();
+                        }
+                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                            isPressed = true;
+                            copyContent = value;
+                            mGestureDetector.onTouchEvent(event);
+                        }
+                        return true;
+                    });
+                }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             holder.name.setText("---");
@@ -62,7 +87,15 @@ public class DebugAdapterInfo extends DebugAdapterBase<DebugViewHolderBaseInfo, 
     }
 
     @Override
-    public int getItemCount() {
-        return mCurrentList.size();
+    public void submit(List<String[]> list) {
+        if (!isPressed)
+            super.submit(list);
+    }
+
+    @Override
+    void onCopyContent() {
+        ClipData clip = ClipData.newPlainText("Device ID", copyContent);
+        mClipboardManager.setPrimaryClip(clip);
+        Toast.makeText(mContext, R.string.debug_copy_device_id, Toast.LENGTH_SHORT).show();
     }
 }
