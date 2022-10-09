@@ -81,6 +81,7 @@
     <string name="err_navigation_position_update">Position update error</string>
     <string name="err_navigation_position_define">Position isn\'t defined</string>
     <string name="err_navigation_no_route">No route path</string>
+    <string name="err_debug_os_version">Error while getting OS version</string>
     <!--    miscellaneous-->
     <string name="search_title">Search</string>
     <string name="state_on">on</string>

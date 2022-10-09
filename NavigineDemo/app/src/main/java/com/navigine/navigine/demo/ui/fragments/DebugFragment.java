@@ -1,20 +1,10 @@
 package com.navigine.navigine.demo.ui.fragments;
 
-import static com.navigine.navigine.demo.utils.Constants.LOCATION_CHANGED;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
+import static com.navigine.navigine.demo.utils.Constants.TAG;
+
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +15,7 @@ import android.view.animation.LayoutAnimationController;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
+import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,7 +28,9 @@ import com.navigine.idl.java.SensorMeasurement;
 import com.navigine.idl.java.SensorType;
 import com.navigine.idl.java.SignalMeasurement;
 import com.navigine.idl.java.Vector3d;
+import com.navigine.navigine.demo.BuildConfig;
 import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.adapters.debug.DebugAdapterBase;
 import com.navigine.navigine.demo.adapters.debug.DebugAdapterBeacons;
 import com.navigine.navigine.demo.adapters.debug.DebugAdapterBle;
 import com.navigine.navigine.demo.adapters.debug.DebugAdapterEddystone;
@@ -46,7 +38,6 @@ import com.navigine.navigine.demo.adapters.debug.DebugAdapterInfo;
 import com.navigine.navigine.demo.adapters.debug.DebugAdapterRtt;
 import com.navigine.navigine.demo.adapters.debug.DebugAdapterSensors;
 import com.navigine.navigine.demo.adapters.debug.DebugAdapterWifi;
-import com.navigine.navigine.demo.utils.DeviceInfoProvider;
 import com.navigine.navigine.demo.utils.NavigineSdkManager;
 import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 
@@ -56,32 +47,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.UUID;
 
-public class DebugFragment extends Fragment
+public class DebugFragment extends BaseFragment
 {
     private static String OS_VERSION = "UNKNOWN";
-
-    // Constants
-    private static final String TAG                    = "NAVIGINE.Debug";
-    private static final int    UPDATE_TIMEOUT         = 500;
-    private static final long   SIGNALS_UPDATE_TIMEOUT = 1_000;
+    public static final int DEBUG_TIMEOUT_NO_SIGNAL = 5000;
 
     private SharedViewModel viewModel = null;
 
-    // UI parameters
-    private Window              window                 = null;
-    private RecyclerView        mListViewInfo          = null;
-    private RecyclerView        mListViewBeacons       = null;
-    private RecyclerView        mListViewWifi          = null;
-    private RecyclerView        mListViewEddystone     = null;
-    private RecyclerView        mListViewRtt           = null;
-    private RecyclerView        mListViewBle           = null;
-    private RecyclerView        mListViewSensors       = null;
-    private TimerTask           mInfoTimerTask         = null;
-    private Handler             mHandler               = new Handler();
-    private Timer               mTimer                 = new Timer();
+    private Window            window             = null;
+    private NestedScrollView  mRootView          = null;
+    private RecyclerView      mListViewInfo      = null;
+    private RecyclerView      mListViewBeacons   = null;
+    private RecyclerView      mListViewWifi      = null;
+    private RecyclerView      mListViewEddystone = null;
+    private RecyclerView      mListViewRtt       = null;
+    private RecyclerView      mListViewBle       = null;
+    private RecyclerView      mListViewSensors   = null;
 
     private ArrayList<String[]>     infoEntries   = new ArrayList<>();
     private List<SignalMeasurement> beaconEntries = new ArrayList<>();
@@ -91,21 +74,8 @@ public class DebugFragment extends Fragment
     private List<SignalMeasurement> bleEntries    = new ArrayList<>();
     private List<String[]>          sensorEntries = new ArrayList<>();
 
-    private Runnable mInfoRunnable;
-
-
-    private StateReceiver receiver = null;
-    private IntentFilter  filter   = null;
-
-    private LocationManager  locationManager  = null;
-    private BluetoothManager bluetoothManager = null;
-    private BluetoothAdapter bluetoothAdapter = null;
-
-    private String bluetoothState   = "off";
-    private String geoLocationState = "off";
 
     private Location mLocation = null;
-
 
     private DebugAdapterInfo      debugInfoAdapter      = null;
     private DebugAdapterBeacons   debugBeaconsAdapter   = null;
@@ -117,21 +87,24 @@ public class DebugFragment extends Fragment
 
     private DividerItemDecoration mDivider  = null;
 
-    private static String AppVersion = "undefined";
+    private PositionListener    mPositionListener    = null;
+    private MeasurementListener mMeasurementListener = null;
 
+    private long timestampBeacons    = 0L;
+    private long timestampEddystones = 0L;
+    private long timestampBle        = 0L;
+
+    private static final String TEST_DEVICE_ID = UUID.randomUUID().toString();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getOsVersion();
-        getAppVersion();
-        initSystemServices();
         initViewModels();
         initAdapters();
-        initBroadcastReceiver();
+        initListeners();
     }
 
-    @SuppressLint("UseRequireInsteadOfGet")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
@@ -142,43 +115,28 @@ public class DebugFragment extends Fragment
         initViews(view);
         setViewsParams();
         setAdapters();
+        setAdaptersParams();
         setObservers();
-        setListeners();
-        createRunnables();
 
         return view;
     }
 
     @Override
-    public void onStart()
-    {
-        super.onStart();
-        addListeners();
-        tasksCancel();
-        tasksInit();
-        tasksRun();
-    }
-
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
-        if (!hidden)
-            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground));
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-        checkGpsState();
-        checkBluetoothState();
+        addListeners();
     }
 
     @Override
-    public void onStop()
-    {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         removeListeners();
-        tasksCancel();
+    }
+
+
+    @Override
+    protected void updateStatusBar() {
+        window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground));
     }
 
     private void getOsVersion() {
@@ -190,25 +148,9 @@ public class DebugFragment extends Fragment
                     OS_VERSION = field.getName();
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Log.e(TAG, getString(R.string.err_debug_os_version));
             }
         }
-    }
-
-    private void getAppVersion() {
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = requireActivity().getPackageManager().getPackageInfo(requireActivity().getPackageName(), 0);
-            AppVersion = packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Error while getting app version");
-        }
-    }
-
-    private void initSystemServices() {
-        locationManager  = (LocationManager)requireActivity().getSystemService(Context.LOCATION_SERVICE);
-        bluetoothManager = (BluetoothManager) requireActivity().getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
     }
 
     private void initViewModels() {
@@ -225,91 +167,18 @@ public class DebugFragment extends Fragment
         debugSensorsAdapter   = new DebugAdapterSensors();
     }
 
-    private void initBroadcastReceiver() {
-        receiver = new StateReceiver();
-        filter   = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(LOCATION_CHANGED);
-    }
+    private void initListeners() {
 
-    private void addListeners() {
-        requireActivity().registerReceiver(receiver, filter);
-    }
-
-    private void removeListeners() {
-        requireActivity().unregisterReceiver(receiver);
-    }
-
-    private void initViews(View view) {
-        window             = requireActivity().getWindow();
-        mListViewInfo      = view.findViewById(R.id.debug__info);
-        mListViewBeacons   = view.findViewById(R.id.debug__beacons);
-        mListViewWifi      = view.findViewById(R.id.debug__wifi);
-        mListViewEddystone = view.findViewById(R.id.debug__eddystone);
-        mListViewRtt       = view.findViewById(R.id.debug__rtt);
-        mListViewBle       = view.findViewById(R.id.debug__ble);
-        mListViewSensors   = view.findViewById(R.id.debug__sensors);
-        mDivider           = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
-    }
-
-    private void setViewsParams() {
-        mDivider.setDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.li_divider_transparent));
-        mListViewInfo.     addItemDecoration(mDivider);
-        mListViewBeacons.  addItemDecoration(mDivider);
-        mListViewWifi.     addItemDecoration(mDivider);
-        mListViewEddystone.addItemDecoration(mDivider);
-        mListViewRtt.      addItemDecoration(mDivider);
-        mListViewBle.      addItemDecoration(mDivider);
-        mListViewSensors.  addItemDecoration(mDivider);
-
-        LayoutAnimationController animationController = AnimationUtils.loadLayoutAnimation(requireActivity(), R.anim.layout_animation_fall_down);
-
-        mListViewBeacons.  setLayoutAnimation(animationController);
-        mListViewWifi.     setLayoutAnimation(animationController);
-        mListViewEddystone.setLayoutAnimation(animationController);
-        mListViewRtt.      setLayoutAnimation(animationController);
-        mListViewBle.      setLayoutAnimation(animationController);
-
-        updateInfoGeneral(null);
-    }
-
-    private void setAdapters() {
-        mListViewInfo.     setAdapter(debugInfoAdapter);
-        mListViewWifi.     setAdapter(debugWifiAdapter);
-        mListViewRtt.      setAdapter(debugRttAdapter);
-        mListViewBeacons.  setAdapter(debugBeaconsAdapter);
-        mListViewBle.      setAdapter(debugBleAdapter);
-        mListViewEddystone.setAdapter(debugEddystoneAdapter);
-        mListViewSensors.  setAdapter(debugSensorsAdapter);
-    }
-
-
-
-    private void setObservers() {
-        viewModel.mLocation.observe(getViewLifecycleOwner(), location -> {
-            mLocation = location;
-            updateInfoGeneral(null);
-        });
-    }
-
-    private void setListeners() {
-
-        requireActivity().registerReceiver(receiver, filter);
-
-        NavigineSdkManager.NavigationManager.addPositionListener(new PositionListener() {
+        mPositionListener = new PositionListener() {
 
             @Override
-            public void onPositionUpdated(Position position) {
-                updateInfoGeneral(position);
-            }
+            public void onPositionUpdated(Position position) { updateInfoGeneral(position); }
 
             @Override
-            public void onPositionError(Error error) {
-                updateInfoGeneral(null);
-            }
-        });
+            public void onPositionError(Error error) { updateInfoGeneral(null); }
+        };
 
-        NavigineSdkManager.MeasurementManager.addMeasurementListener(new MeasurementListener() {
+        mMeasurementListener = new MeasurementListener() {
 
             @Override
             public void onSensorMeasurementDetected(HashMap<SensorType, SensorMeasurement> hashMap) {
@@ -323,13 +192,13 @@ public class DebugFragment extends Fragment
                     if (measurement != null)
                     {
                         Vector3d values = measurement.getValues();
-                        sensorEntries.add(new String[]{"Accelerometer", String.format(Locale.ENGLISH, "(%.4f, %.4f, %.4f)", values.getX(), values.getY(), values.getZ())});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_1), String.format(Locale.ENGLISH, "%.4f, %.4f, %.4f", values.getX(), values.getY(), values.getZ())});
                     }
                     else
-                        sensorEntries.add(new String[]{"Accelerometer", "---"});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_1), "---"});
                 }
                 else
-                    sensorEntries.add(new String[]{"Accelerometer", "---"});
+                    sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_1), "---"});
 
                 if (hashMap.containsKey(SensorType.MAGNETOMETER))
                 {
@@ -338,13 +207,13 @@ public class DebugFragment extends Fragment
                     if (measurement != null)
                     {
                         Vector3d values = measurement.getValues();
-                        sensorEntries.add(new String[]{"Magnetometer", String.format(Locale.ENGLISH, "(%.4f, %.4f, %.4f)", values.getX(), values.getY(), values.getZ())});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_2), String.format(Locale.ENGLISH, "%.4f, %.4f, %.4f", values.getX(), values.getY(), values.getZ())});
                     }
                     else
-                        sensorEntries.add(new String[]{"Magnetometer", "---"});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_2), "---"});
                 }
                 else
-                    sensorEntries.add(new String[]{"Magnetometer", "---"});
+                    sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_2), "---"});
 
                 if (hashMap.containsKey(SensorType.GYROSCOPE))
                 {
@@ -353,13 +222,13 @@ public class DebugFragment extends Fragment
                     if (measurement != null)
                     {
                         Vector3d values = measurement.getValues();
-                        sensorEntries.add(new String[]{"Gyroscope", String.format(Locale.ENGLISH, "(%.4f, %.4f, %.4f)", values.getX(), values.getY(), values.getZ())});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_3), String.format(Locale.ENGLISH, "%.4f, %.4f, %.4f", values.getX(), values.getY(), values.getZ())});
                     }
                     else
-                        sensorEntries.add(new String[]{"Gyroscope", "---"});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_3), "---"});
                 }
                 else
-                    sensorEntries.add(new String[]{"Gyroscope", "---"});
+                    sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_3), "---"});
 
                 if (hashMap.containsKey(SensorType.BAROMETER))
                 {
@@ -368,13 +237,13 @@ public class DebugFragment extends Fragment
                     if (measurement != null)
                     {
                         Vector3d values = measurement.getValues();
-                        sensorEntries.add(new String[]{"Barometer", String.format(Locale.ENGLISH, "%.2f", values.getX())});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_4), String.format(Locale.ENGLISH, "%.2f", values.getX())});
                     }
                     else
-                        sensorEntries.add(new String[]{"Barometer", "---"});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_4), "---"});
                 }
                 else
-                    sensorEntries.add(new String[]{"Barometer", "---"});
+                    sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_4), "---"});
 
                 if (hashMap.containsKey(SensorType.ORIENTATION))
                 {
@@ -383,13 +252,13 @@ public class DebugFragment extends Fragment
                     if (measurement != null)
                     {
                         Vector3d values = measurement.getValues();
-                        sensorEntries.add(new String[]{"Orientation", String.format(Locale.ENGLISH, "%.2f", values.getX() * 180 / 3.14159f)});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_5), String.format(Locale.ENGLISH, "%.2f", values.getX() * 180 / 3.14159f)});
                     }
                     else
-                        sensorEntries.add(new String[]{"Orientation", "---"});
+                        sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_5), "---"});
                 }
                 else
-                    sensorEntries.add(new String[]{"Orientation", "---"});
+                    sensorEntries.add(new String[]{getString(R.string.debug_sensor_field_5), "---"});
 
                 if (!sensorEntries.isEmpty())
                 {
@@ -429,11 +298,11 @@ public class DebugFragment extends Fragment
                     }
                 }
 
-                Collections.sort(wifiEntries, (result1, result2) ->   Float.compare(result2.getRssi(), result1.getRssi()));
-                Collections.sort(rttEntries, (result1, result2) ->    Float.compare(result2.getRssi(), result1.getRssi()));
-                Collections.sort(bleEntries, (result1, result2) ->    Float.compare(result2.getRssi(), result1.getRssi()));
+                Collections.sort(wifiEntries,   (result1, result2) -> Float.compare(result2.getRssi(), result1.getRssi()));
+                Collections.sort(rttEntries,    (result1, result2) -> Float.compare(result2.getRssi(), result1.getRssi()));
+                Collections.sort(bleEntries,    (result1, result2) -> Float.compare(result2.getRssi(), result1.getRssi()));
                 Collections.sort(beaconEntries, (result1, result2) -> Float.compare(result2.getRssi(), result1.getRssi()));
-                Collections.sort(eddyEntries, (result1, result2) ->   Float.compare(result2.getRssi(), result1.getRssi()));
+                Collections.sort(eddyEntries,   (result1, result2) -> Float.compare(result2.getRssi(), result1.getRssi()));
 
                 if (!wifiEntries.isEmpty()) {
                     debugWifiAdapter.submit(wifiEntries);
@@ -441,116 +310,116 @@ public class DebugFragment extends Fragment
                 if (!rttEntries.isEmpty()) {
                     debugRttAdapter.submit(rttEntries);
                 }
+
                 if (!beaconEntries.isEmpty()) {
+                    timestampBeacons = System.currentTimeMillis();
                     debugBeaconsAdapter.submit(beaconEntries);
-                }
+                } else if (System.currentTimeMillis() - timestampBeacons >= DEBUG_TIMEOUT_NO_SIGNAL)
+                    debugBeaconsAdapter.submit(Collections.EMPTY_LIST);
+
                 if (!bleEntries.isEmpty()) {
+                    timestampBle = System.currentTimeMillis();
                     debugBleAdapter.submit(bleEntries);
-                }
+                } else if (System.currentTimeMillis() - timestampBle >= DEBUG_TIMEOUT_NO_SIGNAL)
+                    debugBleAdapter.submit(Collections.EMPTY_LIST);
+
                 if (!eddyEntries.isEmpty()) {
+                    timestampEddystones = System.currentTimeMillis();
                     debugEddystoneAdapter.submit(eddyEntries);
-                }
+                } else if (System.currentTimeMillis() - timestampEddystones >= DEBUG_TIMEOUT_NO_SIGNAL)
+                    debugEddystoneAdapter.submit(Collections.EMPTY_LIST);
             }
-        });
+        };
+    }
+
+    private void initViews(View view) {
+        window             = requireActivity().getWindow();
+        mRootView          = view.findViewById(R.id.debug__root);
+        mListViewInfo      = view.findViewById(R.id.debug__info);
+        mListViewBeacons   = view.findViewById(R.id.debug__beacons);
+        mListViewWifi      = view.findViewById(R.id.debug__wifi);
+        mListViewEddystone = view.findViewById(R.id.debug__eddystone);
+        mListViewRtt       = view.findViewById(R.id.debug__rtt);
+        mListViewBle       = view.findViewById(R.id.debug__ble);
+        mListViewSensors   = view.findViewById(R.id.debug__sensors);
+        mDivider           = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
+    }
+
+    private void setViewsParams() {
+        mDivider.setDrawable(ContextCompat.getDrawable(requireActivity(), R.drawable.divider_transparent_list_item));
+        mListViewInfo.     addItemDecoration(mDivider);
+        mListViewBeacons.  addItemDecoration(mDivider);
+        mListViewWifi.     addItemDecoration(mDivider);
+        mListViewEddystone.addItemDecoration(mDivider);
+        mListViewRtt.      addItemDecoration(mDivider);
+        mListViewBle.      addItemDecoration(mDivider);
+        mListViewSensors.  addItemDecoration(mDivider);
+
+        LayoutAnimationController animationController = AnimationUtils.loadLayoutAnimation(requireActivity(), R.anim.layout_animation_fall_down);
+
+        mListViewBeacons.  setLayoutAnimation(animationController);
+        mListViewWifi.     setLayoutAnimation(animationController);
+        mListViewEddystone.setLayoutAnimation(animationController);
+        mListViewRtt.      setLayoutAnimation(animationController);
+        mListViewBle.      setLayoutAnimation(animationController);
+    }
+
+    private void setAdapters() {
+        mListViewInfo.     setAdapter(debugInfoAdapter);
+        mListViewWifi.     setAdapter(debugWifiAdapter);
+        mListViewRtt.      setAdapter(debugRttAdapter);
+        mListViewBeacons.  setAdapter(debugBeaconsAdapter);
+        mListViewBle.      setAdapter(debugBleAdapter);
+        mListViewEddystone.setAdapter(debugEddystoneAdapter);
+        mListViewSensors.  setAdapter(debugSensorsAdapter);
+    }
+
+    private void setAdaptersParams() {
+        DebugAdapterBase.setRootView(mRootView);
+    }
+
+    private void setObservers() {
+        viewModel.mLocation.observe(getViewLifecycleOwner(), location -> mLocation = location);
+    }
+
+    private void addListeners() {
+        NavigineSdkManager.NavigationManager.addPositionListener(mPositionListener);
+        NavigineSdkManager.MeasurementManager.addMeasurementListener(mMeasurementListener);
+    }
+
+    private void removeListeners() {
+        NavigineSdkManager.NavigationManager.removePositionListener(mPositionListener);
+        NavigineSdkManager.MeasurementManager.removeMeasurementListener(mMeasurementListener);
     }
 
     private void updateInfoGeneral(@Nullable Position position) {
         infoEntries.clear();
 
-        infoEntries.add(new String[]{"App version", String.format(Locale.ENGLISH, "%s", AppVersion)});
-        infoEntries.add(new String[]{"Device ID", String.format("%s", DeviceInfoProvider.getDeviceId(requireActivity()))});
+        infoEntries.add(new String[]{getString(R.string.debug_info_field_1), String.format(Locale.ENGLISH, "%s", BuildConfig.VERSION_NAME)});
+        infoEntries.add(new String[]{getString(R.string.debug_info_field_2), String.format("%s", TEST_DEVICE_ID)});
 
         if (mLocation != null)
         {
-            infoEntries.add(new String[]{"Location", mLocation.getName() + " v. " + mLocation.getVersion()});
+            infoEntries.add(new String[]{getString(R.string.debug_info_field_3), String.format(Locale.ENGLISH, "%s v. %s", mLocation.getName(), mLocation.getVersion())});
         }
         else
         {
-            infoEntries.add(new String[]{"Location", "---"});
+            infoEntries.add(new String[]{getString(R.string.debug_info_field_3), "---"});
         }
         if (position != null)
         {
-            infoEntries.add(new String[]{"Position", String.format(Locale.ENGLISH, "%d/%d, x=%.1f, y=%.1f", position.getLocationId(), position.getSublocationId(),
+            infoEntries.add(new String[]{getString(R.string.debug_info_field_4), String.format(Locale.ENGLISH, "%d/%d, x=%.1f, y=%.1f", position.getLocationId(), position.getSublocationId(),
                     position.getPoint().getX(), position.getPoint().getY())});
         }
         else
         {
-            infoEntries.add(new String[]{"Position", "---"});
+            infoEntries.add(new String[]{getString(R.string.debug_info_field_4), "---"});
         }
 
-        infoEntries.add(new String[]{String.format("%s: %s", "Bluetooth", bluetoothState), String.format("%s: %s", "Geolocation", geoLocationState)});
-        infoEntries.add(new String[]{"Device model", Build.MODEL + " [ " + Build.VERSION.RELEASE + "(" + OS_VERSION + ")" + " ] "});
-    }
+        infoEntries.add(new String[]{String.format("%s: %s", getString(R.string.debug_info_field_5_1), bluetoothState), String.format("%s: %s", getString(R.string.debug_info_field_5_2), geoLocationState)});
+        infoEntries.add(new String[]{getString(R.string.debug_info_field_6), String.format(Locale.ENGLISH, "%s [ %s (%s) ] ", Build.MODEL, Build.VERSION.RELEASE, OS_VERSION)});
 
-
-    private void createRunnables() {
-        mInfoRunnable = () ->
-        {
-            if (!infoEntries.isEmpty()) {
-                debugInfoAdapter.submit(infoEntries);
-                infoEntries.clear();
-            }
-        };
-    }
-
-    private void tasksCancel() {
-        if (mInfoTimerTask != null) {
-            mInfoTimerTask.cancel();
-            mInfoTimerTask = null;
-        }
-    }
-
-    private void tasksInit() {
-        mInfoTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                mHandler.post(mInfoRunnable);
-            }
-        };
-    }
-
-    private void tasksRun() {
-        mTimer.schedule(mInfoTimerTask, UPDATE_TIMEOUT, UPDATE_TIMEOUT);
-    }
-
-    private void checkGpsState() {
-        if (locationManager != null) {
-            boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-            if (!isGpsEnabled || !isNetworkEnabled) {
-                geoLocationState = "off";
-            } else
-                geoLocationState = "on";
-
-            updateInfoGeneral(null);
-        }
-    }
-
-    private void checkBluetoothState() {
-        if (bluetoothAdapter != null) {
-            if (!bluetoothAdapter.isEnabled()) {
-                bluetoothState = "off";
-            } else
-                bluetoothState = "on";
-
-            updateInfoGeneral(null);
-        }
-    }
-
-    private class StateReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case LocationManager.PROVIDERS_CHANGED_ACTION:
-                    checkGpsState();
-                    break;
-                case BluetoothAdapter.ACTION_STATE_CHANGED:
-                    checkBluetoothState();
-                    break;
-            }
-        }
+        debugInfoAdapter.submit(infoEntries);
     }
 
 }
