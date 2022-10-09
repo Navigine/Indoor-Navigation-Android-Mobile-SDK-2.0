@@ -226,7 +226,7 @@
     </style>
 
     <style name="AppTheme.List.Item.Locations" parent="AppTheme.List.Item">
-        <item name="android:background">@color/selector_li_bg_locations</item>
+        <item name="android:background">@drawable/selector_li_bg</item>
     </style>
 
     <style name="AppTheme.List.Item.Round.Top.Locations" parent="AppTheme.List.Item.Locations">
