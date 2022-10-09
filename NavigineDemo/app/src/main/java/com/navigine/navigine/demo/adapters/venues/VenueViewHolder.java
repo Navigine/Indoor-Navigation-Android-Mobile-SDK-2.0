@@ -6,7 +6,6 @@ import static com.navigine.navigine.demo.utils.Constants.VENUE_SELECTED;
 
 import android.content.Intent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,8 +17,8 @@ import com.navigine.navigine.demo.R;
 
 public class VenueViewHolder extends RecyclerView.ViewHolder {
 
-    protected TextView venueName;
-    protected TextView venueSublocation;
+    protected TextView venueName        = null;
+    protected TextView venueSublocation = null;
 
     public VenueViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -35,7 +34,6 @@ public class VenueViewHolder extends RecyclerView.ViewHolder {
             i.putExtra(KEY_VENUE_SUBLOCATION, venue.getSublocationId());
             i.putExtra(KEY_VENUE_POINT, new float[]{venue.getPoint().getX(), venue.getPoint().getY()});
             v.getContext().sendBroadcast(i);
-            ((ViewGroup) v.getParent().getParent()).setVisibility(View.GONE);
         });
     }
 }

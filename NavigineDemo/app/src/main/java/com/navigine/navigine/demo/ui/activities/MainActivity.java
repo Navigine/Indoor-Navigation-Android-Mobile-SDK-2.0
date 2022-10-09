@@ -1,17 +1,7 @@
 package com.navigine.navigine.demo.ui.activities;
 
 
-import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_LOCATION_ID;
-import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SUBLOCATION_ID;
-import static com.navigine.navigine.demo.utils.Constants.KEY_ID_LOCATION;
-import static com.navigine.navigine.demo.utils.Constants.KEY_ID_SUBLOCATION;
-import static com.navigine.navigine.demo.utils.Constants.LOCATION_CHANGED;
-import static com.navigine.navigine.demo.utils.Constants.TAG;
-
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -44,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        handleIntent();
     }
 
     private void initViewModel() {
@@ -63,24 +52,6 @@ public class MainActivity extends AppCompatActivity {
                 navGraphIds,
                 getSupportFragmentManager(),
                 R.id.nav_host_fragment_activity_main);
-    }
-
-    private void handleIntent() {
-        Uri qrData = getIntent().getData();
-        if (qrData != null) {
-            try {
-                int locationId    = Integer.parseInt(qrData.getQueryParameter(DL_QUERY_LOCATION_ID));
-                int sublocationId = Integer.parseInt(qrData.getQueryParameter(DL_QUERY_SUBLOCATION_ID));
-                Intent intent = new Intent(LOCATION_CHANGED);
-                intent.putExtra(KEY_ID_LOCATION, locationId);
-                intent.putExtra(KEY_ID_SUBLOCATION, sublocationId);
-                NavigineSdkManager.LocationManager.setLocationId(locationId);
-                sendBroadcast(intent);
-            } catch (NullPointerException npe) {
-                Log.e(TAG, getString(R.string.err_deep_link));
-            }
-            getIntent().setData(null);
-        }
     }
 
 

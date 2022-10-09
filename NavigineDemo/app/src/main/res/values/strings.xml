@@ -74,4 +74,37 @@
     <string name="permission_rationale_message_bg_access">In order to ensure correct and effective navigation and positioning services, the application has to collect location data.
 For push notifications, the application has to work in background mode</string>
     <string name="permission_rationale_message_bluetooth">To use all the features of the application grant bluetooth permission</string>
+    <!--    venue-->
+    <string name="venue_lift">Lift</string>
+    <string name="venue_stairs">Stairs</string>
+    <string name="venue_cosmetics">Cosmetics</string>
+    <string name="venue_jewellery">Jewellery</string>
+    <string name="venue_gifts">Gifts</string>
+    <string name="venue_toilet">Toilet</string>
+    <string name="venue_cloakroom">Cloakrooms</string>
+    <string name="venue_traveller">Traveller</string>
+    <string name="venue_meeting">Meeting</string>
+    <string name="venue_police">Police</string>
+    <string name="venue_services">Services</string>
+    <string name="venue_wifi">Wifi</string>
+    <string name="venue_train">Train</string>
+    <string name="venue_general">General</string>
+    <string name="venue_escalator">Escalator</string>
+    <string name="venue_car">Car</string>
+    <string name="venue_banking">Banking</string>
+    <string name="venue_florists">Florists</string>
+    <string name="venue_pets">Pets</string>
+    <string name="venue_footwear">Footwear</string>
+    <string name="venue_food">Cafes</string>
+    <string name="venue_hairdressing_and_beauty"><![CDATA[Hairdressing & Beauty]]></string>
+    <string name="venue_homeware">Homeware</string>
+    <string name="venue_leisure">Leisure</string>
+    <string name="venue_music">Music</string>
+    <string name="venue_newsagents">Newsagents</string>
+    <string name="venue_optometrists">Optometrists</string>
+    <string name="venue_phones">Phones</string>
+    <string name="venue_pharmacies">Pharmacies</string>
+    <string name="venue_supermarket">Supermarket</string>
+    <string name="venue_clothing">Clothing</string>
+    <string name="venue_children">Children</string>
 </resources>

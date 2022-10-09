@@ -40,13 +40,15 @@ public class Constants {
 
     // broadcast events
     public static final String LOCATION_CHANGED = "LOCATION_CHANGED";
-    public static final String VENUE_SELECTED   =  "VENUE_SELECTED";
+    public static final String VENUE_SELECTED   = "VENUE_SELECTED";
+    public static final String VENUE_FILTER_ON  = "VENUE_FILTER_ON";
+    public static final String VENUE_FILTER_OFF = "VENUE_FILTER_OFF";
 
+    // intent keys
     // intent keys
     public static final String KEY_VENUE_SUBLOCATION = "venue_sublocation";
     public static final String KEY_VENUE_POINT       = "venue_point";
-    public static final String KEY_ID_LOCATION       = "location_id";
-    public static final String KEY_ID_SUBLOCATION    = "sublocation_id";
+    public static final String KEY_VENUE_CATEGORY    = "venue_category";
 
     // debug mode
     public static final int LIST_SIZE_DEFAULT = 6;

@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="42dp"
+    android:height="42dp"
+    android:viewportWidth="42"
+    android:viewportHeight="42">
+    <path
+        android:fillColor="@color/selector_venue_icon_bg"
+        android:pathData="M21,21m-21,0a21,21 0,1 1,42 0a21,21 0,1 1,-42 0" />
+    <group>
+        <clip-path android:pathData="M9,8.6367h24v24h-24z" />
+        <path
+            android:fillColor="@color/selector_venue_icon"
+            android:pathData="M30.4054,21.8663H30.0811C28.6541,21.8663 27.2919,21.4171 26.1892,20.5829L24.4378,22.3155L23.4649,21.3529L25.0865,19.7487L24.2432,19.0428L22.427,20.8396L21.4541,19.877L23.2054,18.1444L22.3622,17.4385L20.4811,19.2995L19.5081,18.3369L21.3243,16.6043L19.7027,15.2567C19.5081,15.0642 19.2486,15 18.9892,15C18.3405,15 17.8865,15.5134 17.8865,16.0909V16.6684C17.8865,18.6578 16.2649,20.262 14.2541,20.262C12.7622,20.3262 11.4649,19.492 10.8811,18.2727L10.7514,17.8877C10.5568,17.5668 10.2324,17.3743 9.9081,17.3743C9.3892,17.3743 9,17.7594 9,18.2727V24.2406H33C32.8703,22.893 31.7676,21.8663 30.4054,21.8663Z" />
+        <path
+            android:fillColor="@color/selector_venue_icon"
+            android:pathData="M9.2593,25.5879C9.7133,26.4221 10.5566,26.9997 11.5944,26.9997H30.4052C31.4431,26.9997 32.3512,26.4221 32.7404,25.5879H9.2593Z" />
+    </group>
+</vector>

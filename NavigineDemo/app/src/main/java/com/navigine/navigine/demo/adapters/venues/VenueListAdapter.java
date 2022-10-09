@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.Venue;
@@ -16,9 +15,9 @@ import com.navigine.navigine.demo.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VenueListAdapter extends RecyclerView.Adapter<VenueViewHolder> {
+public class VenueListAdapter extends VenuesListAdapterBase<VenueViewHolder> {
 
-    private List<Venue> rawList = new ArrayList<>();
+    private List<Venue> rawList     = new ArrayList<>();
     private List<Venue> currentList = new ArrayList<>();
 
     private Location mLocation = null;
@@ -46,7 +45,6 @@ public class VenueListAdapter extends RecyclerView.Adapter<VenueViewHolder> {
         currentList.clear();
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
     public void filter(String query) {
         if (TextUtils.isEmpty(query)) {
@@ -60,12 +58,13 @@ public class VenueListAdapter extends RecyclerView.Adapter<VenueViewHolder> {
                 }
             }
         }
+        mRecyclerView.setActivated(!rawList.isEmpty());
         notifyDataSetChanged();
     }
 
-    public void add(ArrayList<Venue> venues, Location location) {
+    public void submit(List<Venue> venues, Location location) {
         mLocation = location;
         rawList.addAll(venues);
-        notifyDataSetChanged();
+        mRecyclerView.setActivated(!rawList.isEmpty());
     }
 }

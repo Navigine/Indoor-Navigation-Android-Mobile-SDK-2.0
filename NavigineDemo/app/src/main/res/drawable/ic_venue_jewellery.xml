@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="42dp"
+    android:height="42dp"
+    android:viewportWidth="42"
+    android:viewportHeight="42">
+    <path
+        android:fillColor="@color/selector_venue_icon_bg"
+        android:pathData="M21,21m-21,0a21,21 0,1 1,42 0a21,21 0,1 1,-42 0" />
+    <path
+        android:fillColor="@color/selector_venue_icon"
+        android:pathData="M25.7227,17.0469L20.9998,31.0839L16.0977,17.0469H25.7227Z" />
+    <path
+        android:fillColor="@color/selector_venue_icon"
+        android:pathData="M17.7715,15.1462L20.9997,11.8975L24.1084,15.1462H17.7715Z" />
+    <path
+        android:fillColor="@color/selector_venue_icon"
+        android:pathData="M14.1848,17.0469L18.0707,29.1224L10,17.0469H14.1848Z" />
+    <path
+        android:fillColor="@color/selector_venue_icon"
+        android:pathData="M27.6957,17.0469H32L23.8098,29.2449L27.6957,17.0469Z" />
+    <path
+        android:fillColor="@color/selector_venue_icon"
+        android:pathData="M31.2227,15.1465H26.6793L22.6738,10.917H26.3803L31.2227,15.1465Z" />
+    <path
+        android:fillColor="@color/selector_venue_icon"
+        android:pathData="M15.0814,10.917H19.3259L15.1411,15.1465H10.5977L15.0814,10.917Z" />
+</vector>
