@@ -26,7 +26,7 @@ import java.util.List;
 
 public class LocationListAdapter extends RecyclerView.Adapter<LocationViewHolder> {
 
-    private static Context context = null;
+    private static Context mContext = null;
 
     private static final int TYPE_ROUNDED_TOP    = 0;
     private static final int TYPE_ROUNDED_BOTTOM = 1;
@@ -35,12 +35,12 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationViewHolder
     private List<LocationInfo> currentList  = new ArrayList<>();
     private List<LocationInfo> filteredList = new ArrayList<>();
 
-    private LocationViewHolder selectedHolder = null;
+    private LocationViewHolder mSelectedHolder = null;
 
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        context = recyclerView.getContext();
+        mContext = recyclerView.getContext();
     }
 
     @Override
@@ -72,18 +72,17 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationViewHolder
     @Override
     public void onBindViewHolder(@NonNull LocationViewHolder holder, @SuppressLint("RecyclerView") int position) {
         LocationInfo info = currentList.get(position);
-        int locationId = info.getId();
-        boolean isCurrLocation = NavigineSdkManager.LocationManager.getLocationId() == locationId;
-        holder.itemContainer.setSelected(isCurrLocation);
-        if (isCurrLocation) {
-            selectedHolder = holder;
-            holder.check.setVisibility(View.VISIBLE);
-            holder.check.setProgress(CHECK_FRAME_SELECTED);
-        } else {
-            holder.check.setVisibility(View.GONE);
-        }
-        holder.titleTextView.setText(info.getName());
+        setViewHolderParams(holder, info.getName(), info.getId());
+    }
 
+    private void setViewHolderParams(@NonNull LocationViewHolder holder, String locationName, int locationId) {
+        if (isCurrentLocation(locationId)) {
+            setSelectedViewHolder(holder);
+            markViewHolderAsChecked(holder, false);
+        }
+        else markViewHolderAsUnchecked(holder);
+
+        holder.titleTextView.setText(locationName);
         holder.itemView.setOnTouchListener(new View.OnTouchListener() {
 
             private static final int TOUCH_SHORT_TIMEOUT = 200;
@@ -107,20 +106,8 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationViewHolder
                     case MotionEvent.ACTION_UP:
                         if (mTouchTime > 0 &&
                                 mTouchTime + TOUCH_SHORT_TIMEOUT > timeNow &&
-                                mTouchLength < TOUCH_SENSITIVITY * DimensionUtils.DisplayDensity) {
-                            if (locationId != NavigineSdkManager.LocationManager.getLocationId()) {
-                                if (selectedHolder != null) {
-                                    selectedHolder.itemContainer.setSelected(false);
-                                    selectedHolder.check.setVisibility(View.GONE);
-                                }
-                                selectedHolder = holder;
-                                holder.check.setVisibility(View.VISIBLE);
-                                holder.itemContainer.setSelected(true);
-                                holder.check.playAnimation();
-                                NavigineSdkManager.LocationManager.setLocationId(locationId);
-                                context.sendBroadcast(new Intent(LOCATION_CHANGED));
-                            }
-                        }
+                                mTouchLength < TOUCH_SENSITIVITY * DimensionUtils.DisplayDensity)
+                            onHandleTouchEvent(locationId, holder);
                         mTouchTime = 0;
                         mTouchLength = 0.0f;
                         break;
@@ -147,8 +134,6 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationViewHolder
         notifyDataSetChanged();
     }
 
-
-
     @SuppressLint("NotifyDataSetChanged")
     public void filter(String query) {
         if (TextUtils.isEmpty(query)) {
@@ -163,5 +148,48 @@ public class LocationListAdapter extends RecyclerView.Adapter<LocationViewHolder
             }
         }
         submitList(filteredList);
+    }
+
+    private void onHandleTouchEvent(int locationId, @NonNull LocationViewHolder holder) {
+        if (!isCurrentLocation(locationId)) {
+            markViewHolderSelected(holder);
+            selectLocation(locationId);
+        }
+    }
+
+    private boolean isCurrentLocation(int locationId) {
+        return NavigineSdkManager.LocationManager.getLocationId() == locationId;
+    }
+
+    private void markViewHolderSelected(@NonNull LocationViewHolder holder) {
+        if (getSelectedViewHolder() != null) {
+            markViewHolderAsUnchecked(getSelectedViewHolder());
+        }
+        setSelectedViewHolder(holder);
+        markViewHolderAsChecked(holder, true);
+    }
+
+    private void markViewHolderAsChecked(@NonNull LocationViewHolder holder, boolean animate) {
+        holder.itemContainer.setSelected(true);
+        holder.check.setVisibility(View.VISIBLE);
+        if (animate) holder.check.playAnimation();
+        else holder.check.setProgress(CHECK_FRAME_SELECTED);
+    }
+    private void markViewHolderAsUnchecked(@NonNull LocationViewHolder holder) {
+        holder.itemContainer.setSelected(false);
+        holder.check.setVisibility(View.GONE);
+    }
+
+    private void selectLocation(int locationId) {
+        NavigineSdkManager.LocationManager.setLocationId(locationId);
+        mContext.sendBroadcast(new Intent(LOCATION_CHANGED));
+    }
+
+    private void setSelectedViewHolder(LocationViewHolder holder) {
+        mSelectedHolder = holder;
+    }
+
+    private LocationViewHolder getSelectedViewHolder() {
+        return mSelectedHolder;
     }
 }
