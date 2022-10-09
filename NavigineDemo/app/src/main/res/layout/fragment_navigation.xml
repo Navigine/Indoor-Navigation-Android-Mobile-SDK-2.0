@@ -104,6 +104,7 @@
                             style="@style/AppTheme.Search"
                             android:layout_marginEnd="8dp"
                             android:paddingStart="@dimen/search_padding_start_icon"
+                            app:closeIcon="@null"
                             app:layout_constraintEnd_toStartOf="@id/navigation__search_btn_container"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
