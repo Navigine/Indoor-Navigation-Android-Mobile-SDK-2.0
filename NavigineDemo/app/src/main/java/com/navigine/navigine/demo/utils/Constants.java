@@ -45,11 +45,14 @@ public class Constants {
     public static final String VENUE_FILTER_OFF = "VENUE_FILTER_OFF";
 
     // intent keys
-    // intent keys
     public static final String KEY_VENUE_SUBLOCATION = "venue_sublocation";
     public static final String KEY_VENUE_POINT       = "venue_point";
     public static final String KEY_VENUE_CATEGORY    = "venue_category";
 
     // debug mode
     public static final int LIST_SIZE_DEFAULT = 6;
+
+    // circular progress
+    public static final int CIRCULAR_PROGRESS_DELAY_SHOW = 200;
+    public static final int CIRCULAR_PROGRESS_DELAY_HIDE = 700;
 }

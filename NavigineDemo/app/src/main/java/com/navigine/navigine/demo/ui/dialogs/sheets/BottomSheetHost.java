@@ -46,7 +46,7 @@ import com.navigine.navigine.demo.models.UserSession;
 import com.navigine.navigine.demo.utils.DimensionUtils;
 import com.navigine.navigine.demo.utils.NetworkUtils;
 
-public class HostBottomSheet extends BottomSheetDialogFragment {
+public class BottomSheetHost extends BottomSheetDialogFragment {
 
     private EditText                  mHostEdit         = null;
     private MaterialButton            mCloseButton      = null;

@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    Primary-->
     <color name="colorPrimary">#30AAD9</color>
     <color name="colorPrimary_70">#B330AAD9</color>
+    <color name="colorPrimary_50">#8030AAD9</color>
     <color name="colorPrimaryLight">#D2EFFB</color>
-    <color name="colorTextPrimary">#1F1F1F</color>
-    <color name="colorTextSecondary">#79858A</color>
-    <color name="colorTextSecondaryGray">#79858A</color>
-    <color name="colorSuccess">#27AE60</color>
-    <color name="colorError">#FF5758</color>
-    <color name="colorErrorBackground">#CCFF5758</color>
+    <!--    Secondary-->
+    <color name="colorSecondary">#EAEEF1</color>
+    <color name="colorSecondaryVariant">#96A8AF</color>
+    <!--    Tertiary-->
+    <color name="colorTertiary">#D5E3EE</color>
+    <!--    Background-->
     <color name="colorBackground">#F5F8FB</color>
     <color name="colorOnBackground">#FFFFFF</color>
     <color name="colorOnBackground_80">#CCFFFFFF</color>
-    <color name="grayLight">#EAEEF1</color>
+    <color name="colorOnBackground_50">#80FFFFFF</color>
+    <!--    Text-->
+    <color name="colorTextPrimary">#1F1F1F</color>
+    <color name="colorTextSecondary">#FFFFFF</color>
+    <color name="colorTextSecondaryGray">#79858A</color>
+    <!--    Condition-->
+    <color name="colorSuccess">#4CD964</color>
+    <color name="colorSuccessBackground">#404CD964</color>
+    <color name="colorError">#FF5758</color>
+    <color name="colorErrorBackground">#CCFF5758</color>
 </resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Right panel: zoom in, zoom out, adjust buttons -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/control_btn_size"
+    android:layout_height="@dimen/control_btn_height_zoom"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <!-- Zoom in button -->
+    <FrameLayout
+        android:id="@+id/panel_zoom__zoom_in"
+        android:layout_width="@dimen/control_btn_size"
+        android:layout_height="@dimen/control_btn_size"
+        android:background="@drawable/bg_control_panel_ripple_round_top"
+        android:clickable="true"
+        android:elevation="@dimen/control_btn_elevation"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_zoom_in" />
+    </FrameLayout>
+
+    <!-- Zoom out button -->
+    <FrameLayout
+        android:id="@+id/panel_zoom__zoom_out"
+        android:layout_width="@dimen/control_btn_size"
+        android:layout_height="@dimen/control_btn_size"
+        android:background="@drawable/bg_control_panel_ripple_round_bottom"
+        android:clickable="true"
+        android:elevation="@dimen/control_btn_elevation"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_zoom_out" />
+    </FrameLayout>
+
+</LinearLayout>

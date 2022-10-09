@@ -1,8 +1,6 @@
 package com.navigine.navigine.demo.ui.dialogs.sheets;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,17 +9,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.navigine.navigine.demo.R;
 
-public class VenueBottomSheet extends BottomSheetDialogFragment {
+
+public class BottomSheetVenue extends BottomSheetDialogFragment {
 
     private TextView         mSheetTitle        = null;
     private TextView         mVenueDescription  = null;
@@ -40,7 +36,7 @@ public class VenueBottomSheet extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.bottom_sheet_venue, container, false);
+        View view = inflater.inflate(R.layout.sheet_bottom_venue, container, false);
         initViews(view);
         setViewsParams();
         setViewsListeners();
@@ -67,7 +63,7 @@ public class VenueBottomSheet extends BottomSheetDialogFragment {
                     .apply(new RequestOptions().fitCenter())
                     .into(mVenueImage);
         } else {
-            mVenueImage.setImageDrawable(ResourcesCompat.getDrawable(requireActivity().getResources(), R.drawable.elm_loading_venue_photo, null));
+            mVenueImage.setImageResource(R.drawable.elm_loading_venue_photo);
         }
 
         mRouteButton.setVisibility(VISIBILITY);

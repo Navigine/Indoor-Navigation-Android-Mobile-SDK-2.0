@@ -23,6 +23,7 @@ import com.navigine.idl.java.LocationInfo;
 import com.navigine.idl.java.LocationListListener;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.adapters.locations.LocationListAdapter;
+import com.navigine.navigine.demo.utils.Constants;
 import com.navigine.navigine.demo.utils.NavigineSdkManager;
 import com.navigine.navigine.demo.utils.NetworkUtils;
 
@@ -35,7 +36,6 @@ import java.util.TreeSet;
 public class LocationsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
 
     private static final int DELAY_UPDATE   = 3000;
-    private static final int DELAY_PROGRESS = 700;
 
     private Window                    window                     = null;
     private SwipeRefreshLayout        mSwipeRefreshLayout        = null;
@@ -206,7 +206,7 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void hideCircularProgress() {
         mCircularProgressIndicator.hide();
-        mCircularProgressIndicator.postDelayed(() -> mCircularProgress.setVisibility(GONE), DELAY_PROGRESS);
+        mCircularProgressIndicator.postDelayed(() -> mCircularProgress.setVisibility(GONE), Constants.CIRCULAR_PROGRESS_DELAY_HIDE);
     }
 
     private void hideRefreshView() {

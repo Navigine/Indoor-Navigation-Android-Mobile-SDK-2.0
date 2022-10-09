@@ -1,335 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/navigation_fragment__layout"
+    android:id="@+id/navigation__layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.fragments.NavigationFragment">
+        android:layout_height="match_parent">
 
-
+        <!-- Main layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/navigation_fragment__navigation_layout"
+            android:id="@+id/navigation__navigation_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
             android:clickable="true"
             android:focusable="true"
             android:visibility="gone">
 
-            <!-- Main layout -->
-            <FrameLayout
-                android:id="@+id/navigation_fragment__main_layout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:animateLayoutChanges="true"
+            <com.navigine.view.LocationView
+                android:id="@+id/navigation__location_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center" />
+
+            <!-- Sublocation panel -->
+            <include layout="@layout/panel_sublocations" />
+
+            <!-- Zoom panel -->
+            <include
+                layout="@layout/panel_zoom"
+                android:layout_width="@dimen/control_btn_size"
+                android:layout_height="@dimen/control_btn_height_zoom"
+                android:layout_marginEnd="@dimen/control_btn_margin_side"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias=".25" />
 
-                <com.navigine.view.LocationView
-                    android:id="@+id/navigation_fragment__location_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center" />
+            <!-- Adjust button -->
+            <FrameLayout
+                android:id="@+id/navigation__adjust_mode_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/control_btn_margin_side"
+                android:layout_marginBottom="@dimen/navigation_margin_adjust_btn"
+                android:background="@drawable/bg_adjust_btn"
+                android:clickable="true"
+                android:elevation="@dimen/control_btn_elevation"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-                <!-- Navigation error message -->
-                <TextView
-                    android:id="@+id/navigation_fragment__error_message_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="70dp"
-                    android:layout_gravity="bottom"
-                    android:background="@drawable/bg_err"
-                    android:clickable="true"
-                    android:fontFamily="@font/circe_reg"
-                    android:gravity="center"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textColor="#EBEBEB"
-                    android:textSize="15sp"
-                    android:visibility="gone" />
+            </FrameLayout>
 
+            <FrameLayout
+                android:id="@+id/navigation__search_transparent_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:elevation="@dimen/control_btn_elevation"
+                android:gravity="top">
 
-                <!-- Sublocation choice -->
-                <FrameLayout
-                    android:id="@+id/navigation_fragment__arrow_up"
-                    android:layout_width="@dimen/control_panel_item_size"
-                    android:layout_height="@dimen/control_panel_item_size"
-                    android:layout_gravity="top|start"
-                    android:layout_marginStart="13dp"
-                    android:layout_marginTop="@dimen/margin_top_arrow_up"
-                    android:background="@drawable/bg_control_panel_ripple"
-                    android:clickable="true"
-                    android:elevation="2dp"
-                    android:focusable="true"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@drawable/ic_arrow_up_filled" />
-                </FrameLayout>
-
+                <!-- POI search view -->
                 <LinearLayout
-                    android:id="@+id/navigation_fragment__sublocations_container"
-                    android:layout_width="@dimen/control_panel_item_size"
+                    android:id="@+id/navigation_search"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="top|start"
-                    android:layout_marginStart="13dp"
-                    android:layout_marginTop="150dp"
-                    android:background="@drawable/bg_control_panel"
-                    android:elevation="2dp"
-                    android:orientation="vertical">
+                    android:animateLayoutChanges="true"
+                    android:background="@drawable/bg_rounded_bottom_transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/margin_top_bar_top">
 
-                    <com.navigine.navigine.demo.ui.custom.lists.ListViewLimit
-                        android:id="@+id/navigation_fragment__sublocations_lv"
+                    <!--Chips scroll view-->
+                    <HorizontalScrollView
+                        android:id="@+id/navigation__search_chips_scroll"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:choiceMode="singleChoice"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:listSelector="?attr/selectableItemBackground"
-                        android:nestedScrollingEnabled="true"
-                        android:scrollbars="none"
-                        app:maxHeight="@dimen/control_panel_list_height_max" />
+                        android:animateLayoutChanges="true"
+                        android:paddingStart="@dimen/screen_padding"
+                        android:paddingEnd="@dimen/navigation_scroll_chips_padding_end">
 
-                </LinearLayout>
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/navigation__search_chips_group"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleLine="true" />
 
+                    </HorizontalScrollView>
 
-                <FrameLayout
-                    android:id="@+id/navigation_fragment__arrow_down"
-                    android:layout_width="@dimen/control_panel_item_size"
-                    android:layout_height="@dimen/control_panel_item_size"
-                    android:layout_gravity="top|start"
-                    android:layout_marginStart="13dp"
-                    android:layout_marginTop="@dimen/margin_top_arrow_down"
-                    android:background="@drawable/bg_control_panel_ripple"
-                    android:clickable="true"
-                    android:elevation="2dp"
-                    android:focusable="true"
-                    android:visibility="gone">
+                    <!--Search box-->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/navigation__search_panel"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/search_height"
+                        android:animateLayoutChanges="true"
+                        android:paddingHorizontal="@dimen/screen_padding">
 
-                    <ImageView
-                        android:layout_width="wrap_content"
+                        <androidx.appcompat.widget.SearchView
+                            android:id="@+id/navigation__search_field"
+                            style="@style/AppTheme.Search"
+                            android:layout_marginEnd="8dp"
+                            android:paddingStart="@dimen/search_padding_start_icon"
+                            app:layout_constraintEnd_toStartOf="@id/navigation__search_btn_container"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <FrameLayout
+                            android:id="@+id/navigation__search_btn_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="@id/navigation__search_field"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/navigation__search_field">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/navigation__search_btn"
+                                style="@style/AppTheme.Search.Companion.Button"
+                                android:layout_gravity="center"
+                                android:text="@string/search_title"
+                                android:visibility="gone" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/navigation__search_btn_close"
+                                style="@style/AppTheme.Button.Close"
+                                android:layout_gravity="center"
+                                android:visibility="gone" />
+
+                        </FrameLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!--Venue icons list-->
+                    <include
+                        android:id="@+id/navigation__venue_icons"
+                        layout="@layout/venue_list_icons"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@drawable/ic_arrow_down_filled" />
-                </FrameLayout>
+                        android:layout_marginTop="@dimen/navigation_venue_list_margin_top"
+                        android:visibility="gone" />
 
-
-                <!-- Right panel: zoom in, zoom out, adjust buttons -->
-                <LinearLayout
-                    android:id="@+id/navigation_fragment__zoom_layout"
-                    android:layout_width="48dp"
-                    android:layout_height="84dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="120dp"
-                    android:layout_marginEnd="13dp"
-                    android:background="@drawable/bg_control_panel"
-                    android:elevation="2dp"
-                    android:gravity="end"
-                    android:orientation="vertical"
-                    android:visibility="visible">
-
-                    <!-- Zoom in button -->
-                    <FrameLayout
-                        android:id="@+id/navigation_fragment__zoom_in_view"
-                        android:layout_width="48dp"
-                        android:layout_height="42dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:id="@+id/navigation_fragment__zoom_in_button"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:background="@drawable/ic_zoom_in"
-                            android:visibility="visible" />
-                    </FrameLayout>
-
-                    <!-- Zoom out button -->
-                    <FrameLayout
-                        android:id="@+id/navigation_fragment__zoom_out_view"
-                        android:layout_width="48dp"
-                        android:layout_height="42dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:id="@+id/navigation_fragment__zoom_out_button"
-                            android:layout_width="18dp"
-                            android:layout_height="2dp"
-                            android:layout_gravity="center"
-                            android:background="@drawable/ic_zoom_out"
-                            android:visibility="visible" />
-                    </FrameLayout>
+                    <!-- Venue list-->
+                    <include
+                        android:id="@+id/navigation__venue_listview"
+                        layout="@layout/venue_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/navigation_venue_list_margin_top"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
-                <!-- Adjust button -->
-                <FrameLayout
-                    android:id="@+id/navigation_fragment__adjust_mode_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginEnd="13dp"
-                    android:layout_marginBottom="82dp"
-                    android:background="@drawable/bg_adjust_btn"
-                    android:clickable="true"
-                    android:focusable="true">
+            </FrameLayout>
 
-                </FrameLayout>
-
-                <ProgressBar
-                    android:id="@+id/navigation_fragment__progress_bar"
-                    android:layout_width="75dp"
-                    android:layout_height="75dp"
-                    android:layout_gravity="center"
-                    android:visibility="invisible" />
-
-            </FrameLayout> <!-- Main layout -->
-
+            <!-- Warning (GPS, Bluetooth) message -->
             <include
-                android:id="@+id/navigation_fragment__venue_listview"
-                layout="@layout/venue_list"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/navigation_fragment_search" />
-
-
-            <!-- POI search view -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/navigation_fragment_search"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/search_container_height"
-                android:animateLayoutChanges="true"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-
-                <androidx.appcompat.widget.SearchView
-                    android:id="@+id/navigation_fragment__search_field"
-                    style="@style/AppTheme.Search"
-                    android:layout_marginStart="@dimen/margin_side_bar_top"
-                    android:layout_marginTop="@dimen/margin_top_bar_top"
-                    android:layout_marginEnd="@dimen/search_margin_end_nav_btn"
-                    android:paddingLeft="@dimen/search_from_icon_padding"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/navigation_fragment__search_btn_container"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <FrameLayout
-                    android:id="@+id/navigation_fragment__search_btn_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_side_bar_top"
-                    app:layout_constraintBottom_toBottomOf="@id/navigation_fragment__search_field"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/navigation_fragment__search_field">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/navigation_fragment__search_btn"
-                        style="@style/AppTheme.Search.Companion.Button"
-                        android:layout_gravity="center"
-                        android:text="@string/search_title"
-                        android:visibility="gone" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/navigation_fragment__search_btn_close"
-                        style="@style/AppTheme.Sheet.Button.Close"
-                        android:layout_gravity="center"
-                        android:visibility="gone" />
-
-                </FrameLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:id="@+id/navigation__warning"
+                layout="@layout/warning"
+                android:visibility="gone" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- No location layout -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/navigation_fragment__no_location_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="visible">
-
-            <ImageView
-                android:id="@+id/navigation_fragment__no_location_image"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="120dp"
-                android:background="@drawable/ic_no_location"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.4" />
-
-            <TextView
-                android:id="@+id/navigation_fragment__no_location_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:fontFamily="@font/circe_reg"
-                android:text="@string/no_location_title"
-                android:textSize="34sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/navigation_fragment__no_location_image" />
-
-            <TextView
-                android:id="@+id/navigation_fragment__no_location_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/circe_reg"
-                android:gravity="center"
-                android:text="@string/no_location_subtitle"
-                android:textSize="17sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/navigation_fragment__no_location_text" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/navigation_fragment__choose_map"
-                style="@style/AppTheme.Button.Blue"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="@dimen/margin_bottom"
-                android:text="@string/no_location_choose_map"
-                android:textAllCaps="false"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <include
+            android:id="@+id/navigation__no_location_layout"
+            layout="@layout/no_location" />
 
         <!-- loading circular progress -->
         <FrameLayout
-            android:id="@+id/navigation_fragment__progress_circular"
+            android:id="@+id/navigation__progress_circular"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
             android:background="@color/colorBackground"
             android:visibility="gone">
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/navigation_fragment__progress_circular_indicator"
+                android:id="@+id/navigation__progress_circular_indicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -339,16 +187,22 @@
                 app:indicatorSize="@dimen/progress_circular_size"
                 app:showAnimationBehavior="inward"
                 app:trackColor="@color/colorPrimaryLight" />
+
+            <include
+                android:id="@+id/navigation__msg_delay"
+                layout="@layout/message_info_delay"
+                android:visibility="gone" />
+
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
-        android:id="@+id/navigation_fragment__make_route_sheet"
+        android:id="@+id/navigation__make_route_sheet"
         layout="@layout/sheet_make_route" />
 
     <include
-        android:id="@+id/navigation_fragment__cancel_route_sheet"
-        layout="@layout/cancel_route_sheet" />
+        android:id="@+id/navigation__cancel_route_sheet"
+        layout="@layout/sheet_cancel_route" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -42,7 +42,7 @@ public class RouteEventAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) Objects.requireNonNull(viewGroup.getContext()).getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.cancel_route_item, null);
+            view = inflater.inflate(R.layout.list_item_cancel_route, null);
         }
 
         RouteEvent event = cancelRouteList.get(i);

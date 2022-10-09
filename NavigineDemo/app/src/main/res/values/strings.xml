@@ -12,6 +12,11 @@
     <string name="login_action_change_host">Change server</string>
     <!--    navigation screen-->
     <string name="navigation_venue_route_btn_title">Route</string>
+    <string name="navigation_destination_select">Select destination</string>
+    <string name="navigation_promt_add_venue">Please add venue using WEB</string>
+    <string name="navigation_sublocation_load">Loading sublocation %1$s (%2$.2f x %3$.2f)</string>
+    <string name="navigation_sublocation_load_failed">Loading sublocation failed: invalid size: %1$.2f x %2$.2f</string>
+    <string name="navigation_location_load_delay_msg">Don\'t worry. We\'re almost done</string>
     <!--    dialog host-->
     <string name="dialog_host_hint">Host</string>
     <string name="dialog_host_btn_title">Change</string>
@@ -29,7 +34,7 @@
     <!--    no location layout-->
     <string name="no_location_title">No location</string>
     <string name="no_location_subtitle">You have to choose map in locations\n tab to work in this mode</string>
-    <string name="no_location_choose_map">Choose map</string>
+    <string name="no_location_btn_title">Choose map</string>
     <!--    debug-->
     <string name="debug_info_field_1">App version</string>
     <string name="debug_info_field_2">Device ID</string>
@@ -55,8 +60,6 @@
     <string name="err_sdk_not_init">SDK not initialized</string>
     <string name="err_profile_update_auth">Failed update user info. Authentication error</string>
     <string name="err_locations_update">Failed to download locations list</string>
-    <string name="err_position_update">Position update error</string>
-    <string name="err_position_define">Position isn\'t defined</string>
     <string name="err_network">Cannot connect to host…Please check your connection!</string>
     <string name="err_network_server">The server could not be found. Please try again after some time</string>
     <string name="err_network_auth">Authentication error</string>
@@ -64,12 +67,24 @@
     <string name="err_network_no_connection">No network connection</string>
     <string name="err_network_timeout">Connection TimeOut. Please check your internet connection</string>
     <string name="err_network_server_incorrect">The server is incorrect</string>
-    <string name="err_permission_camera">Camera permission required</string>
     <string name="err_deep_link">Intent keys are null</string>
     <string name="err_deep_link_send">Failed to send pending intent with deep link</string>
     <string name="err_deep_link_parse">Error while parsing deep link params</string>
+    <string name="err_permission_camera">Camera permission required</string>
+    <string name="err_permission_bluetooth">To determine your location, please, grant bluetooth permission</string>
+    <string name="err_permission_location">To determine your location, please, grant location permission</string>
+    <string name="err_permission_location_background">To determine your location in background, please, grant location permission by selecting first option in permissions settings</string>
+    <string name="err_permission_location_background_api_30">To determine your location in background, please, grant location permission by selecting \'%1$s\' in settings</string>
+    <string name="err_navigation_state_bluetooth">Your Bluetooth is not enabled, please turn it on to get the Navigation results!</string>
+    <string name="err_navigation_state_gps">Your GPS is not enabled, please turn it on to get the Navigation results!</string>
+    <string name="err_navigation_state_gps_bluetooth">Your GPS and Bluetooth are not enabled, please turn it on to get the Navigation results!</string>
+    <string name="err_navigation_position_update">Position update error</string>
+    <string name="err_navigation_position_define">Position isn\'t defined</string>
+    <string name="err_navigation_no_route">No route path</string>
     <!--    miscellaneous-->
     <string name="search_title">Search</string>
+    <string name="state_on">on</string>
+    <string name="state_off">off</string>
     <!--    permissions-->
     <string name="permission_rationale_message_bg_access">In order to ensure correct and effective navigation and positioning services, the application has to collect location data.
 For push notifications, the application has to work in background mode</string>

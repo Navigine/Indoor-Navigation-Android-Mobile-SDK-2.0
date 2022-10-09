@@ -68,8 +68,8 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="72dp"
                 android:adjustViewBounds="true"
-                android:background="@drawable/elm_loading_venue_photo"
                 android:scaleType="fitCenter"
+                android:src="@drawable/elm_loading_venue_photo"
                 app:layout_constraintTop_toBottomOf="@id/venue_dialog__description" />
 
         </LinearLayout>

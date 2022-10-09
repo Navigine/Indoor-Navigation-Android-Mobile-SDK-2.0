@@ -38,7 +38,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.navigine.camera.ui.activity.BarcodeScannerActivity;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.models.UserSession;
-import com.navigine.navigine.demo.ui.dialogs.sheets.HostBottomSheet;
+import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetHost;
 import com.navigine.navigine.demo.utils.NavigineSdkManager;
 import com.navigine.navigine.demo.utils.NetworkUtils;
 import com.navigine.navigine.demo.utils.PermissionUtils;
@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout           mLoginField        = null;
     private EditText                  mUserHash          = null;
     private Button                    mLoginButton       = null;
-    private HostBottomSheet           mDialog            = null;
+    private BottomSheetHost mDialog            = null;
     private TextView                  mEditHost          = null;
     private TextView                  mWarningTv         = null;
     private CircularProgressIndicator mProgressIndicator = null;
@@ -128,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton       = findViewById(R.id.login__done_button);
         mProgressIndicator = findViewById(R.id.login__progress);
         mEditHost          = findViewById(R.id.login__change_host);
-        mDialog            = new HostBottomSheet();
+        mDialog            = new BottomSheetHost();
     }
 
     private void setViewsParams() {

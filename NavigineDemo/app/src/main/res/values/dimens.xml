@@ -19,15 +19,31 @@
     <!--    search view-->
     <dimen name="search_container_height">100dp</dimen>
     <dimen name="search_height">37dp</dimen>
-    <dimen name="search_from_icon_padding">-12dp</dimen>
-    <dimen name="search_margin_end_nav_btn">8dp</dimen>
+    <dimen name="search_padding_start_icon">-12dp</dimen>
+    <dimen name="search_stroke_width">2dp</dimen>
     <!--    locations-->
     <dimen name="location_li_title">17sp</dimen>
     <dimen name="locations_list_height">454dp</dimen>
-    <!--    navigation & measure-->
-    <dimen name="control_panel_list_height_max">145dp</dimen>
-    <dimen name="margin_top_arrow_up">102dp</dimen>
-    <dimen name="margin_top_arrow_down">294dp</dimen>
+    <!--    navigation-->
+    <dimen name="navigation_margin_adjust_btn">80dp</dimen>
+    <dimen name="navigation_venue_list_margin_top">16dp</dimen>
+    <dimen name="navigation_scroll_chips_padding_end">24dp</dimen>
+    <!--    no location-->
+    <dimen name="no_location_img_size">120dp</dimen>
+    <dimen name="no_location_title">34sp</dimen>
+    <dimen name="no_location_subtitle">17sp</dimen>
+    <dimen name="no_location_subtitle_margin_top">10dp</dimen>
+    <dimen name="no_location_title_margin_top">32dp</dimen>
+    <!--    control panel-->
+    <dimen name="control_btn_size">48dp</dimen>
+    <dimen name="control_btn_height_zoom">96dp</dimen>
+    <dimen name="control_btn_margin_side">13dp</dimen>
+    <dimen name="control_btn_radius">4dp</dimen>
+    <dimen name="control_btn_elevation">1dp</dimen>
+    <!--    sublocations listview-->
+    <dimen name="listview_sublocations_height_max">145dp</dimen>
+    <dimen name="listview_sublocations_item_padding">5dp</dimen>
+    <dimen name="listview_sublocations_item_text">20sp</dimen>
     <!--    venues-->
     <dimen name="venue_icon_group_height">80dp</dimen>
     <dimen name="venue_icon_group_width">70dp</dimen>
@@ -45,7 +61,12 @@
     <!--    dialogs-->
     <dimen name="dialog_rounded_corners">10dp</dimen>
     <dimen name="dialog_rounded_text">20sp</dimen>
+    <dimen name="dialog_btn_close">28dp</dimen>
     <!--    warning-->
     <dimen name="warning_padding">10dp</dimen>
     <dimen name="warning_text">15sp</dimen>
+    <!--    info-->
+    <dimen name="info_delay_text">20sp</dimen>
+    <!--    route-->
+    <dimen name="route_list_item_title">17sp</dimen>
 </resources>

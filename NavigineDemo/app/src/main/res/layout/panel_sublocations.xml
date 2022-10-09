@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <!-- Sublocation choice -->
+    <!-- arrow up-->
+    <FrameLayout
+        android:id="@+id/panel_sublocations__arrow_up"
+        android:layout_width="@dimen/control_btn_size"
+        android:layout_height="@dimen/control_btn_size"
+        android:background="@drawable/bg_control_panel_ripple_round_top"
+        android:clickable="true"
+        android:elevation="@dimen/control_btn_elevation"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/panel_sublocations__listview"
+        app:layout_constraintStart_toStartOf="@id/panel_sublocations__listview"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_arrow_up_filled" />
+    </FrameLayout>
+
+    <!-- sublocations list-->
+    <com.navigine.navigine.demo.ui.custom.lists.ListViewLimit
+        android:id="@+id/panel_sublocations__listview"
+        android:layout_width="@dimen/control_btn_size"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/control_btn_margin_side"
+        android:background="@color/colorOnBackground_80"
+        android:choiceMode="singleChoice"
+        android:clickable="true"
+        android:elevation="@dimen/control_btn_elevation"
+        android:focusable="true"
+        android:listSelector="?attr/selectableItemBackground"
+        android:nestedScrollingEnabled="true"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:maxHeight="@dimen/listview_sublocations_height_max"
+        tools:listitem="@layout/list_item_sublocation" />
+
+    <!-- arrow down-->
+    <FrameLayout
+        android:id="@+id/panel_sublocations__arrow_down"
+        android:layout_width="@dimen/control_btn_size"
+        android:layout_height="@dimen/control_btn_size"
+        android:background="@drawable/bg_control_panel_ripple_round_bottom"
+        android:clickable="true"
+        android:elevation="@dimen/control_btn_elevation"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@id/panel_sublocations__listview"
+        app:layout_constraintTop_toBottomOf="@id/panel_sublocations__listview"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_arrow_down_filled" />
+    </FrameLayout>
+
+</merge>

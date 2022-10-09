@@ -3,7 +3,9 @@
     android:color="@color/colorPrimary_70">
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/control_btn_radius" />
+            <corners
+                android:topLeftRadius="@dimen/control_btn_radius"
+                android:topRightRadius="@dimen/control_btn_radius" />
             <solid android:color="@color/selector_btn_control" />
         </shape>
     </item>

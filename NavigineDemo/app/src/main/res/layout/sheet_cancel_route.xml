@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/venue_sheet_background"
+    android:background="@drawable/bg_sheet_bottom"
+    android:elevation="8dp"
     app:behavior_hideable="true"
     app:behavior_peekHeight="67dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -21,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/cancel_route_sheet__time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +34,7 @@
             android:textColor="@color/colorPrimary"
             android:textSize="17sp" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/cancel_route_sheet__distance_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +47,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel_route_sheet__cancel_button"
-            style="@style/AppTheme.Sheet.Button.Close"
+            style="@style/AppTheme.Button.Close"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="16dp" />

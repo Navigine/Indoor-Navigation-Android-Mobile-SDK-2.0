@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textview.MaterialTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/AppTheme.TextView.Info"
+    android:layout_marginBottom="40dp"
+    android:text="@string/navigation_location_load_delay_msg">
+
+</com.google.android.material.textview.MaterialTextView>

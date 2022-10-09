@@ -1,10 +1,14 @@
 package com.navigine.navigine.demo.utils;
 
-import android.app.Activity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
+import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.application.NavigineApp;
+
 public class DimensionUtils {
+
+    public static int STROKE_WIDTH = (int) NavigineApp.AppContext.getResources().getDimension(R.dimen.search_stroke_width);
 
     // Display settings
     private static DisplayMetrics DisplayMetrics  = null;

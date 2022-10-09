@@ -37,7 +37,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/host__sheet_close_button"
-            style="@style/AppTheme.Sheet.Button.Close"
+            style="@style/AppTheme.Button.Close"
             android:layout_marginTop="@dimen/login_sheet_title_margin"
             android:layout_marginRight="@dimen/login_sheet_title_margin"
             app:layout_constraintRight_toRightOf="parent"

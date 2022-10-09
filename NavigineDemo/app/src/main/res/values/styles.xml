@@ -132,18 +132,20 @@
         <item name="android:layout_height">@dimen/list_item_height</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
         <item name="backgroundTint">@color/selector_btn_blue</item>
         <item name="android:textColor">@color/colorOnBackground</item>
         <item name="android:textSize">17sp</item>
         <item name="android:fontFamily">@font/circe_bold</item>
     </style>
 
-    <style name="AppTheme.Sheet.Button.Close" parent="Widget.MaterialComponents.Button.UnelevatedButton">
-        <item name="android:layout_width">@dimen/login_sheet_close</item>
-        <item name="android:layout_height">@dimen/login_sheet_close</item>
+    <style name="AppTheme.Button.Close" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">@dimen/dialog_btn_close</item>
+        <item name="android:layout_height">@dimen/dialog_btn_close</item>
         <item name="iconTint">@color/colorTextPrimary</item>
-        <item name="backgroundTint">@color/grayLight</item>
-        <item name="rippleColor">@android:color/darker_gray</item>
+        <item name="backgroundTint">@color/colorBackground</item>
+        <item name="rippleColor">@color/colorSecondary</item>
         <item name="icon">@drawable/ic_close</item>
         <item name="iconSize">@dimen/login_sheet_close_icon</item>
         <item name="iconGravity">textStart</item>
@@ -154,10 +156,15 @@
         <item name="android:insetLeft">@dimen/btn_icon_inset</item>
         <item name="android:insetRight">@dimen/btn_icon_inset</item>
         <item name="shapeAppearanceOverlay">
-            @style/AppTheme.Activity.Login.BottomSheet.Button.Close.Shape
+            @style/AppTheme.Button.Close.Shape
         </item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
+    </style>
+
+    <style name="AppTheme.Button.Close.Shape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 
     <style name="AppTheme.Activity.Login.BottomSheet.Button.Close.Shape" parent="">
@@ -332,6 +339,27 @@
         <item name="android:padding">@dimen/warning_padding</item>
         <item name="android:textColor">@color/colorOnBackground</item>
         <item name="android:textSize">@dimen/warning_text</item>
+    </style>
+
+    <style name="AppTheme.TextView.Info" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/info_delay_text</item>
+    </style>
+
+    <style name="AppTheme.ListItem.Sublocation" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/control_btn_size</item>
+        <item name="android:background">@drawable/selector_li_bg_subloc</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/listview_sublocations_item_padding</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/selector_li_tv_subloc</item>
+        <item name="android:textSize">@dimen/listview_sublocations_item_text</item>
     </style>
 
 </resources>
