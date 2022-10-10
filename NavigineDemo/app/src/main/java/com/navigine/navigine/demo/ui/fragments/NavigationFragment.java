@@ -209,6 +209,12 @@ public class NavigationFragment extends BaseFragment{
 
     private float mZoomCameraDefault = 0f;
 
+    private final Runnable mDelayMessageCallback = () -> {
+        if (mCircularProgressIndicator.isShown()) {
+            mDelayMessage.setVisibility(VISIBLE);
+        }
+    };
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -870,19 +876,12 @@ public class NavigationFragment extends BaseFragment{
     }
 
     private void showMessageDelay() {
-        mHandler.postDelayed(() -> {
-            if (mCircularProgressIndicator.isShown()) {
-                mDelayMessage.setVisibility(VISIBLE);
-            }
-        }, LOCATION_LOAD_DELAY);
+        mHandler.postDelayed(mDelayMessageCallback, LOCATION_LOAD_DELAY);
     }
 
     private void hideMessageDelay() {
+        mHandler.removeCallbacks(mDelayMessageCallback);
         mDelayMessage.setVisibility(GONE);
-    }
-
-    private boolean isPointWithinSublocationScope(Point p) {
-        return (p.getX() >= 0.0f && p.getX() <= mSublocation.getWidth() && p.getY() >= 0.0f && p.getY() <= mSublocation.getHeight());
     }
 
     private void setRoutePin(Point point) {
@@ -1110,7 +1109,6 @@ public class NavigationFragment extends BaseFragment{
         hideLoadProgress();
         resetLocationFlags();
         onMapLoaded();
-
     }
 
     private boolean loadSubLocation(int index) {
