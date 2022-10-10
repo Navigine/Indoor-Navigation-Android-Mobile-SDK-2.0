@@ -164,11 +164,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onHandleCheckUserHashResponse() {
-        if (sdkInit()) startActivity(new Intent(this, MainActivity.class));
+        if (sdkInit()) openMainScreen();
         else {
             showTempWarningMessage(getString(R.string.err_sdk_not_init));
             hideLoginProgress();
         }
+    }
+
+    private void openMainScreen() {
+        startActivity(new Intent(this, MainActivity.class));
+        finishAffinity();
     }
 
     private void showTempWarningMessage(String message) {
@@ -253,6 +258,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (NavigineSdkManager.initializeSdk()) {
                         try {
                             createDeepLink(bundle).send();
+                            finishAffinity();
                         } catch (PendingIntent.CanceledException e) {
                             Log.e(TAG, getString(R.string.err_deep_link_send));
                         }

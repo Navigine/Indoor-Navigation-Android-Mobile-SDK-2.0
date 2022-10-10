@@ -77,7 +77,7 @@ public abstract class BaseFragment extends Fragment {
     protected abstract void updateStatusBar();
 
     protected void updateUiState() { }
-    
+
     protected void updateWarningMessageState() { }
 
     protected void onGpsStateChanged() {
