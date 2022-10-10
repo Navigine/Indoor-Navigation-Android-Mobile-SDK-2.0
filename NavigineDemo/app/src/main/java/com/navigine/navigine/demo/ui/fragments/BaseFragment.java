@@ -2,14 +2,12 @@ package com.navigine.navigine.demo.ui.fragments;
 
 import static com.navigine.navigine.demo.utils.Constants.LOCATION_CHANGED;
 
-import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,11 +16,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.navigine.navigine.demo.R;
+import com.navigine.navigine.demo.utils.PermissionUtils;
 
 
 public abstract class BaseFragment extends Fragment {
@@ -134,27 +132,17 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected boolean hasLocationPermission() {
-        return (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                +
-                ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                ==
-                PackageManager.PERMISSION_GRANTED);
+        return PermissionUtils.hasLocationPermission(requireActivity());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     protected boolean hasBluetoothPermission() {
-        return ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.BLUETOOTH_SCAN)
-                ==
-                PackageManager.PERMISSION_GRANTED;
+        return PermissionUtils.hasBluetoothPermission(requireActivity());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     protected boolean hasBackgroundLocationPermission() {
-        return hasLocationPermission()
-                &&
-                ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                        ==
-                        PackageManager.PERMISSION_GRANTED;
+        return PermissionUtils.hasLocationBackgroundPermission(requireActivity());
     }
 
     protected void openLocationsScreen() {
