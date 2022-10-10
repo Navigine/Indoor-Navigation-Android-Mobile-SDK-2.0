@@ -672,8 +672,6 @@ public class NavigationFragment extends BaseFragment{
     private void setObservers() {
         viewModel.mLocation.observe(getViewLifecycleOwner(), location -> {
 
-            if (mLocation != null && mLocation.getId() == location.getId()) return;
-
             mLocation = location;
             mLocationLoaded = mLocation != null;
 

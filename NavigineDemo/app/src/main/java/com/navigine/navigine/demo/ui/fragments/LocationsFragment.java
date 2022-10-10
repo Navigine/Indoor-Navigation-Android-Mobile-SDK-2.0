@@ -199,7 +199,7 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
     private void updateLocationListDeferred() {
         if (getView() != null) {
             getView().postDelayed(() -> {
-                if (isProgressShown()) updateLocationListForce();
+                if (isVisible() && isProgressShown()) updateLocationListForce();
             }, DELAY_UPDATE);
         }
     }
@@ -219,7 +219,7 @@ public class LocationsFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     private boolean isProgressShown() {
-        return mCircularProgressIndicator.isShown();
+        return mCircularProgress.getVisibility() == View.VISIBLE;
     }
 
     private void showWarningMessage() {
