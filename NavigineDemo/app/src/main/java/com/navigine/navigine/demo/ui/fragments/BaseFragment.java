@@ -53,7 +53,6 @@ public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onHiddenChanged(boolean hidden) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) updateGlSurfaceView(hidden);
         if (!hidden) {
             updateStatusBar();
             updateUiState();
@@ -78,9 +77,7 @@ public abstract class BaseFragment extends Fragment {
     protected abstract void updateStatusBar();
 
     protected void updateUiState() { }
-
-    protected void updateGlSurfaceView(boolean isViewHidden) { }
-
+    
     protected void updateWarningMessageState() { }
 
     protected void onGpsStateChanged() {

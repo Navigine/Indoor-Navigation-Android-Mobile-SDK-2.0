@@ -9,5 +9,10 @@
         android:id="@+id/fr_navigation"
         android:name="com.navigine.navigine.demo.ui.fragments.NavigationFragment"
         android:label="b"
-        tools:layout="@layout/fragment_navigation" />
+        tools:layout="@layout/fragment_navigation">
+
+        <deepLink app:uri="navigine://open?server={server}&amp;userhash={userhash}&amp;loc={loc}&amp;subloc={subloc}&amp;venue_id={venue_id}" />
+        <deepLink app:uri="navigine://route?server={server}&amp;userhash={userhash}&amp;loc={loc}&amp;subloc={subloc}&amp;venue_id={venue_id}" />
+
+    </fragment>
 </navigation>

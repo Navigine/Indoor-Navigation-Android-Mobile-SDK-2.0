@@ -249,11 +249,6 @@ public class NavigationFragment extends BaseFragment{
     }
 
     @Override
-    protected void updateGlSurfaceView(boolean isViewHidden) {
-        if (mGlSurfaceView != null) mGlSurfaceView.setVisibility(isViewHidden ? GONE : VISIBLE);
-    }
-
-    @Override
     protected void updateStatusBar() {
         window.setStatusBarColor(mNavigationLayout.getVisibility() == VISIBLE ?
                 ContextCompat.getColor(requireActivity(), R.color.colorOnBackground) :
