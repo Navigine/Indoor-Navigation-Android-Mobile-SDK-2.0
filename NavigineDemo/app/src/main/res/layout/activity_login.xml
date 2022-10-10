@@ -43,13 +43,12 @@
             android:id="@+id/login__login_layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/list_item_height"
-            android:hint="@string/login_userhash_hint"
             app:endIconDrawable="@drawable/ic_qr_code"
             app:endIconMode="custom"
             app:expandedHintEnabled="false"
             app:hintEnabled="false"
             app:placeholderText="@string/login_userhash_hint"
-            app:placeholderTextColor="@color/colorTextSecondary">
+            app:placeholderTextColor="@color/colorSecondaryVariant">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login__login_edit"
