@@ -192,7 +192,7 @@ public class BottomSheetHost extends BottomSheetDialogFragment {
     private void onHealthCheckSuccess() {
         updateLocationServer();
         hideLoadingAnimation();
-        updateHostField(true, getString(R.string.dialog_host_subtitle_server_correct));
+        updateHostField(true, getString(R.string.server_correct));
     }
 
     private void updateLocationServer() {
