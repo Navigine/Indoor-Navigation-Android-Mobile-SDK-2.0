@@ -109,7 +109,7 @@ import java.util.Map;
 public class NavigationFragment extends BaseFragment{
 
     private static final String KEY_VENUE       = "name";
-    public static final int LOCATION_LOAD_DELAY = 10_000;
+    public static final int LOCATION_LOAD_DELAY = 5_000;
 
     private SharedViewModel viewModel = null;
 
@@ -262,7 +262,7 @@ public class NavigationFragment extends BaseFragment{
     @Override
     protected void updateUiState() {
         if (mLocationChanged) showLoadProgress();
-        if (mLocationLoaded) loadMap();
+        if (mLocationLoaded)  loadMap();
         if (mLocationView != null) mLocationView.onResume();
     }
 
