@@ -43,6 +43,7 @@ dependencies {
     def espresso_version       = "3.4.0"
     def lottie_version         = "5.0.3"
     def volley_version         = "1.2.1"
+    def shimmer_version        = "0.5.0"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //navigine sdk
@@ -75,7 +76,8 @@ dependencies {
     implementation "com.airbnb.android:lottie:$lottie_version"
     //Volley
     implementation "com.android.volley:volley:$volley_version"
-
+    //Shimmer
+    implementation "com.facebook.shimmer:shimmer:$shimmer_version"
 }
 
 task moveDebugApk(type: Copy) {
