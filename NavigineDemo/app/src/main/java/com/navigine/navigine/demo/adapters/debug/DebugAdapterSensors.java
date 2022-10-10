@@ -32,14 +32,19 @@ public class DebugAdapterSensors extends DebugAdapterBase<DebugViewHolderBaseInf
     public void onBindViewHolder(@NonNull DebugViewHolderBaseInfo holder, int position) {
         if (position > 0) {
             try {
-                holder.name. setText(mCurrentList.get(position)[0]);
-                holder.value.setText(mCurrentList.get(position)[1]);
+                holder.name. setText(mCurrentList.get(position - 1)[0]);
+                holder.value.setText(mCurrentList.get(position - 1)[1]);
             } catch (ArrayIndexOutOfBoundsException e) {
                 holder.name. setText("---");
                 holder.value.setText(null);
             }
 
         }
+    }
+
+    @Override
+    public int getItemCount() {
+        return mCurrentList.size() + 1;
     }
 
     @Override
