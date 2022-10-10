@@ -9,13 +9,13 @@ import java.nio.ByteBuffer;
 
 public class CameraInputInfo implements InputInfo {
 
-    private ByteBuffer frameByteBuffer = null;
-    private FrameMetadata frameMetadata = null;
-    private Bitmap bitmap = null;
+    private ByteBuffer    frameByteBuffer  = null;
+    private FrameMetadata frameMetadata    = null;
+    private Bitmap        bitmap           = null;
 
     public CameraInputInfo(ByteBuffer frameByteBuffer, FrameMetadata frameMetadata) {
         this.frameByteBuffer = frameByteBuffer;
-        this.frameMetadata = frameMetadata;
+        this.frameMetadata   = frameMetadata;
     }
 
     @Override

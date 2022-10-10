@@ -1,7 +1,5 @@
 package com.navigine.camera.ui.activity;
 
-import static com.navigine.camera.utils.Constants.QR_DATA_KEY;
-
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Intent;
@@ -32,18 +30,18 @@ public class BarcodeScannerActivity extends AppCompatActivity {
     private CameraViewModel.CameraState currentCameraState = null;
 
     private CameraSourcePreview preview           = null;
-    private GraphicOverlay graphicOverlay    = null;
+    private GraphicOverlay      graphicOverlay    = null;
     private Chip                promtChip         = null;
     private ImageView           closeBtn          = null;
     private ImageView           flashBtn          = null;
     private AnimatorSet         promtChipAnimator = null;
-
-    private CameraSource cameraSource = null;
+    private CameraSource        cameraSource      =  null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         setContentView(R.layout.activity_barcode_scanner);
         initcameraViewModels();
         initViews();
@@ -57,7 +55,7 @@ public class BarcodeScannerActivity extends AppCompatActivity {
         super.onResume();
         cameraViewModel.markCameraFrozen();
         currentCameraState = CameraViewModel.CameraState.NOT_STARTED;
-        cameraSource.setFrameProcessor(new BarcodeProcessor(graphicOverlay, cameraViewModel));
+        cameraSource.   setFrameProcessor(new BarcodeProcessor(graphicOverlay, cameraViewModel));
         cameraViewModel.setCameraState(CameraViewModel.CameraState.DETECTING);
     }
 
@@ -150,7 +148,6 @@ public class BarcodeScannerActivity extends AppCompatActivity {
             if (barcode != null) {
                 Intent intent = new Intent();
                 intent.setData(Uri.parse(barcode.getRawValue()));
-//                intent.putExtra(QR_DATA_KEY, barcode.getRawValue());
                 setResult(RESULT_OK, intent);
                 finish();
             }

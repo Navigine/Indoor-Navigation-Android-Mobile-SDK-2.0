@@ -3,7 +3,6 @@ package com.navigine.camera.camera;
 import static android.view.Surface.ROTATION_180;
 import static android.view.Surface.ROTATION_270;
 import static android.view.Surface.ROTATION_90;
-
 import static com.navigine.camera.utils.Constants.ASPECT_RATIO_TOLERANCE;
 import static com.navigine.camera.utils.Constants.DEFAULT_REQUESTED_CAMERA_PREVIEW_HEIGHT;
 import static com.navigine.camera.utils.Constants.DEFAULT_REQUESTED_CAMERA_PREVIEW_WIDTH;
@@ -44,7 +43,7 @@ public class CameraSource {
 
     public CameraSource(GraphicOverlay graphicOverlay) {
         this.graphicOverlay = graphicOverlay;
-        this.context = graphicOverlay.getContext();
+        this.context        = graphicOverlay.getContext();
     }
 
 

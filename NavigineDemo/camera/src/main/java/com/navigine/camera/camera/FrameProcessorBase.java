@@ -8,9 +8,11 @@ import com.google.mlkit.vision.common.InputImage;
 import com.navigine.camera.model.CameraInputInfo;
 import com.navigine.camera.model.FrameMetadata;
 import com.navigine.camera.ui.custom.GraphicOverlay;
-import com.navigine.camera.utils.ScopedExecutor;;
+import com.navigine.camera.utils.ScopedExecutor;
 
 import java.nio.ByteBuffer;
+
+;
 
 public abstract class FrameProcessorBase<T> implements FrameProcessor {
 

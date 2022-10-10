@@ -7,8 +7,8 @@ public class FrameMetadata {
     private int rotation;
 
     public FrameMetadata(int width, int height, int rotation) {
-        this.width = width;
-        this.height = height;
+        this.width    = width;
+        this.height   = height;
         this.rotation = rotation;
     }
 

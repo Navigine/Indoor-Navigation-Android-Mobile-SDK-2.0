@@ -11,8 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.common.images.Size;
-import com.navigine.camera.camera.CameraSource;
 import com.navigine.camera.R;
+import com.navigine.camera.camera.CameraSource;
 
 import java.io.IOException;
 
@@ -20,8 +20,8 @@ public class CameraSourcePreview extends FrameLayout {
 
     private SurfaceView    surfaceView       = null;
     private GraphicOverlay graphicOverlay    = null;
-    private CameraSource cameraSource      = null;
-    private Size         cameraPreviewSize = null;
+    private CameraSource   cameraSource      = null;
+    private Size           cameraPreviewSize = null;
 
     private boolean startRequested   = false;
     private boolean surfaceAvailable = false;
@@ -76,7 +76,7 @@ public class CameraSourcePreview extends FrameLayout {
         if (cameraSource != null && cameraSource.getPreviewSize() != null) {
             cameraPreviewSize = cameraSource.getPreviewSize();
         }
-        float previewSizeRatio = cameraPreviewSize != null ? (float) cameraPreviewSize.getHeight() / cameraPreviewSize.getWidth() : (float) layoutWidth / (float) layoutHeight;
+        float previewSizeRatio = (float) layoutWidth / (float) layoutHeight;
 
         int childHeight = (int) (layoutWidth / previewSizeRatio);
 

@@ -19,15 +19,15 @@ import java.util.List;
 
 public class BarcodeProcessor extends FrameProcessorBase<List<Barcode>> {
 
-    private GraphicOverlay graphicOverlay = null;
-    private CameraViewModel cameraViewModel = null;
-
-    private BarcodeScanner scanner = BarcodeScanning.getClient();
+    private GraphicOverlay        graphicOverlay        = null;
+    private CameraViewModel       cameraViewModel       = null;
     private CameraReticleAnimator cameraReticleAnimator = null;
 
+    private BarcodeScanner scanner = BarcodeScanning.getClient();
+
     public BarcodeProcessor(GraphicOverlay graphicOverlay, CameraViewModel cameraViewModel) {
-        this.graphicOverlay = graphicOverlay;
-        this.cameraViewModel = cameraViewModel;
+        this.graphicOverlay   = graphicOverlay;
+        this.cameraViewModel  = cameraViewModel;
         cameraReticleAnimator = new CameraReticleAnimator(graphicOverlay);
     }
 

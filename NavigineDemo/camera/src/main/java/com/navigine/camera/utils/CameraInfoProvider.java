@@ -5,7 +5,6 @@ import static com.navigine.camera.utils.Constants.ASPECT_RATIO_TOLERANCE;
 
 import android.hardware.Camera;
 
-
 import com.navigine.camera.model.CameraSizePair;
 
 import java.util.ArrayList;
