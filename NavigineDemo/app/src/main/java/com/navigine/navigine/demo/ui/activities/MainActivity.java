@@ -44,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
+    }
+
     private void handleDeepLink() {
         Uri data = getIntent().getData();
         if (data != null) {
@@ -77,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
         mBottomNavigation.setupWithNavController(
                 navGraphIds,
                 getSupportFragmentManager(),
-                R.id.nav_host_fragment_activity_main);
+                R.id.nav_host_fragment_activity_main,
+                getIntent());
     }
 
 
