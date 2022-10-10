@@ -98,7 +98,6 @@ import com.navigine.navigine.demo.utils.VenueIconsListProvider;
 import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 import com.navigine.view.LocationView;
 import com.navigine.view.TouchInput;
-import com.navigine.view.internal.GLViewHolder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -139,7 +138,6 @@ public class NavigationFragment extends BaseFragment{
     private MaterialTextView              mDelayMessage              = null;
     private CircularProgressIndicator     mCircularProgressIndicator = null;
     private LocationView                  mLocationView              = null;
-    private View                          mGlSurfaceView             = null;
     private ImageView                     mFromImageView             = null;
     private ImageView                     mSearchBtnClear            = null;
     private MaterialButton                mSearchBtn                 = null;
@@ -397,9 +395,6 @@ public class NavigationFragment extends BaseFragment{
         mSublocationsListView      = view.findViewById(R.id.panel_sublocations__listview);
         mChipsScroll               = view.findViewById(R.id.navigation__search_chips_scroll);
         mChipGroup                 = view.findViewById(R.id.navigation__search_chips_group);
-
-        GLViewHolder glVH = mLocationView.getLocationViewController().getGLViewHolder();
-        if (glVH != null) mGlSurfaceView = glVH.getView();
 
     }
 
