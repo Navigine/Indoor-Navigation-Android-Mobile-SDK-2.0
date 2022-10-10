@@ -47,7 +47,33 @@
         </activity>
         <activity
             android:name=".ui.activities.MainActivity"
-            android:windowSoftInputMode="adjustPan" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="open"
+                    android:scheme="navigine" />
+            </intent-filter>
+
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="route"
+                    android:scheme="navigine" />
+            </intent-filter>
+
+        </activity>
         <activity
             android:name=".ui.activities.NotificationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
