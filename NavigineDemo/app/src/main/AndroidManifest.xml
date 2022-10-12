@@ -48,11 +48,6 @@
             android:name=".ui.activities.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan" />
-        <activity
-            android:name=".ui.activities.NotificationActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="false"
-            android:theme="@style/AppTheme.Activity.Fullscreen" />
     </application>
 
 </manifest>
