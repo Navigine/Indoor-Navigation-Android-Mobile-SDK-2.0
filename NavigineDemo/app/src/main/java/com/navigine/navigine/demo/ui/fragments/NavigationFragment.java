@@ -741,15 +741,20 @@ public class NavigationFragment extends BaseFragment{
             @Override
             public void onPositionUpdated(Position position) {
                 mPosition = position;
+                LocationPoint lp = mPosition.getLocationPoint();
+                if (lp == null) {
+                    return;
+                }
+
                 if (mAdjustMode) {
-                    int id = position.getSublocationId();
+                    int id = lp.getSublocationId();
                     if (mSublocation.getId() != id) {
                         mSublocation = mLocation.getSublocationById(id);
                         loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
                     }
-                    adjustDevice(position.getPoint());
+                    adjustDevice(lp.getPoint());
                 }
-                mFromPoint = new LocationPoint(position.getPoint(), position.getLocationId(), position.getSublocationId());
+                mFromPoint = lp;
                 mPositionIcon.setVisible(true);
                 if (mSetupPosition) {
                     mSetupPosition = false;

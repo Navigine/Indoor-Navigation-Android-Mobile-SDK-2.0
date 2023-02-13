@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.navigine.idl.java.Location;
+import com.navigine.idl.java.LocationPoint;
 import com.navigine.idl.java.MeasurementListener;
 import com.navigine.idl.java.Position;
 import com.navigine.idl.java.PositionListener;
@@ -408,8 +409,14 @@ public class DebugFragment extends BaseFragment
         }
         if (position != null)
         {
-            infoEntries.add(new String[]{getString(R.string.debug_info_field_4), String.format(Locale.ENGLISH, "%d/%d, x=%.1f, y=%.1f", position.getLocationId(), position.getSublocationId(),
-                    position.getPoint().getX(), position.getPoint().getY())});
+            LocationPoint lp = position.getLocationPoint();
+            if (lp != null) {
+                infoEntries.add(new String[]{getString(R.string.debug_info_field_4), String.format(Locale.ENGLISH, "%d/%d, x=%.1f, y=%.1f", lp.getLocationId(), lp.getSublocationId(),
+                        lp.getPoint().getX(), lp.getPoint().getY())});
+            } else {
+                infoEntries.add(new String[]{getString(R.string.debug_info_field_4), String.format(Locale.ENGLISH, "-/-, lat=%.1f, lon=%.1f",
+                        position.getPoint().getLatitude(), position.getPoint().getLongitude())});
+            }
         }
         else
         {
