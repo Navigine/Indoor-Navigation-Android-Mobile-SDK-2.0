@@ -16,7 +16,7 @@ The following sections describe the contents of the Navigine Android SDK reposit
 - Find company contact information at the official website under <a href="https://navigine.com/contacts/">Contact</a> tab.
 
 ## Values and benefits
-1. High Accuracy: The Indoor Navigation Android Mobile SDK 2.0 offers high accuracy indoor positioning technology, which can detect the user's location within 1-2 meters, providing reliable indoor navigation and wayfinding solutions.
+1. High Accuracy: The Indoor Navigation Android Mobile SDK 2.0 offers high accuracy indoor positioning technology, which can detect the user's location within 2-5 meters, providing reliable indoor navigation and wayfinding solutions.
 
 2. Customizable: The SDK is highly customizable, enabling developers to tailor the technology to their specific needs and create unique indoor navigation solutions for different industries.
 
