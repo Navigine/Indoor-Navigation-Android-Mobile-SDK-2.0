@@ -15,6 +15,23 @@ The following sections describe the contents of the Navigine Android SDK reposit
 - Refer to the Navigine [User Manual](http://docs.navigine.com/) for complete product usage guidelines.
 - Find company contact information at the official website under <a href="https://navigine.com/contacts/">Contact</a> tab.
 
+## Values and benefits
+1. High Accuracy: The Indoor Navigation Android Mobile SDK 2.0 offers high accuracy indoor positioning technology, which can detect the user's location within 1-2 meters, providing reliable indoor navigation and wayfinding solutions.
+
+2. Customizable: The SDK is highly customizable, enabling developers to tailor the technology to their specific needs and create unique indoor navigation solutions for different industries.
+
+3. Scalable: The SDK is designed to be scalable, making it suitable for businesses of all sizes, from small retail stores to large-scale venues such as airports and shopping malls.
+
+4. Multi-Platform Support: The SDK offers multi-platform support, which means that it can be integrated into different mobile platforms, such as Android, iOS, and React Native.
+
+5. Easy Integration: The SDK offers easy integration, providing developers with comprehensive documentation and technical support to ensure smooth and fast integration.
+
+6. Advanced Features: The SDK comes with advanced features such as geofencing, location-based notifications, and analytics, allowing businesses to gain insights into customer behavior and improve their overall operations.
+
+7. Enhanced User Experience: The Indoor Navigation Android Mobile SDK 2.0 can provide enhanced user experiences, including turn-by-turn navigation, voice instructions, and real-time location tracking, making it easier for users to navigate indoor environments and find their destinations.
+
+The Indoor Navigation Android Mobile SDK 2.0 provides businesses with reliable and accurate indoor navigation technology that can be customized to their specific needs, providing an enhanced user experience, improving customer satisfaction, and increasing business efficiency.
+
 ## Android Demo Application
 
 Navigine Demo application for Android enables you to test indoor navigation as well as measure your target location's radiomap.
