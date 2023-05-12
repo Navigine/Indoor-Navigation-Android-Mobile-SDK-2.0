@@ -25,13 +25,11 @@ The following sections describe the contents of the Navigine Android SDK reposit
 
 3. Scalable: The SDK is designed to be scalable, making it suitable for businesses of all sizes, from small retail stores to large-scale venues such as airports and shopping malls.
 
-4. Multi-Platform Support: The SDK offers multi-platform support, which means that it can be integrated into different mobile platforms, such as Android, iOS, and React Native.
+4. Easy Integration: The SDK offers easy integration, providing developers with comprehensive documentation and technical support to ensure smooth and fast integration.
 
-5. Easy Integration: The SDK offers easy integration, providing developers with comprehensive documentation and technical support to ensure smooth and fast integration.
+5. Advanced Features: The SDK comes with advanced features such as geofencing, location-based notifications, and analytics, allowing businesses to gain insights into customer behavior and improve their overall operations.
 
-6. Advanced Features: The SDK comes with advanced features such as geofencing, location-based notifications, and analytics, allowing businesses to gain insights into customer behavior and improve their overall operations.
-
-7. Enhanced User Experience: The Indoor Navigation Android Mobile SDK 2.0 can provide enhanced user experiences, including turn-by-turn navigation, voice instructions, and real-time location tracking, making it easier for users to navigate indoor environments and find their destinations.
+6. Enhanced User Experience: The Indoor Navigation Android Mobile SDK 2.0 can provide enhanced user experiences, including turn-by-turn navigation, voice instructions, and real-time location tracking, making it easier for users to navigate indoor environments and find their destinations.
 
 The Indoor Navigation Android Mobile SDK 2.0 provides businesses with reliable and accurate indoor navigation technology that can be customized to their specific needs, providing an enhanced user experience, improving customer satisfaction, and increasing business efficiency.
 
