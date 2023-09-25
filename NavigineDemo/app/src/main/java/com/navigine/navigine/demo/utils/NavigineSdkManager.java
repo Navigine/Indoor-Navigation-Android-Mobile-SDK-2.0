@@ -31,10 +31,11 @@ public class NavigineSdkManager {
     public synchronized static boolean initializeSdk() {
         if (UserSession.USER_HASH == null || UserSession.USER_HASH.isEmpty()) return false;
         try {
-            NavigineSdk.setUserHash(UserSession.USER_HASH);
-            NavigineSdk.setServer(UserSession.LOCATION_SERVER);
+
 
             NavigineSdk SDK = NavigineSdk.getInstance();
+            SDK.setUserHash(UserSession.USER_HASH);
+            SDK.setServer(UserSession.LOCATION_SERVER);
 
             LocationListManager = SDK.getLocationListManager();
             LocationManager     = SDK.getLocationManager();

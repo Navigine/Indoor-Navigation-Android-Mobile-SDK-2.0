@@ -1061,7 +1061,8 @@ public class NavigationFragment extends BaseFragment{
         if (categoryText.length() > 30)
             categoryText = categoryText.substring(0, 28) + "…";
 
-        String bm = new String(Base64.decode(mPinVenue.getImageId(), Base64.DEFAULT), StandardCharsets.UTF_8);
+//        String bm = new String(Base64.decode(mPinVenue.getImage(null), Base64.DEFAULT), StandardCharsets.UTF_8);
+        String bm = mPinVenue.getImageUrl();
 
         mVenueBottomSheet.setSheetTitle(titleText);
         mVenueBottomSheet.setDescription(mPinVenue.getDescript());
