@@ -62,12 +62,14 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.navigine.idl.java.AnimationType;
 import com.navigine.idl.java.Camera;
+import com.navigine.idl.java.CameraListener;
+import com.navigine.idl.java.CameraUpdateReason;
 import com.navigine.idl.java.Category;
 import com.navigine.idl.java.IconMapObject;
+import com.navigine.idl.java.InputListener;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationPoint;
 import com.navigine.idl.java.LocationPolyline;
-import com.navigine.idl.java.LocationViewListener;
 import com.navigine.idl.java.MapObjectPickResult;
 import com.navigine.idl.java.PickListener;
 import com.navigine.idl.java.Point;
@@ -192,7 +194,6 @@ public class NavigationFragment extends BaseFragment{
 
     private RouteListener        mRouteListener             = null;
     private PositionListener     mPositionListener          = null;
-    private LocationViewListener mLocationViewListener      = null;
 
     private StateReceiver mReceiver = null;
     private IntentFilter  mFilter   = null;
@@ -248,7 +249,7 @@ public class NavigationFragment extends BaseFragment{
     @Override
     public void onPause() {
         super.onPause();
-        mLocationView.onPause();
+        mLocationView.onStop();
         removeListeners();
     }
 
@@ -263,7 +264,7 @@ public class NavigationFragment extends BaseFragment{
     protected void updateUiState() {
         if (mLocationChanged) showLoadProgress();
         if (mLocationLoaded)  loadMap();
-        if (mLocationView != null) mLocationView.onResume();
+        if (mLocationView != null) mLocationView.onStart();
     }
 
     @Override
@@ -414,12 +415,12 @@ public class NavigationFragment extends BaseFragment{
         mMakeRouteBehavior.   setState(BottomSheetBehavior.STATE_HIDDEN);
         mCancelRouteBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
         mLocationView.        setBackgroundColor(Color.argb(255, 235, 235, 235));
-        mLocationView.        getLocationViewController().setStickToBorder(true);
+        mLocationView.        getLocationWindow().setStickToBorder(true);
         mItemDivider.         setDividerColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground));
         mItemDivider.         setLastItemDecorated(false);
         mVenueListView.       addItemDecoration(mItemDivider);
 
-        mLocationView.getLocationViewController().setPickRadius(10);
+        mLocationView.getLocationWindow().setPickRadius(10);
     }
 
 
@@ -524,7 +525,7 @@ public class NavigationFragment extends BaseFragment{
                 } else if (i == BottomSheetBehavior.STATE_EXPANDED) {
                     if (mPinPoint != null) {
                         viewMaxY = view.getY();
-                        translationY = viewMaxY - mLocationView.getLocationViewController().metersToScreenPosition(mPinPoint.getPoint(), false).y - 180;
+                        translationY = viewMaxY - mLocationView.getLocationWindow().metersToScreenPosition(mPinPoint.getPoint(), false).y - 180;
                         if (translationY < 0)
                             mLocationView.animate().y(translationY).setDuration(300);
                     }
@@ -557,7 +558,7 @@ public class NavigationFragment extends BaseFragment{
         mAdjustModeButton.      setOnClickListener(v -> toggleAdjustMode());
 
 
-        mLocationView.getLocationViewController().setPickListener(new PickListener() {
+        mLocationView.getLocationWindow().addPickListener(new PickListener() {
             @Override
             public void onMapObjectPickComplete(MapObjectPickResult mapObjectPickResult, PointF pointF) {
             }
@@ -577,30 +578,37 @@ public class NavigationFragment extends BaseFragment{
             }
         });
 
-        mLocationView.getLocationViewController().getTouchInput().setTapResponder(new TouchInput.TapResponder() {
+        mLocationView.getLocationWindow().addInputListener(new InputListener() {
             @Override
-            public boolean onSingleTapUp(float x, float y) {
-                return false;
+            public void onViewTap(PointF pointF) {
+                handleClick(pointF.x, pointF.y);
             }
 
             @Override
-            public boolean onSingleTapConfirmed(float x, float y) {
-                handleClick(x, y);
-                return true;
+            public void onViewDoubleTap(PointF pointF) {
+
+            }
+
+            @Override
+            public void onViewLongTap(PointF pointF) {
+                if (hasTarget() || mPosition == null) return;
+                Point p = mLocationView.getLocationWindow().screenPositionToMeters(pointF);
+                NavigineSdkManager.RouteManager.clearTargets();
+                setRoutePin(p);
+                resetPinVenue();
+                updateDestinationText("To:       Point (" + String.format("%.1f", mPinPoint.getPoint().getX()) + ", " + String.format("%.1f", mPinPoint.getPoint().getY()) + ")");
+                updateRouteSheetInfo();
             }
         });
 
-        mLocationView.getLocationViewController().getTouchInput().setLongPressResponder((x, y) -> {
-            if (hasTarget() || mPosition == null) return;
-            Point p = mLocationView.getLocationViewController().screenPositionToMeters(new PointF(x, y));
-            NavigineSdkManager.RouteManager.clearTargets();
-            setRoutePin(p);
-            resetPinVenue();
-            updateDestinationText("To:       Point (" + String.format("%.1f", mPinPoint.getPoint().getX()) + ", " + String.format("%.1f", mPinPoint.getPoint().getY()) + ")");
-            updateRouteSheetInfo();
+        mLocationView.getLocationWindow().addCameraListener(new CameraListener() {
+            @Override
+            public void onCameraPositionChanged(CameraUpdateReason cameraUpdateReason, boolean b) {
+                if (!b && mAdjustMode) {
+                    toggleAdjustMode();
+                }
+            }
         });
-
-        mLocationView.getLocationViewController().setLocationViewListener(mLocationViewListener);
     }
 
     private void onHandleSearchQueryChange(String query) {
@@ -718,12 +726,12 @@ public class NavigationFragment extends BaseFragment{
 
 
     private void initLocationViewObjects() {
-        mPolylineMapObject = mLocationView.getLocationViewController().addPolylineMapObject();
+        mPolylineMapObject = mLocationView.getLocationWindow().addPolylineMapObject();
         mPolylineMapObject.setColor(76.0f/255, 217.0f/255, 100.0f/255, 1);
         mPolylineMapObject.setWidth(3);
         mPolylineMapObject.setStyle("{style: 'points', placement_min_length_ratio: 0, placement_spacing: 8px, size: [8px, 8px], placement: 'spaced', collide: false}");
 
-        mPositionIcon = mLocationView.getLocationViewController().addIconMapObject();
+        mPositionIcon = mLocationView.getLocationWindow().addIconMapObject();
         mPositionIcon.setSize(30, 30);
         mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_png));
         mPositionIcon.setStyle("{ order: 1, collide: false}");
@@ -811,25 +819,6 @@ public class NavigationFragment extends BaseFragment{
                 handleDeviceUpdate(mRoutePath);
             }
         };
-
-        mLocationViewListener = new LocationViewListener() {
-            @Override
-            public void onLocationViewComplete() { }
-
-            @Override
-            public void onLocationViewWillChangeAnimated(boolean b) {
-                if (!b && mAdjustMode) {
-                    toggleAdjustMode();
-                }
-            }
-
-            @Override
-            public void onLocationViewIsChanging() { }
-
-            @Override
-            public void onLocationViewDidChangeAnimated(boolean b) { }
-        };
-
     }
 
     private void initBroadcastReceiver() {
@@ -892,10 +881,10 @@ public class NavigationFragment extends BaseFragment{
     private void setRoutePin(Point point) {
         mPinPoint = new LocationPoint(point, mLocation.getId(), mSublocation.getId());
         if (mSelectMapPoint) {
-            if (mPinIconFrom == null) mPinIconFrom = mLocationView.getLocationViewController().addIconMapObject();
+            if (mPinIconFrom == null) mPinIconFrom = mLocationView.getLocationWindow().addIconMapObject();
             setupPinIcon(mPinIconFrom, R.drawable.ic_from_point_png, mPinPoint);
         } else {
-            if (mPinIconTarget == null) mPinIconTarget = mLocationView.getLocationViewController().addIconMapObject();
+            if (mPinIconTarget == null) mPinIconTarget = mLocationView.getLocationWindow().addIconMapObject();
             setupPinIcon(mPinIconTarget, R.drawable.ic_to_point_png, mPinPoint);
         }
     }
@@ -963,13 +952,13 @@ public class NavigationFragment extends BaseFragment{
     }
 
     public void onZoomIn() {
-        float currentZoomFactor = mLocationView.getLocationViewController().getZoomFactor();
-        mLocationView.getLocationViewController().setZoomFactor(currentZoomFactor * 2.f);
+        float currentZoomFactor = mLocationView.getLocationWindow().getZoomFactor();
+        mLocationView.getLocationWindow().setZoomFactor(currentZoomFactor * 2.f);
     }
 
     public void onZoomOut() {
-        float currentZoomFactor = mLocationView.getLocationViewController().getZoomFactor();
-        mLocationView.getLocationViewController().setZoomFactor(currentZoomFactor / 2.f);
+        float currentZoomFactor = mLocationView.getLocationWindow().getZoomFactor();
+        mLocationView.getLocationWindow().setZoomFactor(currentZoomFactor / 2.f);
     }
 
     public void onMakeRoute() {
@@ -1134,12 +1123,12 @@ public class NavigationFragment extends BaseFragment{
         }
 
         return mLocationView.post(() -> {
-            mLocationView.getLocationViewController().setSublocationId(mSublocation.getId());
+            mLocationView.getLocationWindow().setSublocationId(mSublocation.getId());
             float pixelWidth = mLocationView.getWidth() / getResources().getDisplayMetrics().density;
-            mLocationView.getLocationViewController().setMaxZoomFactor((pixelWidth * 16.f) / mSublocation.getWidth());
-            mLocationView.getLocationViewController().setMinZoomFactor((pixelWidth / 16.f) / mSublocation.getWidth());
-            mLocationView.getLocationViewController().setZoomFactor(pixelWidth / mSublocation.getWidth());
-            mLocationView.getLocationViewController().applyFilter("", getVenueLayerExp());
+            mLocationView.getLocationWindow().setMaxZoomFactor((pixelWidth * 16.f) / mSublocation.getWidth());
+            mLocationView.getLocationWindow().setMinZoomFactor((pixelWidth / 16.f) / mSublocation.getWidth());
+            mLocationView.getLocationWindow().setZoomFactor(pixelWidth / mSublocation.getWidth());
+            mLocationView.getLocationWindow().applyFilter("", getVenueLayerExp());
             setupZoomCameraDefault();
             selectSublocationListItem(index);
         });
@@ -1150,7 +1139,7 @@ public class NavigationFragment extends BaseFragment{
     }
 
     private void setupZoomCameraDefault() {
-        mZoomCameraDefault = mLocationView.getLocationViewController().getCamera().getZoom();
+        mZoomCameraDefault = mLocationView.getLocationWindow().getCamera().getZoom();
     }
 
     private void handleClick(float x, float y) {
@@ -1158,7 +1147,7 @@ public class NavigationFragment extends BaseFragment{
             cancelPin();
             return;
         }
-        mLocationView.getLocationViewController().pickMapFeaturetAt(x, y);
+        mLocationView.getLocationWindow().pickMapFeatureAt(new PointF(x, y));
     }
 
     private void cancelPin() {
@@ -1201,7 +1190,7 @@ public class NavigationFragment extends BaseFragment{
 
     private void adjustDevice(Point point) {
         Camera camera = new Camera(point, mZoomCameraDefault * 2, 0);
-        mLocationView.getLocationViewController().flyToCamera(camera, 1000, null);
+        mLocationView.getLocationWindow().flyTo(camera, 1000, AnimationType.QUINT, null);
     }
 
     private void handleDeviceUpdate(RoutePath routePath) {
@@ -1373,11 +1362,11 @@ public class NavigationFragment extends BaseFragment{
     private void applyVenueFilter(List<VenueIconObj> venueIconObjs) {
         String filter = getVenueFilterFunc(venueIconObjs);
         String layer  = getVenueLayerExp();
-        mLocationView.post(() -> mLocationView.getLocationViewController().applyFilter(filter, layer));
+        mLocationView.post(() -> mLocationView.getLocationWindow().applyFilter(filter, layer));
     }
 
     private void resetVenueFilter() {
-        mLocationView.post(() -> mLocationView.getLocationViewController().applyFilter("", getVenueLayerExp()));
+        mLocationView.post(() -> mLocationView.getLocationWindow().applyFilter("", getVenueLayerExp()));
     }
 
     private String getVenueFilterFunc(List<VenueIconObj> venueIconObjs) {
