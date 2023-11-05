@@ -31,7 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,9 +98,7 @@ import com.navigine.navigine.demo.utils.NavigineSdkManager;
 import com.navigine.navigine.demo.utils.VenueIconsListProvider;
 import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 import com.navigine.view.LocationView;
-import com.navigine.view.TouchInput;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1190,7 +1187,7 @@ public class NavigationFragment extends BaseFragment{
 
     private void adjustDevice(Point point) {
         Camera camera = new Camera(point, mZoomCameraDefault * 2, 0);
-        mLocationView.getLocationWindow().flyTo(camera, 1000, AnimationType.QUINT, null);
+        mLocationView.getLocationWindow().flyTo(camera, 1000, null);
     }
 
     private void handleDeviceUpdate(RoutePath routePath) {
