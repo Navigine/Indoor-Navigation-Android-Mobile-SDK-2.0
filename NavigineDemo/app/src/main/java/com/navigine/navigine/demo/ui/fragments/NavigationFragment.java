@@ -2,6 +2,8 @@ package com.navigine.navigine.demo.ui.fragments;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.navigine.navigine.demo.service.NavigationService.ACTION_POSITION_ERROR;
+import static com.navigine.navigine.demo.service.NavigationService.ACTION_POSITION_UPDATED;
 import static com.navigine.navigine.demo.utils.Constants.CIRCULAR_PROGRESS_DELAY_HIDE;
 import static com.navigine.navigine.demo.utils.Constants.CIRCULAR_PROGRESS_DELAY_SHOW;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_LOCATION_ID;
@@ -88,6 +90,7 @@ import com.navigine.navigine.demo.adapters.sublocations.SublocationsAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenueListAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenuesIconsListAdapter;
 import com.navigine.navigine.demo.models.VenueIconObj;
+import com.navigine.navigine.demo.service.NavigationService;
 import com.navigine.navigine.demo.ui.custom.lists.BottomSheetListView;
 import com.navigine.navigine.demo.ui.custom.lists.ListViewLimit;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetVenue;
@@ -156,7 +159,6 @@ public class NavigationFragment extends BaseFragment{
     private HorizontalScrollView          mChipsScroll               = null;
     private ChipGroup                     mChipGroup                 = null;
 
-    private Position mPosition = null;
 
     private LocationPoint mPinPoint    = null;
     private LocationPoint mTargetPoint = null;
@@ -190,10 +192,14 @@ public class NavigationFragment extends BaseFragment{
     private static Handler  mHandler = new Handler();
 
     private RouteListener        mRouteListener             = null;
-    private PositionListener     mPositionListener          = null;
+//    private PositionListener     mPositionListener          = null;
 
-    private StateReceiver mReceiver = null;
-    private IntentFilter  mFilter   = null;
+    private StateReceiver mStateReceiver = null;
+    private PositionReceiver mPositionReceiver = null;
+
+    private IntentFilter mStateReceiverFilter = null;
+    private IntentFilter mPositionReceiverFilter = null;
+
 
     private boolean mAdjustMode        = false;
     private boolean mSelectMapPoint    = false;
@@ -212,6 +218,8 @@ public class NavigationFragment extends BaseFragment{
             mDelayMessage.setVisibility(VISIBLE);
         }
     };
+
+    private LocationPoint mPositionLocationPoint = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -588,7 +596,7 @@ public class NavigationFragment extends BaseFragment{
 
             @Override
             public void onViewLongTap(PointF pointF) {
-                if (hasTarget() || mPosition == null) return;
+                if (hasTarget() || mPositionLocationPoint == null) return;
                 Point p = mLocationView.getLocationWindow().screenPositionToMeters(pointF);
                 NavigineSdkManager.RouteManager.clearTargets();
                 setRoutePin(p);
@@ -741,42 +749,44 @@ public class NavigationFragment extends BaseFragment{
 
     private void initListeners() {
 
-        mPositionListener = new PositionListener() {
-
-            @Override
-            public void onPositionUpdated(Position position) {
-                mPosition = position;
-                LocationPoint lp = mPosition.getLocationPoint();
-                if (lp == null) {
-                    return;
-                }
-
-                if (mAdjustMode) {
-                    int id = lp.getSublocationId();
-                    if (mSublocation.getId() != id) {
-                        mSublocation = mLocation.getSublocationById(id);
-                        loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
-                    }
-                    adjustDevice(lp.getPoint());
-                }
-                mFromPoint = lp;
-                mPositionIcon.setVisible(true);
-                if (mSetupPosition) {
-                    mSetupPosition = false;
-                    mPositionIcon.setPosition(mFromPoint);
-                } else {
-                    mPositionIcon.setPositionAnimated(mFromPoint, 1.0f, AnimationType.CUBIC);
-                }
-            }
-
-            @Override
-            public void onPositionError(Error error) {
-                mPosition = null;
-                mAdjustModeButton.setSelected(false);
-                mPositionIcon.setVisible(false);
-                Log.e(TAG, getString(R.string.err_navigation_position_update) +  ":" + error.getMessage());
-            }
-        };
+//        mPositionListener = new PositionListener() {
+//
+//            @Override
+//            public void onPositionUpdated(Position position) {
+//
+//
+//                mPosition = position;
+//                LocationPoint lp = mPosition.getLocationPoint();
+//                if (lp == null) {
+//                    return;
+//                }
+//
+//                if (mAdjustMode) {
+//                    int id = lp.getSublocationId();
+//                    if (mSublocation.getId() != id) {
+//                        mSublocation = mLocation.getSublocationById(id);
+//                        loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
+//                    }
+//                    adjustDevice(lp.getPoint());
+//                }
+//                mFromPoint = lp;
+//                mPositionIcon.setVisible(true);
+//                if (mSetupPosition) {
+//                    mSetupPosition = false;
+//                    mPositionIcon.setPosition(mFromPoint);
+//                } else {
+//                    mPositionIcon.setPositionAnimated(mFromPoint, 1.0f, AnimationType.CUBIC);
+//                }
+//            }
+//
+//            @Override
+//            public void onPositionError(Error error) {
+//                mPosition = null;
+//                mAdjustModeButton.setSelected(false);
+//                mPositionIcon.setVisible(false);
+//                Log.e(TAG, getString(R.string.err_navigation_position_update) +  ":" + error.getMessage());
+//            }
+//        };
 
         mRouteListener = new RouteListener() {
             @Override
@@ -819,23 +829,36 @@ public class NavigationFragment extends BaseFragment{
     }
 
     private void initBroadcastReceiver() {
-        mReceiver = new StateReceiver();
-        mFilter = new IntentFilter();
-        mFilter.addAction(LOCATION_CHANGED);
-        mFilter.addAction(VENUE_SELECTED);
-        mFilter.addAction(VENUE_FILTER_ON);
-        mFilter.addAction(VENUE_FILTER_OFF);
+        mStateReceiver = new StateReceiver();
+        mPositionReceiver = new PositionReceiver();
+
+        mStateReceiverFilter = new IntentFilter();
+        mPositionReceiverFilter = new IntentFilter();
+
+        mStateReceiverFilter.addAction(LOCATION_CHANGED);
+        mStateReceiverFilter.addAction(VENUE_SELECTED);
+        mStateReceiverFilter.addAction(VENUE_FILTER_ON);
+        mStateReceiverFilter.addAction(VENUE_FILTER_OFF);
+
+        mPositionReceiverFilter.addAction(ACTION_POSITION_UPDATED);
+        mPositionReceiverFilter.addAction(ACTION_POSITION_ERROR);
+
+
     }
 
     private void addListeners() {
-        requireActivity().registerReceiver(mReceiver, mFilter);
-        NavigineSdkManager.NavigationManager.addPositionListener(mPositionListener);
+        requireActivity().registerReceiver(mStateReceiver, mStateReceiverFilter);
+        requireActivity().registerReceiver(mPositionReceiver, mPositionReceiverFilter);
+
+//        NavigineSdkManager.NavigationManager.addPositionListener(mPositionListener);
         NavigineSdkManager.RouteManager.addRouteListener(mRouteListener);
     }
 
     private void removeListeners() {
-        requireActivity().unregisterReceiver(mReceiver);
-        NavigineSdkManager.NavigationManager.removePositionListener(mPositionListener);
+        requireActivity().unregisterReceiver(mStateReceiver);
+        requireActivity().unregisterReceiver(mPositionReceiver);
+
+//        NavigineSdkManager.NavigationManager.removePositionListener(mPositionListener);
         NavigineSdkManager.RouteManager.removeRouteListener(mRouteListener);
     }
 
@@ -1070,7 +1093,7 @@ public class NavigationFragment extends BaseFragment{
     }
 
     public void toggleAdjustMode() {
-        if (mPosition == null)
+        if (mPositionLocationPoint == null)
             showWarningTemp(getString(R.string.err_navigation_position_define), 1500);
         else {
             mAdjustMode = !mAdjustMode;
@@ -1406,7 +1429,7 @@ public class NavigationFragment extends BaseFragment{
     }
 
     private void excludeVenueFromFiltered(VenueIconObj venueIconObj) {
-        mReceiver.filteredVenues.remove(venueIconObj);
+        mStateReceiver.filteredVenues.remove(venueIconObj);
     }
 
     private void unselectVenueIcon(VenueIconObj venueIconObj) {
@@ -1478,7 +1501,7 @@ public class NavigationFragment extends BaseFragment{
         unselectVenueIcon(venueIconObj);
         removeChip(chip);
         populateVenueIconsLayout();
-        applyVenueFilter(mReceiver.filteredVenues);
+        applyVenueFilter(mStateReceiver.filteredVenues);
     }
 
     private void onSearchBoxFocusChange(View v, boolean hasFocus) {
@@ -1542,6 +1565,56 @@ public class NavigationFragment extends BaseFragment{
                     }
                     onCloseSearch();
                     hideTransparentLayout();
+                    break;
+            }
+        }
+    }
+
+    private class PositionReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action == null) return;
+            switch (action) {
+                case ACTION_POSITION_UPDATED:
+
+                    float x = intent.getFloatExtra(NavigationService.KEY_POINT_X, -1f);
+                    float y = intent.getFloatExtra(NavigationService.KEY_POINT_Y, -1f);
+                    int locationId = intent.getIntExtra(NavigationService.KEY_LOCATION_ID, -1);
+                    int sublocationId = intent.getIntExtra(NavigationService.KEY_SUBLOCATION_ID, -1);
+
+                    LocationPoint lp = new LocationPoint(new Point(x, y), locationId, sublocationId);
+
+                    if (x == -1f || y == -1f || locationId == -1 || sublocationId == -1) return;
+
+                    mPositionLocationPoint = lp;
+
+                    if (mAdjustMode) {
+                        int id = lp.getSublocationId();
+                        if (mSublocation.getId() != id) {
+                            mSublocation = mLocation.getSublocationById(id);
+                            loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
+                        }
+                        adjustDevice(lp.getPoint());
+                    }
+                    mFromPoint = lp;
+                    mPositionIcon.setVisible(true);
+                    if (mSetupPosition) {
+                        mSetupPosition = false;
+                        mPositionIcon.setPosition(mFromPoint);
+                    } else {
+                        mPositionIcon.setPositionAnimated(mFromPoint, 1.0f, AnimationType.CUBIC);
+                    }
+                    break;
+                case ACTION_POSITION_ERROR:
+                    mPositionLocationPoint = null;
+                    mAdjustModeButton.setSelected(false);
+                    mPositionIcon.setVisible(false);
+                    String errMsg = intent.getStringExtra(ACTION_POSITION_ERROR);
+                    if (errMsg != null) {
+                        Log.e(TAG, getString(R.string.err_navigation_position_update) + ":" + errMsg);
+                    }
                     break;
             }
         }

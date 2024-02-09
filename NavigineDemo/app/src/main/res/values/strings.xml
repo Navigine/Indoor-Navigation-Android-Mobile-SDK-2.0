@@ -1,5 +1,6 @@
+<!DOCTYPE resources [<!ENTITY appname "NavigineDemo">]>
 <resources>
-    <string name="app_name">NavigineDemo</string>
+    <string name="app_name">&appname;</string>
     <!--    bottom navigation-->
     <string name="menu_item_locations">Locations</string>
     <string name="menu_item_navigation">Navigation</string>
@@ -135,4 +136,6 @@ For push notifications, the application has to work in background mode</string>
     <string name="net_get_key_hash">hash</string>
     <string name="net_get_key_avatar">avatar_url</string>
     <string name="net_response_key_company">company</string>
+    <!--    navigation service-->
+    <string name="navigation_service_name">&appname; Service</string>
 </resources>
