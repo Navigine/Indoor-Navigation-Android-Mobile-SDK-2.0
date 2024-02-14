@@ -5,9 +5,14 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Constraints;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
+import androidx.work.WorkManager;
 
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.models.BeaconMock;
+import com.navigine.navigine.demo.service.*;
 import com.navigine.navigine.demo.ui.custom.navigation.SavedBottomNavigationView;
 import com.navigine.navigine.demo.utils.NavigineSdkManager;
 import com.navigine.navigine.demo.viewmodel.SharedViewModel;
@@ -29,11 +34,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViewModel();
         initNavigationView();
+        startNavigationService();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -70,5 +81,14 @@ public class MainActivity extends AppCompatActivity {
                 BeaconMock.RSS_MIN,
                 BeaconMock.RSS_MAX
         );
+    }
+
+    private void startNavigationService() {
+        Constraints constraints = new Constraints.Builder().build();
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(NavigationWorker.class)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(constraints)
+                .build();
+        WorkManager.getInstance(getApplicationContext()).enqueue(request);
     }
 }

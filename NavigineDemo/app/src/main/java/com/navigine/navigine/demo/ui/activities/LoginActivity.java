@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,21 +50,25 @@ public class LoginActivity extends AppCompatActivity {
 
     private final int WARNING_DURATION = 1500;
 
-    private TextInputLayout           mLoginField        = null;
-    private EditText                  mUserHash          = null;
-    private Button                    mLoginButton       = null;
-    private BottomSheetHost mDialog            = null;
-    private TextView                  mEditHost          = null;
-    private TextView                  mWarningTv         = null;
+    private TextInputLayout mLoginField = null;
+    private EditText mUserHash = null;
+    private Button mLoginButton = null;
+    private BottomSheetHost mDialog = null;
+    private TextView mEditHost = null;
+    private TextView mWarningTv = null;
     private CircularProgressIndicator mProgressIndicator = null;
 
     private final View.OnClickListener mLoginClickListener = v -> onHandleLoginAction();
 
-    private final ActivityResultLauncher<String[]> permissionLauncher
-            = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onRequestPermissions);
+    private final ActivityResultLauncher<String[]> permissionLauncherLocation
+            = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onRequestLocationsPermissions);
 
     private final ActivityResultLauncher<String> permissionLauncherCamera
             = registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::onRequestCamera);
+
+    private final ActivityResultLauncher<String> permissionLauncherNotification
+            = registerForActivityResult(new ActivityResultContracts.RequestPermission(), result -> {
+    });
 
     private final ActivityResultLauncher<Intent> qrScannerLauncher
             = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onHandleQrScanResult);
@@ -86,12 +91,16 @@ public class LoginActivity extends AppCompatActivity {
 
     private void permissionsRequest() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissionLauncher.launch(new String[]{
+            permissionLauncherLocation.launch(new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.BLUETOOTH_SCAN});
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                permissionLauncherNotification.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
         } else {
-            permissionLauncher.launch(new String[]{
+            permissionLauncherLocation.launch(new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION});
         }
@@ -105,7 +114,8 @@ public class LoginActivity extends AppCompatActivity {
 
         mUserHash.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -122,13 +132,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mWarningTv         = findViewById(R.id.login__warning_tv);
-        mLoginField        = findViewById(R.id.login__login_layout);
-        mUserHash          = findViewById(R.id.login__login_edit);
-        mLoginButton       = findViewById(R.id.login__done_button);
+        mWarningTv = findViewById(R.id.login__warning_tv);
+        mLoginField = findViewById(R.id.login__login_layout);
+        mUserHash = findViewById(R.id.login__login_edit);
+        mLoginButton = findViewById(R.id.login__done_button);
         mProgressIndicator = findViewById(R.id.login__progress);
-        mEditHost          = findViewById(R.id.login__change_host);
-        mDialog            = new BottomSheetHost();
+        mEditHost = findViewById(R.id.login__change_host);
+        mDialog = new BottomSheetHost();
     }
 
     private void setViewsParams() {
@@ -210,7 +220,7 @@ public class LoginActivity extends AppCompatActivity {
         UserSession.USER_HASH = value;
     }
 
-    private void onRequestPermissions(Map<String, Boolean> result) {
+    private void onRequestLocationsPermissions(Map<String, Boolean> result) {
         for (Map.Entry<String, Boolean> permissionEntry : result.entrySet()) {
             switch (permissionEntry.getKey()) {
                 case Manifest.permission.ACCESS_COARSE_LOCATION:
@@ -244,11 +254,11 @@ public class LoginActivity extends AppCompatActivity {
             if (data != null) {
                 try {
                     String locationServer = data.getQueryParameter(DL_QUERY_SERVER);
-                    String userHash       = data.getQueryParameter(DL_QUERY_USERHASH);
-                    String venueId        = data.getQueryParameter(DL_QUERY_VENUE_ID);
+                    String userHash = data.getQueryParameter(DL_QUERY_USERHASH);
+                    String venueId = data.getQueryParameter(DL_QUERY_VENUE_ID);
 
                     UserSession.LOCATION_SERVER = locationServer;
-                    UserSession.USER_HASH       = userHash;
+                    UserSession.USER_HASH = userHash;
 
                     Bundle bundle = new Bundle();
                     bundle.putString(DL_QUERY_LOCATION_ID, data.getQueryParameter(DL_QUERY_LOCATION_ID));
