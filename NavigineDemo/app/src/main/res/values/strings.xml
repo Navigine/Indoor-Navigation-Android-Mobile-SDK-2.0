@@ -138,4 +138,7 @@ For push notifications, the application has to work in background mode</string>
     <string name="net_response_key_company">company</string>
     <!--    navigation service-->
     <string name="navigation_service_name">&appname; Service</string>
+    <!--    sheet route finish-->
+    <string name="sheet_route_finish_title">You have reached your destination</string>
+    <string name="sheet_route_finish_button">Finish</string>
 </resources>

@@ -362,4 +362,19 @@
         <item name="android:textSize">@dimen/listview_sublocations_item_text</item>
     </style>
 
+    <style name="AppTheme.BottomSheet.Route.Title" parent="Widget.MaterialComponents.TextView">
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:gravity">center</item>
+        <item name="fontFamily">@font/circe_reg</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="AppTheme.BottomSheet.Route.Button" parent="AppTheme.Button.Blue">
+        <item name="textAllCaps">false</item>
+    </style>
+
 </resources>

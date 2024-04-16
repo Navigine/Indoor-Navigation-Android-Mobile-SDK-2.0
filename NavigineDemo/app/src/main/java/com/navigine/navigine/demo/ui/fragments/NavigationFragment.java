@@ -77,7 +77,6 @@ import com.navigine.idl.java.Point;
 import com.navigine.idl.java.Polyline;
 import com.navigine.idl.java.PolylineMapObject;
 import com.navigine.idl.java.Position;
-import com.navigine.idl.java.PositionListener;
 import com.navigine.idl.java.RouteEvent;
 import com.navigine.idl.java.RouteEventType;
 import com.navigine.idl.java.RouteListener;
@@ -93,6 +92,7 @@ import com.navigine.navigine.demo.models.VenueIconObj;
 import com.navigine.navigine.demo.service.NavigationService;
 import com.navigine.navigine.demo.ui.custom.lists.BottomSheetListView;
 import com.navigine.navigine.demo.ui.custom.lists.ListViewLimit;
+import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetRouteFinish;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetVenue;
 import com.navigine.navigine.demo.utils.ColorUtils;
 import com.navigine.navigine.demo.utils.DimensionUtils;
@@ -112,6 +112,8 @@ public class NavigationFragment extends BaseFragment{
 
     private static final String KEY_VENUE       = "name";
     public static final int LOCATION_LOAD_DELAY = 5_000;
+
+    private static final float ROUTE_FINISH_DISTANCE_NOTICE = 1.5f;
 
     private SharedViewModel viewModel = null;
 
@@ -192,7 +194,6 @@ public class NavigationFragment extends BaseFragment{
     private static Handler  mHandler = new Handler();
 
     private RouteListener        mRouteListener             = null;
-//    private PositionListener     mPositionListener          = null;
 
     private StateReceiver mStateReceiver = null;
     private PositionReceiver mPositionReceiver = null;
@@ -220,6 +221,10 @@ public class NavigationFragment extends BaseFragment{
     };
 
     private LocationPoint mPositionLocationPoint = null;
+
+    private BottomSheetRouteFinish mBottomSheetRouteFinish = null;
+
+    private Position mPosition = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -749,45 +754,6 @@ public class NavigationFragment extends BaseFragment{
 
     private void initListeners() {
 
-//        mPositionListener = new PositionListener() {
-//
-//            @Override
-//            public void onPositionUpdated(Position position) {
-//
-//
-//                mPosition = position;
-//                LocationPoint lp = mPosition.getLocationPoint();
-//                if (lp == null) {
-//                    return;
-//                }
-//
-//                if (mAdjustMode) {
-//                    int id = lp.getSublocationId();
-//                    if (mSublocation.getId() != id) {
-//                        mSublocation = mLocation.getSublocationById(id);
-//                        loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
-//                    }
-//                    adjustDevice(lp.getPoint());
-//                }
-//                mFromPoint = lp;
-//                mPositionIcon.setVisible(true);
-//                if (mSetupPosition) {
-//                    mSetupPosition = false;
-//                    mPositionIcon.setPosition(mFromPoint);
-//                } else {
-//                    mPositionIcon.setPositionAnimated(mFromPoint, 1.0f, AnimationType.CUBIC);
-//                }
-//            }
-//
-//            @Override
-//            public void onPositionError(Error error) {
-//                mPosition = null;
-//                mAdjustModeButton.setSelected(false);
-//                mPositionIcon.setVisible(false);
-//                Log.e(TAG, getString(R.string.err_navigation_position_update) +  ":" + error.getMessage());
-//            }
-//        };
-
         mRouteListener = new RouteListener() {
             @Override
             public void onPathsUpdated(ArrayList<RoutePath> arrayList) {
@@ -805,6 +771,13 @@ public class NavigationFragment extends BaseFragment{
                 try {
                     mRoutePath = arrayList.get(0);
 
+                    if (mRoutePath == null) return;
+
+                    List<LocationPoint> routePathPoints = mRoutePath.getPoints();
+
+                    if (routePathPoints == null) return;
+
+
                     for (LocationPoint locationPoint : mRoutePath.getPoints()) {
                         if (locationPoint.getSublocationId() == mSublocation.getId()) {
                             mPoints.add(locationPoint.getPoint());
@@ -818,6 +791,9 @@ public class NavigationFragment extends BaseFragment{
                     } else {
                         mPolylineMapObject.setVisible(false);
                     }
+
+                    if (mRoutePath.getLength() < ROUTE_FINISH_DISTANCE_NOTICE) showRouteFinishSheet();
+
                 } catch (IndexOutOfBoundsException e) {
                     mRoutePath = null;
                     mPolylineMapObject.setVisible(false);
@@ -842,15 +818,12 @@ public class NavigationFragment extends BaseFragment{
 
         mPositionReceiverFilter.addAction(ACTION_POSITION_UPDATED);
         mPositionReceiverFilter.addAction(ACTION_POSITION_ERROR);
-
-
     }
 
     private void addListeners() {
         requireActivity().registerReceiver(mStateReceiver, mStateReceiverFilter);
         requireActivity().registerReceiver(mPositionReceiver, mPositionReceiverFilter);
 
-//        NavigineSdkManager.NavigationManager.addPositionListener(mPositionListener);
         NavigineSdkManager.RouteManager.addRouteListener(mRouteListener);
     }
 
@@ -858,7 +831,6 @@ public class NavigationFragment extends BaseFragment{
         requireActivity().unregisterReceiver(mStateReceiver);
         requireActivity().unregisterReceiver(mPositionReceiver);
 
-//        NavigineSdkManager.NavigationManager.removePositionListener(mPositionListener);
         NavigineSdkManager.RouteManager.removeRouteListener(mRouteListener);
     }
 
@@ -1522,6 +1494,18 @@ public class NavigationFragment extends BaseFragment{
         } else {
             changeSearchBoxStroke(ColorUtils.COLOR_SECONDARY);
             KeyboardController.hideSoftKeyboard(requireActivity());
+        }
+    }
+
+    private void showRouteFinishSheet() {
+        if (mBottomSheetRouteFinish == null)
+            mBottomSheetRouteFinish = new BottomSheetRouteFinish(this::onCancelRoute);
+
+        if (!mBottomSheetRouteFinish.isAdded() &&
+                !mBottomSheetRouteFinish.isVisible() &&
+                !mBottomSheetRouteFinish.isShown())
+        {
+            mBottomSheetRouteFinish.show(getParentFragmentManager(), null);
         }
     }
 
