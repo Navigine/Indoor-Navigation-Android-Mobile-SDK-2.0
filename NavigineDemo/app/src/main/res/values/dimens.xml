@@ -10,6 +10,7 @@
     <dimen name="progress_circular_size">62dp</dimen>
     <dimen name="control_panel_item_size">48dp</dimen>
     <dimen name="margin_bottom">16dp</dimen>
+    <dimen name="bottom_sheet_elevation">8dp</dimen>
     <!--    login screen-->
     <dimen name="login_items_height">52dp</dimen>
     <dimen name="login_bottom_sheet_height">218dp</dimen>
