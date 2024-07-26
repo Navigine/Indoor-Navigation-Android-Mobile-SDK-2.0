@@ -66,6 +66,7 @@ import com.navigine.idl.java.Camera;
 import com.navigine.idl.java.CameraListener;
 import com.navigine.idl.java.CameraUpdateReason;
 import com.navigine.idl.java.Category;
+import com.navigine.idl.java.FlatIconMapObject;
 import com.navigine.idl.java.IconMapObject;
 import com.navigine.idl.java.InputListener;
 import com.navigine.idl.java.Location;
@@ -156,7 +157,7 @@ public class NavigationFragment extends BaseFragment{
     private RecyclerView                  mVenueIconsListView        = null;
     private RecyclerView                  mVenueListView             = null;
     private BottomSheetVenue              mVenueBottomSheet          = null;
-    private IconMapObject                 mPositionIcon              = null;
+    private FlatIconMapObject             mPositionIcon              = null;
     private MaterialDividerItemDecoration mItemDivider               = null;
     private HorizontalScrollView          mChipsScroll               = null;
     private ChipGroup                     mChipGroup                 = null;
@@ -208,6 +209,8 @@ public class NavigationFragment extends BaseFragment{
     private boolean mLocationLoaded    = false;
     private boolean mRouting           = false;
     private boolean mSetupPosition     = true;
+
+    private boolean mOrientationPointState  = false;
 
     private int mSublocationId = -1;
     private int mVenueId       = -1;
@@ -741,7 +744,7 @@ public class NavigationFragment extends BaseFragment{
         mPolylineMapObject.setWidth(3);
         mPolylineMapObject.setStyle("{style: 'points', placement_min_length_ratio: 0, placement_spacing: 8px, size: [8px, 8px], placement: 'spaced', collide: false}");
 
-        mPositionIcon = mLocationView.getLocationWindow().addIconMapObject();
+        mPositionIcon = mLocationView.getLocationWindow().addFlatIconMapObject();
         mPositionIcon.setSize(30, 30);
         mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_png));
         mPositionIcon.setStyle("{ order: 1, collide: false}");
@@ -1567,12 +1570,29 @@ public class NavigationFragment extends BaseFragment{
                     float y = intent.getFloatExtra(NavigationService.KEY_POINT_Y, -1f);
                     int locationId = intent.getIntExtra(NavigationService.KEY_LOCATION_ID, -1);
                     int sublocationId = intent.getIntExtra(NavigationService.KEY_SUBLOCATION_ID, -1);
+                    double pointLocationHeading = intent.getDoubleExtra(NavigationService.KEY_LOCATION_HEADING, -1.0);
 
                     LocationPoint lp = new LocationPoint(new Point(x, y), locationId, sublocationId);
 
                     if (x == -1f || y == -1f || locationId == -1 || sublocationId == -1) return;
 
                     mPositionLocationPoint = lp;
+
+                    if (pointLocationHeading != -1) {
+                        if (!mOrientationPointState) {
+                            mOrientationPointState = true;
+                            mPositionIcon.setSize(48, 52);
+                            mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_direction_png));
+                            mPositionIcon.setAngle(pointLocationHeading);
+                        }
+                        mPositionIcon.setAngleAnimated(pointLocationHeading, 1.0f, AnimationType.CUBIC);
+                    } else {
+                        if (mOrientationPointState) {
+                            mOrientationPointState = false;
+                            mPositionIcon.setSize(30, 30);
+                            mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_png));
+                        }
+                    }
 
                     if (mAdjustMode) {
                         int id = lp.getSublocationId();

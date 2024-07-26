@@ -30,6 +30,8 @@ public class NavigationService extends Service {
     public static final String ACTION_POSITION_ERROR = "ACTION_POSITION_ERROR";
     public static final String KEY_LOCATION_ID = "location_id";
     public static final String KEY_SUBLOCATION_ID = "sublocation_id";
+
+    public static final String KEY_LOCATION_HEADING = "location_heading";
     public static final String KEY_POINT_X = "point_x";
     public static final String KEY_POINT_Y = "point_y";
     public static final String KEY_ERROR = "error";
@@ -42,6 +44,8 @@ public class NavigationService extends Service {
             intent.putExtra(KEY_SUBLOCATION_ID, position.getLocationPoint().getSublocationId());
             intent.putExtra(KEY_POINT_X, position.getLocationPoint().getPoint().getX());
             intent.putExtra(KEY_POINT_Y, position.getLocationPoint().getPoint().getY());
+            intent.putExtra(KEY_LOCATION_HEADING, position.getLocationHeading());
+
             sendBroadcast(intent);
         }
 
