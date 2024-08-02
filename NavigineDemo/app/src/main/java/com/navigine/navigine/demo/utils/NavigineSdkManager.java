@@ -44,7 +44,7 @@ public class NavigineSdkManager {
             MeasurementManager  = SDK.getMeasurementManager(LocationManager);
             RouteManager        = SDK.getRouteManager(LocationManager, NavigationManager);
             NotificationManager = SDK.getNotificationManager(LocationManager);
-            ZoneManager         = SDK.getZoneManager(LocationManager, NavigationManager);
+            ZoneManager         = SDK.getZoneManager(NavigationManager);
         } catch (Exception e) {
             Log.e(TAG, "Failed initialize Navigine SDK " + e.getMessage());
             return false;

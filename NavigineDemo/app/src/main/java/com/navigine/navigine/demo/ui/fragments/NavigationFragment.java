@@ -1117,8 +1117,8 @@ public class NavigationFragment extends BaseFragment{
             return false;
         }
 
+        mLocationView.getLocationWindow().setSublocationId(mSublocation.getId());
         return mLocationView.post(() -> {
-            mLocationView.getLocationWindow().setSublocationId(mSublocation.getId());
             float pixelWidth = mLocationView.getWidth() / getResources().getDisplayMetrics().density;
             mLocationView.getLocationWindow().setMaxZoomFactor((pixelWidth * 16.f) / mSublocation.getWidth());
             mLocationView.getLocationWindow().setMinZoomFactor((pixelWidth / 16.f) / mSublocation.getWidth());
