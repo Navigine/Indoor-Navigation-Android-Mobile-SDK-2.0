@@ -408,7 +408,7 @@ public class NavigationFragment extends BaseFragment{
         mItemDivider               = new MaterialDividerItemDecoration(requireActivity(), MaterialDividerItemDecoration.VERTICAL);
         mSearchPanel               = view.findViewById(R.id.navigation__search_panel);
         mSearchField               = view.findViewById(R.id.navigation__search_field);
-        mSearchBtnClear            = mSearchField.findViewById(R.id.search_close_btn);
+        mSearchBtnClear            = mSearchField.findViewById(R.id.navigation__search_btn_close);
         mZoomInLayout              = view.findViewById(R.id.panel_zoom__zoom_in);
         mZoomOutLayout             = view.findViewById(R.id.panel_zoom__zoom_out);
         mArrowUpLayout             = view.findViewById(R.id.panel_sublocations__arrow_up);
@@ -830,10 +830,15 @@ public class NavigationFragment extends BaseFragment{
         mPositionReceiverFilter.addAction(ACTION_POSITION_ERROR);
     }
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void addListeners() {
-        requireActivity().registerReceiver(mStateReceiver, mStateReceiverFilter);
-        requireActivity().registerReceiver(mPositionReceiver, mPositionReceiverFilter);
+        if (Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(mStateReceiver, mStateReceiverFilter, Context.RECEIVER_NOT_EXPORTED);
+            requireActivity().registerReceiver(mPositionReceiver, mPositionReceiverFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(mStateReceiver, mStateReceiverFilter);
+            requireActivity().registerReceiver(mPositionReceiver, mPositionReceiverFilter);
+        }
+
 
         NavigineSdkManager.RouteManager.addRouteListener(mRouteListener);
     }

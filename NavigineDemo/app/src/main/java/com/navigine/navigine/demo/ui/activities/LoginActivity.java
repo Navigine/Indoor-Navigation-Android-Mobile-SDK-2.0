@@ -11,6 +11,7 @@ import static com.navigine.navigine.demo.utils.Constants.TAG;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavDeepLinkBuilder;
 
 import com.android.volley.AuthFailureError;
@@ -86,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         finishAffinity();
     }
 
@@ -150,6 +153,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onHandleLoginAction() {
+        if (!ensureRuntimePermissionsForLocationFgService()) {
+            showTempWarningMessage(getString(R.string.err_permission_location));
+            return;
+        }
         showLoginProgress();
         if (NetworkUtils.isNetworkActive(this)) tryLogin();
         else {
@@ -239,6 +246,38 @@ public class LoginActivity extends AppCompatActivity {
                     break;
             }
         }
+    }
+
+    private boolean ensureRuntimePermissionsForLocationFgService() {
+
+        boolean hasLocation = PermissionUtils.hasLocationPermission(this);
+
+        if (!hasLocation) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                permissionLauncherLocation.launch(new String[] {
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.BLUETOOTH_SCAN
+                });
+            } else {
+                permissionLauncherLocation.launch(new String[] {
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                });
+            }
+            return false;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            boolean hasNotifications = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED;
+            if (!hasNotifications) {
+                permissionLauncherNotification.launch(Manifest.permission.POST_NOTIFICATIONS);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void onRequestCamera(Boolean result) {

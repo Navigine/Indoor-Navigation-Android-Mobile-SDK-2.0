@@ -112,7 +112,11 @@ public abstract class BaseFragment extends Fragment {
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerReceiver() {
-        requireActivity().registerReceiver(receiver, filter);
+        if (Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(receiver, filter);
+        }
     }
 
     private void unregisterReceiver() {
