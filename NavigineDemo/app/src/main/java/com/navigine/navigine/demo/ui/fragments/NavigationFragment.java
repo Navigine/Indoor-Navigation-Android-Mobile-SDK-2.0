@@ -66,7 +66,7 @@ import com.navigine.idl.java.Camera;
 import com.navigine.idl.java.CameraListener;
 import com.navigine.idl.java.CameraUpdateReason;
 import com.navigine.idl.java.Category;
-import com.navigine.idl.java.FlatIconMapObject;
+import com.navigine.idl.java.DottedPolylineMapObject;
 import com.navigine.idl.java.IconMapObject;
 import com.navigine.idl.java.InputListener;
 import com.navigine.idl.java.Location;
@@ -74,6 +74,7 @@ import com.navigine.idl.java.LocationPoint;
 import com.navigine.idl.java.LocationPolyline;
 import com.navigine.idl.java.MapObjectPickResult;
 import com.navigine.idl.java.PickListener;
+import com.navigine.idl.java.Placement;
 import com.navigine.idl.java.Point;
 import com.navigine.idl.java.Polyline;
 import com.navigine.idl.java.PolylineMapObject;
@@ -157,7 +158,7 @@ public class NavigationFragment extends BaseFragment{
     private RecyclerView                  mVenueIconsListView        = null;
     private RecyclerView                  mVenueListView             = null;
     private BottomSheetVenue              mVenueBottomSheet          = null;
-    private FlatIconMapObject             mPositionIcon              = null;
+    private IconMapObject             mPositionIcon              = null;
     private MaterialDividerItemDecoration mItemDivider               = null;
     private HorizontalScrollView          mChipsScroll               = null;
     private ChipGroup                     mChipGroup                 = null;
@@ -188,7 +189,7 @@ public class NavigationFragment extends BaseFragment{
 
     private IconMapObject     mPinIconTarget       = null;
     private IconMapObject     mPinIconFrom         = null;
-    private PolylineMapObject mPolylineMapObject   = null;
+    private DottedPolylineMapObject mPolylineMapObject   = null;
     private RoutePath         mRoutePath           = null;
     private RoutePath         mLastActiveRoutePath = null;
 
@@ -739,15 +740,21 @@ public class NavigationFragment extends BaseFragment{
 
 
     private void initLocationViewObjects() {
-        mPolylineMapObject = mLocationView.getLocationWindow().addPolylineMapObject();
+        mPolylineMapObject = mLocationView.getLocationWindow().addDottedPolylineMapObject();
         mPolylineMapObject.setColor(76.0f/255, 217.0f/255, 100.0f/255, 1);
-        mPolylineMapObject.setWidth(3);
-        mPolylineMapObject.setStyle("{style: 'points', placement_min_length_ratio: 0, placement_spacing: 8px, size: [8px, 8px], placement: 'spaced', collide: false}");
 
-        mPositionIcon = mLocationView.getLocationWindow().addFlatIconMapObject();
+        mPolylineMapObject.setPlacementMinRatio(0f);
+        mPolylineMapObject.setPlacementSpacing(8f);
+        mPolylineMapObject.setSize(8f, 8f);
+        mPolylineMapObject.setPlacement(Placement.SPACED);
+        mPolylineMapObject.setCollisionEnabled(false);
+
+        mPositionIcon = mLocationView.getLocationWindow().addIconMapObject();
         mPositionIcon.setSize(30, 30);
         mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_png));
-        mPositionIcon.setStyle("{ order: 1, collide: false}");
+        mPositionIcon.setCollisionEnabled(false);
+        mPositionIcon.setFlat(true);
+        mPositionIcon.setPriority(1f);
         mPositionIcon.setVisible(false);
     }
 
@@ -823,6 +830,7 @@ public class NavigationFragment extends BaseFragment{
         mPositionReceiverFilter.addAction(ACTION_POSITION_ERROR);
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void addListeners() {
         requireActivity().registerReceiver(mStateReceiver, mStateReceiverFilter);
         requireActivity().registerReceiver(mPositionReceiver, mPositionReceiverFilter);
@@ -899,7 +907,8 @@ public class NavigationFragment extends BaseFragment{
     private void setupPinIcon(IconMapObject pinMapObject, @DrawableRes int pinIcon, LocationPoint pinLocationPoint) {
         pinMapObject.setSize(36, 108);
         pinMapObject.setBitmap(BitmapFactory.decodeResource(getResources(), pinIcon));
-        pinMapObject.setStyle("{ order: 100, collide: false}");
+        pinMapObject.setCollisionEnabled(false);
+        pinMapObject.setPriority(100f);
         pinMapObject.setPosition(pinLocationPoint);
         pinMapObject.setVisible(true);
     }
@@ -1583,9 +1592,9 @@ public class NavigationFragment extends BaseFragment{
                             mOrientationPointState = true;
                             mPositionIcon.setSize(48, 52);
                             mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_direction_png));
-                            mPositionIcon.setAngle(pointLocationHeading);
+                            mPositionIcon.setAngle((float) pointLocationHeading);
                         }
-                        mPositionIcon.setAngleAnimated(pointLocationHeading, 1.0f, AnimationType.CUBIC);
+                        mPositionIcon.setAngleAnimated((float) pointLocationHeading, 1.0f, AnimationType.CUBIC);
                     } else {
                         if (mOrientationPointState) {
                             mOrientationPointState = false;
