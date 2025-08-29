@@ -2,6 +2,7 @@ package com.navigine.navigine.demo.ui.fragments;
 
 import static com.navigine.navigine.demo.utils.Constants.LOCATION_CHANGED;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -109,8 +110,13 @@ public abstract class BaseFragment extends Fragment {
         filter.addAction(LOCATION_CHANGED);
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerReceiver() {
-        requireActivity().registerReceiver(receiver, filter);
+        if (Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(receiver, filter);
+        }
     }
 
     private void unregisterReceiver() {
