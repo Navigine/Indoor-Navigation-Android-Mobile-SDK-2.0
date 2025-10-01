@@ -28,7 +28,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.version.outputs.current_version }}
-          release_name: Release v${{ steps.version.outputs.current_version }}
-          body: ${{ github.event.inputs.release_body || format('## Changes in this release\n- Manual release v{0}', steps.version.outputs.current_version) }}
+          release_name: Release ${{ steps.version.outputs.current_version }}
+          body: ${{ github.event.inputs.release_body || format('Release_{0}', steps.version.outputs.current_version) }}
           draft: false
           prerelease: false
