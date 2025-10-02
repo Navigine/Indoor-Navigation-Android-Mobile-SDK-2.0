@@ -76,7 +76,157 @@ Find formal description of Navigine-SDK API including the list of classes and th
 
 ### Using with Jitpack
 
-Will be added soon...
+[![](https://jitpack.io/v/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0.svg)](https://jitpack.io/#Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0)
+
+JitPack lets you consume this repository (and its Gradle modules) directly from GitHub.
+
+**1) Add the JitPack repository**
+
+<details>
+<summary><code>settings.gradle.kts</code> (recommended)</summary>
+
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
+</details>
+
+<details>
+<summary><code>build.gradle.kts</code> (legacy projects)</summary>
+
+```kotlin
+repositories {
+    google()
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+```
+</details>
+
+**2) Add a dependency**
+
+- To depend on the **root artifact** (single-module publish):
+```kotlin
+dependencies {
+    implementation("com.github.Navigine:Indoor-Navigation-Android-Mobile-SDK-2.0:<TAG>")
+}
+```
+
+- To depend on a **specific module** from this monorepo (multi-module publish), use:
+```kotlin
+dependencies {
+    // Example: take a module named "libnavigine" (replace with actual module name)
+    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:<TAG>")
+}
+```
+
+> Use a Git tag/release (recommended) or a commit hash as `<TAG>`.
+
+## Jetpack Compose wrapper: LocationView Compose
+
+A modern, production-ready Compose wrapper around Navigine’s `LocationView` — inspired by the quality bar of
+`android-maps-compose`. It provides idiomatic Compose APIs, lifecycle-aware state, and property updaters.
+
+**Highlights**
+- Drop-in `@Composable` map container for Navigine SDK
+- Camera state with smooth, coroutine-friendly updates
+- Input & pick handlers (tap/long-press, feature/object picking)
+- Polylines/polygons/circles as declarative map objects
+- Proper cleanup across recompositions & lifecycle events
+
+### Getting started
+
+**1) Add dependencies**
+
+```kotlin
+dependencies {
+    // Note: core sdk is pulled transitively with the library
+    implementation("com.navigine:navigine-locationview-compose:1.7.2")
+}
+```
+
+> Make sure the MavenCentral repository is added to your project as shown above.
+
+**2) Initialize Navigine SDK once (e.g., in Application or an early Activity)**
+
+```kotlin
+val sdk = com.navigine.idl.java.NavigineSdk.getInstance().apply {
+    setServer("https://ips.navigine.com")
+    setUserHash("<YOUR-USER-HASH>")
+}
+sdk.locationManager.locationId = <YOUR_LOCATION_ID>
+```
+
+**3) Required permissions**
+
+Grant Location + Bluetooth (BLE) permissions according to your target SDK (foreground + background if needed).  
+Ensure the device supports BLE (Android 8.0+ as per SDK requirements).
+
+### Quick start (Compose)
+
+```kotlin
+@Composable
+fun LocationSample() {
+    val cameraState = com.navigine.locationview.camera.rememberNavCameraPositionState()
+
+    com.navigine.locationview.compose.NavigineLocation(
+        cameraPositionState = cameraState,
+        onWindowReady = { window ->
+            // Example: set initial sublocation if needed
+            window.setSublocationId(<SUBLOCATION_ID>)
+        }
+    ) {
+        // Optional: input handling & picking out of the box
+        com.navigine.locationview.compose.InputHandlers(
+            autoPickObjectOnTap = true,
+            autoPickFeatureOnTap = true,
+        )
+
+        com.navigine.locationview.compose.PickHandlers(
+            onObjectPicked = { result, viewPt ->
+                // Handle object pick
+            },
+            onFeaturePicked = { attrs, viewPt ->
+                // Handle feature pick (e.g., show bottom sheet)
+            }
+        )
+
+        // Examples of shapes:
+        // com.navigine.locationview.compose.Polyline(...)
+        // com.navigine.locationview.compose.Polygon(...)
+        // com.navigine.locationview.compose.Circle(...)
+    }
+}
+```
+
+### Camera control
+
+```kotlin
+val camera = cameraState
+LaunchedEffect(Unit) {
+    // Animate or move camera (example API)
+    camera.animateTo(
+        target = com.navigine.locationview.model.NavPoint(x = 10.0, y = 20.0),
+        zoom = 1.2f
+    )
+}
+```
+
+### Samples
+
+A sample app with bottom navigation shows 4 demos (Camera, Shapes, Input, Icons) that you can use as a reference for
+routing, drawing shapes, and handling taps. It’s a good starting point for your own project structure.
+
+### Notes
+
+- The wrapper takes care of resource cleanup and respects recomposition & lifecycle.
+- For release builds, remember to keep your SDK classes if using R8/Proguard (add rules as needed).
 
 ### Android&HW compatibility
 Indoor positioning SDK and applications require Android 8.0 or higher as well your smartphone should have BLE 4.0 or higher.
