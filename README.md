@@ -151,7 +151,7 @@ dependencies {
 }
 ```
 
-> Make sure the MavenCentral repository is added to your project as shown above.
+> Make sure the MavenCentral and JitPack repositories is added to your project as shown above.
 
 **2) Initialize Navigine SDK once (e.g., in Application or an early Activity)**
 
