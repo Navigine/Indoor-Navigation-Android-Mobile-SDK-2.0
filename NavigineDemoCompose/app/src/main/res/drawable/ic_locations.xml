@@ -1,0 +1,19 @@
+<!-- ic_locations.xml (патч) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group android:translateY="0.6">
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M12,13.43C13.7231,13.43 15.12,12.0331 15.12,10.31C15.12,8.5869 13.7231,7.19 12,7.19C10.2769,7.19 8.88,8.5869 8.88,10.31C8.88,12.0331 10.2769,13.43 12,13.43Z"
+            android:strokeWidth="1.5"
+            android:strokeColor="#393939" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M3.62,8.49C5.59,-0.17 18.42,-0.16 20.38,8.5C21.53,13.58 18.37,17.88 15.6,20.54C13.59,22.48 10.41,22.48 8.3899,20.54C5.63,17.88 2.4699,13.57 3.62,8.49Z"
+            android:strokeWidth="1.5"
+            android:strokeColor="#393939" />
+    </group>
+</vector>
