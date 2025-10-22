@@ -38,7 +38,7 @@ fun SublocationsList(
     maxVisibleItems: Int = 3
 
 ) {
-    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(if (sublocations.isNotEmpty()) 0 else -1) }
 
     LazyColumn(
         modifier = modifier.height((48 * maxVisibleItems).dp)

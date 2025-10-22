@@ -1,21 +1,22 @@
 package com.navigine.naviginedemocompose.ui.navigation
 
 import android.graphics.PointF
+import com.navigine.idl.java.LocationPoint
+import com.navigine.idl.java.LocationPolyline
 import com.navigine.idl.java.LocationWindow
 import com.navigine.idl.java.Point
 import com.navigine.idl.java.Position
 import com.navigine.idl.java.Venue
 import com.navigine.naviginedemocompose.domain.model.LocationModel
+import com.navigine.naviginedemocompose.domain.monitor.RouteMonitorEvent
 
 sealed interface NavigationEffect {
 
     data class ShowToast(val message: String) : NavigationEffect
+    data class ShowSnackbar(val message: String) : NavigationEffect
     data class MoveCameraToPoint(val point: Point, val animateMs: Int = 700) : NavigationEffect
 
     data class ApplyVenueLayerFilter(val expression: String?) : NavigationEffect
-
-    data class DrawRoute(val points: List<Point>) : NavigationEffect
-    data object HideRoute : NavigationEffect
 }
 
 
@@ -32,7 +33,6 @@ sealed interface NavigationEvent {
     data class SearchQueryChanged(val query: String) : NavigationEvent
     data class SearchFocusChanged(val focused: Boolean) : NavigationEvent
     data object SearchClear : NavigationEvent
-    data class VenueSelected(val venue: Venue) : NavigationEvent
     data class VenuePickedOnMap(val venue: Venue) : NavigationEvent
 
     // Pins / long tap
@@ -42,9 +42,14 @@ sealed interface NavigationEvent {
     // Position
     data class PositionUpdated(val snapshot: Position?) : NavigationEvent
     data class FollowMyLocationToggle(val enabled: Boolean) : NavigationEvent
-    data object Recenter : NavigationEvent
 
     // Route
-    data class BuildRoute(val alternative: Boolean = false) : NavigationEvent
+    data object BuildRoute : NavigationEvent
     data object CancelRoute : NavigationEvent
+    data class RouteUpdate(val event : RouteMonitorEvent) : NavigationEvent
+
+    // Sheets
+    data object HideMakeRouteSheet : NavigationEvent
+    data object HideRouteInfo : NavigationEvent
+    data object HideFinish : NavigationEvent
 }
