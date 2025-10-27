@@ -24,3 +24,7 @@ fun PaddingValues.copy(
         bottom = bottom ?: this.calculateBottomPadding(),
     )
 }
+
+fun Map<String?, String?>.venueName(): String? {
+    return this["VENUE"] ?: this["venue"] ?: this["name"] ?: this["Name"]
+}

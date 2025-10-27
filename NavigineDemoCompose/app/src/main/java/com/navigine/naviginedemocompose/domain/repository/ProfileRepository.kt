@@ -15,5 +15,5 @@ interface ProfileRepository {
     suspend fun update(name: String, company: String?): Result<Unit>
 
     /** Deletes user account on backend and clears local store & SDK. */
-    suspend fun deleteAccount(password: String): Result<Unit>
+    suspend fun logout(): Result<Unit>
 }

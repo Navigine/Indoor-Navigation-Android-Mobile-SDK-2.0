@@ -47,7 +47,7 @@ fun SublocationsList(
             val item = sublocations[index]
             SubLocationListItem(
                 modifier = Modifier.alpha(if (index == selectedItem) 0.9f else 0.75f),
-                name = item.name,
+                name = item.levelId,
                 color = MaterialTheme.colorScheme.secondary.takeIf { index == selectedItem } ?: Color.White,
                 onClick = {
                     selectedItem = index

@@ -9,6 +9,7 @@ object Constants {
     const val DL_QUERY_USERHASH = "userhash"
     const val DL_QUERY_LOCATION_ID = "loc"
     const val DL_QUERY_SUBLOCATION_ID= "subloc"
+    const val DL_QUERY_VENUE_ID: String = "venue_id"
 
     //Data Store
     const val DATA_STORE_NAME_USER = "user_prefs"

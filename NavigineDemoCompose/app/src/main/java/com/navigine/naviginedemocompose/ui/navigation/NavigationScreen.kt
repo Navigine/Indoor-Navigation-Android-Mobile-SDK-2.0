@@ -2,8 +2,6 @@ package com.navigine.naviginedemocompose.ui.navigation
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,17 +26,20 @@ import com.navigine.locationview.ExperimentalNavigineApi
 import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.camera.rememberNavCameraPositionState
 import com.navigine.locationview.interaction.InputHandlers
+import com.navigine.locationview.interaction.PickHandlers
 import com.navigine.locationview.objects.icon.Icon
 import com.navigine.locationview.objects.icon.rememberIconState
 import com.navigine.locationview.objects.polyline.DottedPolyline
 import com.navigine.naviginedemocompose.R
 import com.navigine.naviginedemocompose.core.util.copy
 import com.navigine.naviginedemocompose.core.util.getBitmapFromImage
+import com.navigine.naviginedemocompose.core.util.venueName
 import com.navigine.naviginedemocompose.ui.composables.AdjustFab
 import com.navigine.naviginedemocompose.ui.composables.ArrivedSheet
 import com.navigine.naviginedemocompose.ui.composables.MakeRouteSheet
 import com.navigine.naviginedemocompose.ui.composables.RouteInfoSheet
 import com.navigine.naviginedemocompose.ui.composables.SublocationsList
+import com.navigine.naviginedemocompose.ui.composables.VenueModalSheet
 import com.navigine.naviginedemocompose.ui.composables.ZoomPanel
 import com.navigine.naviginedemocompose.ui.theme.extendedColors
 
@@ -108,6 +109,7 @@ fun NavigationScreen(
                         }
                     ) {
                         InputHandlers(
+                            autoPickFeatureOnTap = true,
                             onTap = { point, meters ->
                                 viewModel.onEvent(NavigationEvent.CancelPin)
                                 viewModel.onEvent(NavigationEvent.CancelRoute)
@@ -117,11 +119,23 @@ fun NavigationScreen(
                             }
                         )
 
+                        PickHandlers(
+                            onFeaturePicked = { attrs, viewPoint ->
+                                val vName = attrs.venueName() ?: return@PickHandlers
+                                val venue = state.location?.location
+                                    ?.sublocations?.firstOrNull { it.id == state.currentSublocationId }
+                                    ?.venues?.firstOrNull { it.name == vName }
+                                if (venue != null)
+                                    viewModel.onEvent(NavigationEvent.VenuePickedOnMap(venue))
+                            }
+                        )
+
                         state.position?.let { pos ->
                             Icon(
-                                position = pos.locationPoint,
+                                position = pos.locationPoint ?: return@let,
                                 bitmap = getBitmapFromImage(ctx, R.drawable.ic_current_point),
-                                state = positionIconState
+                                state = positionIconState,
+                                collisionEnabled = false
                             )
                             positionIconState.mapObject?.setPositionAnimated(
                                 pos.locationPoint, 1f,
@@ -132,7 +146,8 @@ fun NavigationScreen(
                         state.toPoint?.let { pin ->
                             Icon(
                                 position = pin,
-                                bitmap = getBitmapFromImage(ctx, R.drawable.ic_pin_point)
+                                bitmap = getBitmapFromImage(ctx, R.drawable.ic_pin_point),
+                                collisionEnabled = false
                             )
                         }
 
@@ -190,6 +205,16 @@ fun NavigationScreen(
                         viewModel.onEvent(NavigationEvent.HideFinish)
                         viewModel.onEvent(NavigationEvent.CancelPin)
                                 },
+                )
+                VenueModalSheet(
+                    visible = state.venueSheet?.isVisible == true,
+                    venue = state.venueSheet?.venue,
+                    canRoute = state.position != null,
+                    onClose = { viewModel.onEvent(NavigationEvent.HideVenueSheet) },
+                    onRoute = {
+                        viewModel.onEvent(NavigationEvent.OnRouteVenue)
+                        viewModel.onEvent(NavigationEvent.HideVenueSheet)
+                    }
                 )
 
             }

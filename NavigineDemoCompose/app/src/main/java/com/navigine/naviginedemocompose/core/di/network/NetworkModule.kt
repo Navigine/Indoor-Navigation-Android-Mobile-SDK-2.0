@@ -3,6 +3,7 @@ package com.navigine.naviginedemocompose.core.di.network
 import com.navigine.naviginedemocompose.BuildConfig
 import com.navigine.naviginedemocompose.data.local.HostUrlStore
 import com.navigine.naviginedemocompose.data.network.auth.AuthApi
+import com.navigine.naviginedemocompose.data.network.profile.ProfileApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -87,6 +88,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideProfileApi(retrofit: Retrofit): ProfileApi = retrofit.create(ProfileApi::class.java)
 }
 
 fun interface RetrofitFactory {

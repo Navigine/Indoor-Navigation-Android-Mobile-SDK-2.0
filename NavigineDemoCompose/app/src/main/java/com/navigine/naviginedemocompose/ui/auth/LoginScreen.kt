@@ -51,7 +51,7 @@ import com.navigine.naviginedemocompose.ui.theme.spacing
 fun LoginScreen(
     onLoggedIn: () -> Unit,
     modifier: Modifier = Modifier,
-    onOpenMain: (locId: Long?, sublocId: Long?) -> Unit = { _, _ -> },
+    onOpenMain: (sublocId: Long?, venueId: Long?) -> Unit = { _, _ -> },
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
 
@@ -62,8 +62,8 @@ fun LoginScreen(
 
     val barcodeLauncher = rememberLauncherForActivityResult(ScanContract()) { res ->
         res?.contents?.let { raw ->
-            viewModel.handleQrScan(raw) { loc, subloc ->
-                onOpenMain(loc, subloc)
+            viewModel.handleQrScan(raw) {subloc, venueId ->
+                onOpenMain(subloc, venueId)
             }
         }
     }

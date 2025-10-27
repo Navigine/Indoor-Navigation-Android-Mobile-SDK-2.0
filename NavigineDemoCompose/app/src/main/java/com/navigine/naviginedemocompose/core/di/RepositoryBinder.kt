@@ -5,11 +5,13 @@ import com.navigine.naviginedemocompose.data.monitor.PositionMonitorImpl
 import com.navigine.naviginedemocompose.data.monitor.RouteMonitorImpl
 import com.navigine.naviginedemocompose.data.repository.AuthRepositoryImpl
 import com.navigine.naviginedemocompose.data.repository.LocationsRepositoryImpl
+import com.navigine.naviginedemocompose.data.repository.ProfileRepositoryImpl
 import com.navigine.naviginedemocompose.domain.monitor.LocationMonitor
 import com.navigine.naviginedemocompose.domain.monitor.PositionMonitor
 import com.navigine.naviginedemocompose.domain.monitor.RouteMonitor
 import com.navigine.naviginedemocompose.domain.repository.AuthRepository
 import com.navigine.naviginedemocompose.domain.repository.LocationsRepository
+import com.navigine.naviginedemocompose.domain.repository.ProfileRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -31,5 +33,7 @@ interface RepositoryBinder {
     fun bindPositionMonitor(impl: PositionMonitorImpl) : PositionMonitor
     @Binds @Singleton
     fun bindRouteMonitor(impl: RouteMonitorImpl) : RouteMonitor
+    @Binds @Singleton
+    fun bindProfileRepository(impl: ProfileRepositoryImpl) : ProfileRepository
 }
 

@@ -2,6 +2,7 @@ package com.navigine.naviginedemocompose.ui.navigation
 
 import android.graphics.PointF
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.navigine.idl.java.LocationPoint
@@ -12,6 +13,7 @@ import com.navigine.idl.java.Polyline
 import com.navigine.idl.java.Position
 import com.navigine.idl.java.RoutePath
 import com.navigine.idl.java.RouteStatus
+import com.navigine.idl.java.Venue
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import com.navigine.naviginedemocompose.domain.model.LocationModel
 import com.navigine.naviginedemocompose.domain.monitor.LocationMonitor
@@ -36,7 +38,8 @@ class NavigationViewModel @Inject constructor(
     private val locationMonitor: LocationMonitor,
     private val positionMonitor: PositionMonitor,
     private val routeMonitor: RouteMonitor,
-    private val sdk: NavigineSdkManager
+    private val sdk: NavigineSdkManager,
+    private val saveStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     companion object {
@@ -59,6 +62,8 @@ class NavigationViewModel @Inject constructor(
 
     init {
         reduce { it.copy(loadingVisible = true) }
+
+        getQrParams()
 
         sdk.state
             .onEach { st ->
@@ -100,7 +105,8 @@ class NavigationViewModel @Inject constructor(
             NavigationEvent.SearchClear -> TODO()
             is NavigationEvent.SearchFocusChanged -> TODO()
             is NavigationEvent.SearchQueryChanged -> TODO()
-            is NavigationEvent.VenuePickedOnMap -> TODO()
+
+            is NavigationEvent.VenuePickedOnMap -> onVenuePicked(event.venue)
 
             NavigationEvent.BuildRoute -> onBuildRoute()
             is NavigationEvent.RouteUpdate -> onRouteUpdate(event.event)
@@ -108,6 +114,8 @@ class NavigationViewModel @Inject constructor(
             NavigationEvent.HideMakeRouteSheet -> reduce { it.copy(makeRouteSheetVisible = false) }
             NavigationEvent.HideRouteInfo -> reduce { it.copy(routeInfoVisible = false) }
             NavigationEvent.HideFinish -> reduce { it.copy(isFinishNear = false) }
+            NavigationEvent.HideVenueSheet -> reduce { it.copy(venueSheet = null) }
+            NavigationEvent.OnRouteVenue -> reduce { it.copy(makeRouteSheetVisible = true) }
         }
     }
 
@@ -147,9 +155,22 @@ class NavigationViewModel @Inject constructor(
         reduce { it.copy(currentSublocationId = id) }
     }
 
+    private fun onVenuePicked( venue: Venue){
+        val prev = _state.value
+        reduce { it.copy(
+            toVenue = venue,
+            toPoint = null,
+            makeRouteSheetVisible = false,
+            venueSheet = VenueSheetState(venue, true)
+        ) }
+        venue.point?.let { emitEffect(NavigationEffect.MoveCameraToPoint(it)) }
+    }
+
     private fun onPositionUpdated(position: Position?) {
         val prev = _state.value
-        reduce { it.copy(position = position) }
+        reduce {
+            it.copy(position = position, fromPoint = position?.locationPoint)
+        }
 
         if (position == null) return
 
@@ -330,6 +351,20 @@ class NavigationViewModel @Inject constructor(
                 list.forEach { arr.add(it.point) }
                 LocationPolyline(Polyline(arr), locId, sid)
             }
+    }
+
+    private fun getQrParams(){
+        val initSubloc: Int? =
+            saveStateHandle.get<Int>("initial_subloc")?.takeIf { it > 0 }
+        val initVenueId : Int? =
+            saveStateHandle.get<Int>("initial_venue_id")?.takeIf { it > 0}
+
+        saveStateHandle.remove<Int>("initial_subloc")
+        saveStateHandle.remove<Int>("initial_venue_id")
+
+        if (initSubloc != null) reduce { st -> st.copy(currentSublocationId = initSubloc) }
+//        if (initVenueId != null) reduce { st -> st.copy(toVenue = initVenueId) }
+
     }
 
     private inline fun reduce(block: (NavigationState) -> NavigationState) {

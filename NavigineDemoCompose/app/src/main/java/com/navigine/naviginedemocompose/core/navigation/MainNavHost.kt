@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.navigine.naviginedemocompose.ui.locations.LocationsScreen
 import com.navigine.naviginedemocompose.ui.navigation.NavigationScreen
+import com.navigine.naviginedemocompose.ui.profile.ProfileScreen
 
 /**
  * Main NavHost with "top-level" destinations.
@@ -16,6 +17,7 @@ import com.navigine.naviginedemocompose.ui.navigation.NavigationScreen
  */
 @Composable
 fun MainNavHost(
+    rootController: NavHostController,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     startDestination: String = TopLevelRoute.Locations.route,
@@ -31,7 +33,14 @@ fun MainNavHost(
         navigationGraph(navigationVisible)
         locationsGraph()
         debugGraph()
-        profileGraph()
+        profileGraph(
+            onRequireReLogin = {
+                rootController.navigate(AppRoute.Login.route) {
+                    popUpTo(AppRoute.Gate.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        )
     }
 }
 
@@ -51,8 +60,10 @@ private fun NavGraphBuilder.debugGraph() {
     }
 }
 
-private fun NavGraphBuilder.profileGraph() {
+private fun NavGraphBuilder.profileGraph(
+    onRequireReLogin: () -> Unit
+) {
     composable(TopLevelRoute.Profile.route) {
-        Text("profile")
+        ProfileScreen(onRequireReLogin = onRequireReLogin)
     }
 }

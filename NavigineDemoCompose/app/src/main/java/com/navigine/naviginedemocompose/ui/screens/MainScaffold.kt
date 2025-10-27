@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,8 +28,8 @@ import com.navigine.naviginedemocompose.core.navigation.MainBottomBar
 @Composable
 fun MainScaffold(
     navController: NavHostController,  //for navigation between root screens
-    initialLocationId: Int? = null,
     initialSublocationId: Int? = null,
+    initialVenueId: Int? = null
 ) {
 
     var current by rememberSaveable { mutableStateOf(TopLevelRoute.Locations) }
@@ -74,6 +75,7 @@ fun MainScaffold(
             tabs.forEach { (route, controller) ->
                 KeepAliveTab(visible = current == route) {
                     MainNavHost(
+                        rootController = navController,
                         navController = controller,
                         startDestination = route.route,
                         modifier = Modifier.fillMaxSize(),
@@ -85,16 +87,21 @@ fun MainScaffold(
     }
 
     //for qr parameters
-//    LaunchedEffect(initialLocationId, initialSublocationId) {
-//        if (initialLocationId != null || initialSublocationId != null) {
-//            navigationNav.currentBackStackEntry
-//                ?.savedStateHandle
-//                ?.apply {
-//                    initialLocationId?.let { set("initial_loc", it) }
-//                    initialSublocationId?.let { set("initial_subloc", it) }
-//                }
-//        }
-//    }
+    LaunchedEffect(initialSublocationId, initialVenueId) {
+        if (initialSublocationId != null) {
+            current = TopLevelRoute.Navigation
+            navigationNav.navigate(TopLevelRoute.Navigation.route) {
+                popUpTo(navigationNav.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
+            }
+            navigationNav.currentBackStackEntry
+                ?.savedStateHandle
+                ?.apply {
+                    set("initial_subloc", initialSublocationId)
+                    initialVenueId?.let { set("initial_venue_id", it) }
+                }
+        }
+    }
 }
 
 @Composable

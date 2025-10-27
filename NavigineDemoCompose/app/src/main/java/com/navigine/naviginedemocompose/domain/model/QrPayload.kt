@@ -5,4 +5,5 @@ data class QrPayload(
     val userHash: String? = null,
     val loc: Long? = null,
     val subloc: Long? = null,
+    val venueId: Long? = null
 )

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.material3.ButtonColors
 import com.navigine.naviginedemocompose.ui.theme.spacing
 
 /** Primary brand button (filled). */
@@ -49,6 +50,7 @@ fun AppButtonTonal(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: CornerBasedShape = MaterialTheme.shapes.large,
+    colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     content: @Composable () -> Unit
 ) {
     FilledTonalButton(
@@ -56,7 +58,8 @@ fun AppButtonTonal(
         enabled = enabled,
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.lg),
-        shape = shape
+        shape = shape,
+        colors = colors
     ) { content() }
 }
 

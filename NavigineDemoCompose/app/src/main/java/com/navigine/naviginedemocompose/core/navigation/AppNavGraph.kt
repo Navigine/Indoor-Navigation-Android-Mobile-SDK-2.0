@@ -82,10 +82,10 @@ fun AppNavGraph(
                         launchSingleTop = true
                     }
                 },
-                onOpenMain = { loc, subloc ->
-                    val l  = (loc ?: -1L)
+                onOpenMain = { subloc, venueId ->
                     val sl = (subloc ?: -1L)
-                    navController.navigate("main?loc=$l&subloc=$sl") {
+                    val vid = (venueId ?: -1L)
+                    navController.navigate("main?subloc=$sl&venueId=$vid") {
                         popUpTo(AppRoute.Login.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -95,13 +95,14 @@ fun AppNavGraph(
         composable(
             route = AppRoute.Main.route,
             arguments = listOf(
-                navArgument("loc") { type = NavType.IntType; defaultValue = -1},
-                navArgument("subloc") { type = NavType.IntType; defaultValue = -1}
+                navArgument("subloc") { type = NavType.IntType; defaultValue = -1},
+                navArgument("venueId") { type = NavType.IntType; defaultValue = -1}
             )
         ) { backStackEntry ->
-            val loc    = backStackEntry.arguments?.getInt("loc")?.takeIf { it > 0 }
             val subloc = backStackEntry.arguments?.getInt("subloc")?.takeIf { it > 0 }
-            MainScaffold(navController, loc, subloc)
+            val venueId = backStackEntry.arguments?.getInt("venueId")?.takeIf { it > 0 }
+
+            MainScaffold(navController, subloc, venueId)
         }
     }
 }

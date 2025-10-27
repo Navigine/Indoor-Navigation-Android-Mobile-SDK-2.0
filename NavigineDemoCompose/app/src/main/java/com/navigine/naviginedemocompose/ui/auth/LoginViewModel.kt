@@ -1,5 +1,6 @@
 package com.navigine.naviginedemocompose.ui.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.navigine.naviginedemocompose.data.local.UserStore
@@ -17,6 +18,7 @@ import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_LOCATION_ID
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_SERVER
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_SUBLOCATION_ID
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_USERHASH
+import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_VENUE_ID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
@@ -108,7 +110,7 @@ class LoginViewModel @Inject constructor(
 
     fun handleQrScan(
         raw: String,
-        onNavigate: (loc: Long?, subloc: Long?) -> Unit
+        onNavigate: (subloc: Long?, venueId: Long?) -> Unit
     ) {
         val p = parseQrPayload(raw)
         viewModelScope.launch {
@@ -127,11 +129,12 @@ class LoginViewModel @Inject constructor(
                 )
             }
 
-            val server = p.server ?: repo.currentServerUrlFlow().first()
-            val hash = p.userHash ?: authStore.userHashFlow.first()
-            val ok = sdk.tryConfigure(server, hash)
+            val ok = sdk.tryConfigure(p.server, p.userHash)
 
-            if (ok) onNavigate(p.loc, p.subloc)
+            if (ok) {
+                p.loc?.let { loc -> sdk.locationManager.locationId = loc.toInt() }
+                onNavigate(p.subloc, p.venueId)
+            }
         }
     }
 
@@ -142,7 +145,8 @@ class LoginViewModel @Inject constructor(
             val hash = it.getQueryParameter(DL_QUERY_USERHASH)
             val loc = it.getQueryParameter(DL_QUERY_LOCATION_ID)?.toLongOrNull()
             val subloc = it.getQueryParameter(DL_QUERY_SUBLOCATION_ID)?.toLongOrNull()
-            return QrPayload(server, hash, loc, subloc)
+            val venueId = it.getQueryParameter(DL_QUERY_VENUE_ID)?.toLongOrNull()
+            return QrPayload(server, hash, loc, subloc, venueId)
         }
         return QrPayload()
     }

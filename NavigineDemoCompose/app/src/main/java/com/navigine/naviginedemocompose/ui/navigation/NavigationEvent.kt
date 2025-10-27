@@ -52,4 +52,6 @@ sealed interface NavigationEvent {
     data object HideMakeRouteSheet : NavigationEvent
     data object HideRouteInfo : NavigationEvent
     data object HideFinish : NavigationEvent
+    data object HideVenueSheet : NavigationEvent
+    data object OnRouteVenue : NavigationEvent
 }
