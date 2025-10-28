@@ -9,6 +9,10 @@ import androidx.compose.ui.unit.Dp
 
 fun Float.format(digits: Int) = "%.${digits}f".format(this)
 
+fun Double.format(n: Int) = "%.${n}f".format(this)
+fun Long.fmtTime(): String =
+    java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(this))
+
 @Composable
 fun PaddingValues.copy(
     start: Dp? = null,

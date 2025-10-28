@@ -72,9 +72,13 @@ class LocationMonitorImpl @Inject constructor(
     override val currentLocation: StateFlow<LocationModel?> =
         events.filterIsInstance<LocationEvent.Loaded>()
             .map { it.location }
-            .stateIn(scope, SharingStarted.Eagerly, initialValue = runCatching {
-                sdk.locationManager.locationId
-            }.getOrNull()?.takeIf { it > 0 }?.let { LocationModel(it, "") })
+            .stateIn(
+                scope,
+                SharingStarted.Eagerly,
+                initialValue = runCatching {
+                sdk.locationManager.locationId }.getOrNull()?.takeIf { it > 0 }
+                ?.let { LocationModel(it, "") }
+            )
 
     override val mapRecomposeKey: StateFlow<Int> =
         events.filterIsInstance<LocationEvent.Loaded>()
