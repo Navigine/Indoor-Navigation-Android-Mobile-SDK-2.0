@@ -86,6 +86,7 @@ fun NavigationScreen(
             AdjustFab(
                 selected = state.followMyLocation,
                 enabled = state.position != null,
+                visible = !state.makeRouteSheetVisible,
                 onClick = {
                     viewModel.onEvent(NavigationEvent.FollowMyLocationToggle(!state.followMyLocation))
                 }

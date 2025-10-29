@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -32,31 +34,36 @@ class LocationMonitorImpl @Inject constructor(
 
     private val counter = AtomicInteger(0)
 
-    private val sdkEvents: Flow<LocationEvent> = callbackFlow {
-        val listener = object : LocationListener() {
-            override fun onLocationLoaded(location: Location) {
-                trySend(
-                    LocationEvent.Loaded(
-                        LocationModel(
-                            id = location.id,
-                            name = location.name,
-                            location = location
-                        )
-                    )
-                )
-            }
+    private val sdkEvents: Flow<LocationEvent> =
+        sdk.state.flatMapLatest { st ->
+            if (st is NavigineSdkManager.SdkState.Ready) {
+                callbackFlow {
+                    val listener = object : LocationListener() {
+                        override fun onLocationLoaded(location: Location) {
+                            trySend(
+                                LocationEvent.Loaded(
+                                    LocationModel(
+                                        id = location.id,
+                                        name = location.name,
+                                        location = location
+                                    )
+                                )
+                            )
+                        }
 
-            override fun onLocationUploaded(var1: Int) {
-                trySend(LocationEvent.Uploaded(var1))
-            }
+                        override fun onLocationUploaded(var1: Int) {
+                            trySend(LocationEvent.Uploaded(var1))
+                        }
 
-            override fun onLocationFailed(code: Int, error: Error) {
-                trySend(LocationEvent.Failed(code, error.message ?: "Unknown error"))
-            }
-        }
-        sdk.locationManager.addLocationListener(listener)
+                        override fun onLocationFailed(code: Int, error: Error) {
+                            trySend(LocationEvent.Failed(code, error.message ?: "Unknown error"))
+                        }
+                    }
+                    sdk.locationManager.addLocationListener(listener)
 
-        awaitClose { sdk.locationManager.removeLocationListener(listener) }
+                    awaitClose { sdk.locationManager.removeLocationListener(listener) }
+                }
+            } else emptyFlow()
     }
 
     override val events: SharedFlow<LocationEvent> =

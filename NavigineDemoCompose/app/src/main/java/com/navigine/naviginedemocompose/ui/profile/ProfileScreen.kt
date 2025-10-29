@@ -1,6 +1,12 @@
 package com.navigine.naviginedemocompose.ui.profile
 
 import android.content.ClipData
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +29,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChipDefaults.AvatarSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -109,77 +116,37 @@ fun ProfileScreen(
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (state.isEditing) {
-                        LabeledTextField(
-                            label = "Name",
-                            value = state.name,
-                            onValueChange = { vm.onEvent(ProfileEvent.NameChange(it)) },
-                            ime = ImeAction.Next
-                        )
-                        LabeledTextField(
-                            label = "Company",
-                            value = state.company,
-                            onValueChange = { vm.onEvent(ProfileEvent.CompanyChange(it)) },
-                            ime = ImeAction.Done
-                        )
-                        ReadonlyInfoCard(label = "E-mail", value = state.email)
-                        ReadonlyInfoCard(
-                            label = "User",
-                            value = state.userHash,
-                            trailing = {
-                                IconButton(
-                                    onClick = {
-                                        scope.launch {
-                                            clipboard.setClipEntry(
-                                                ClipEntry(
-                                                    ClipData.newPlainText(
-                                                        state.userHash,
-                                                        state.userHash
-                                                    )
-                                                )
-                                            )
-                                            snack.showSnackbar("Hash copied")
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        painterResource(R.drawable.ic_copy),
-                                        contentDescription = "Copy"
-                                    )
-                                }
-                            }
-                        )
-                    } else {
-                        // view mode cards
-                        ReadonlyInfoCard(
-                            label = "User",
-                            value = state.userHash,
-                            trailing = {
-                                IconButton(
-                                    onClick = {
-                                        scope.launch {
-                                            clipboard.setClipEntry(
-                                                ClipEntry(
-                                                    ClipData.newPlainText(
-                                                        state.userHash,
-                                                        state.userHash
-                                                    )
-                                                )
-                                            )
-                                            snack.showSnackbar("Hash copied")
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        painterResource(R.drawable.ic_copy),
-                                        contentDescription = "Copy"
-                                    )
-                                }
-                            }
-                        )
-                        ReadonlyInfoCard(label = "Company", value = state.company.ifBlank { "—" })
-                        ReadonlyInfoCard(label = "E-mail", value = state.email.ifBlank { "—" })
-                    }
+                        if ( state.isEditing) {
+                            LabeledTextField(
+                                label = "Name",
+                                value = state.name,
+                                onValueChange = { vm.onEvent(ProfileEvent.NameChange(it)) },
+                                ime = ImeAction.Next
+                            )
+                            LabeledTextField(
+                                label = "Company",
+                                value = state.company,
+                                onValueChange = { vm.onEvent(ProfileEvent.CompanyChange(it)) },
+                                ime = ImeAction.Done
+                            )
+                            ReadonlyInfoCard(label = "E-mail", value = state.email)
+                            ReadonlyInfoCard(
+                                label = "User",
+                                value = state.userHash,
+                                trailing = { CopyHashButton(state.userHash, snack) }
+                            )
+                        } else {
+                            // view mode cards
+                            ReadonlyInfoCard(
+                                label = "User",
+                                value = state.userHash,
+                                trailing = { CopyHashButton(state.userHash, snack) }
+                            )
+                            ReadonlyInfoCard(
+                                label = "Company",
+                                value = state.company.ifBlank { "—" })
+                            ReadonlyInfoCard(label = "E-mail", value = state.email.ifBlank { "—" })
+                        }
                 }
 
                 Spacer(Modifier.height(4.dp))
@@ -189,35 +156,35 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (state.isEditing) {
-                        AppButtonPrimary(
-                            onClick = { vm.onEvent(ProfileEvent.Save) },
-                            enabled = state.canSave && !state.isLoading,
-                            modifier = Modifier.weight(1f)
-                        ) { Text("Save") }
-                        AppButtonTonal(
-                            onClick = { vm.onEvent(ProfileEvent.EditToggle) },
-                            enabled = !state.isLoading,
-                            modifier = Modifier.weight(1f)
-                        ) { Text("Cancel") }
-                    } else {
-                        Column {
+                        if (state.isEditing) {
                             AppButtonPrimary(
+                                onClick = { vm.onEvent(ProfileEvent.Save) },
+                                enabled = state.canSave && !state.isLoading,
+                                modifier = Modifier.weight(1f)
+                            ) { Text("Save") }
+                            AppButtonTonal(
                                 onClick = { vm.onEvent(ProfileEvent.EditToggle) },
                                 enabled = !state.isLoading,
-                                modifier = Modifier.fillMaxWidth()
-                            ) { Text("Edit profile") }
-                            AppButtonTonal(
-                                onClick = { vm.onEvent(ProfileEvent.Logout) },
-                                enabled = !state.isLoading,
-                                colors = ButtonDefaults.filledTonalButtonColors()
-                                    .copy(
-                                        containerColor = MaterialTheme.colorScheme.error,
-                                        contentColor = MaterialTheme.colorScheme.onError
-                                    ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) { Text("Logout") }
-                        }
+                                modifier = Modifier.weight(1f)
+                            ) { Text("Cancel") }
+                        } else {
+                            Column {
+                                AppButtonPrimary(
+                                    onClick = { vm.onEvent(ProfileEvent.EditToggle) },
+                                    enabled = !state.isLoading,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text("Edit profile") }
+                                AppButtonTonal(
+                                    onClick = { vm.onEvent(ProfileEvent.Logout) },
+                                    enabled = !state.isLoading,
+                                    colors = ButtonDefaults.filledTonalButtonColors()
+                                        .copy(
+                                            containerColor = MaterialTheme.colorScheme.error,
+                                            contentColor = MaterialTheme.colorScheme.onError
+                                        ),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text("Logout") }
+                            }
                     }
                 }
 
@@ -230,7 +197,6 @@ fun ProfileScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -332,6 +298,27 @@ private fun LabeledTextField(
         ),
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+@Composable
+private fun CopyHashButton(
+    userHash: String,
+    snack: SnackbarHostState
+) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    IconButton(
+        onClick = {
+            scope.launch {
+                clipboard.setClipEntry(
+                    ClipEntry(ClipData.newPlainText(userHash, userHash))
+                )
+                snack.showSnackbar("Hash copied")
+            }
+        }
+    ) {
+        Icon(painterResource(R.drawable.ic_copy), contentDescription = "Copy")
+    }
 }
 
 private val HeaderHeight = 156.dp

@@ -25,8 +25,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
-private const val TIMEOUT_MS_NO_SIGNAL = 3_000L
-
 class DebugRepositoryImpl @Inject constructor(
     private val sdk: NavigineSdkManager,
     private val locationMonitor: LocationMonitor,
