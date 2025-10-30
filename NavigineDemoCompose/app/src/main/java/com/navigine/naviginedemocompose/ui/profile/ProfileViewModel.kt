@@ -2,6 +2,7 @@ package com.navigine.naviginedemocompose.ui.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.data.local.UserStore
 import com.navigine.naviginedemocompose.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repo: ProfileRepository,
-    private val userStore: UserStore
+    private val userStore: UserStore,
+    private val log: AppLogger
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState(isLoading = true))
@@ -70,7 +72,10 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val res = repo.refresh()
             res.onSuccess { reduce { it.copy(isRefreshing = false, error = null) } }
-            res.onFailure { err -> reduce { it.copy(error = err.message, isRefreshing = false) } }
+            res.onFailure { err ->
+                reduce { it.copy(error = err.message, isRefreshing = false) }
+                log.nonFatal(err, mapOf("where" to "refresh_profile"))
+            }
         }
     }
 
@@ -112,6 +117,7 @@ class ProfileViewModel @Inject constructor(
                         res.exceptionOrNull()?.message ?: "Update failed"
                     )
                 )
+                log.nonFatal(res.exceptionOrNull() ?: RuntimeException("Update failed"), mapOf("where" to "update_profile"))
                 onEditToggle()
             }
         }
@@ -122,12 +128,13 @@ class ProfileViewModel @Inject constructor(
             val res = repo.logout()
             if (res.isSuccess)
                 _effect.emit(ProfileEffect.NavigateToLogin)
-            else
+            else {
                 _effect.emit(
                     ProfileEffect.Message(
                         res.exceptionOrNull()?.message ?: "Logout failed"
-                    )
-                )
+                    ))
+                log.nonFatal(res.exceptionOrNull() ?: RuntimeException("Logout failed"), mapOf("where" to "logout"))
+            }
         }
     }
 

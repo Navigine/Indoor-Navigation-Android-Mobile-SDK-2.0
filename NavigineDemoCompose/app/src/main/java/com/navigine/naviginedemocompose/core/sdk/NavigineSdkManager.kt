@@ -14,6 +14,9 @@ import com.navigine.idl.java.NotificationManager
 import com.navigine.idl.java.ResourceManager
 import com.navigine.idl.java.RouteManager
 import com.navigine.idl.java.ZoneManager
+import com.navigine.naviginedemocompose.core.log.AppLogger
+import com.navigine.naviginedemocompose.core.util.safeUrlHost
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +24,8 @@ import javax.inject.Singleton
 
 @Singleton
 class NavigineSdkManager(
-    private val appContext : Context
+    @ApplicationContext private val appContext : Context,
+    private val log: AppLogger
 ) {
 
     sealed interface SdkState {
@@ -82,9 +86,10 @@ class NavigineSdkManager(
     @Synchronized
     fun configure(serverUrl: String, userHash: String): Boolean {
         if (userHash.isBlank()) {
-            Log.w(tag, "configure(): userHash is blank – refusing to init")
+            val e = IllegalArgumentException("Blank userHash")
+            log.nonFatal(e, mapOf("where" to "sdk_config", "server" to serverUrl.safeUrlHost()))
             clearInternal()
-            _state.value = SdkState.Error(IllegalArgumentException("Blank userHash"))
+            _state.value = SdkState.Error(e)
             return false
         }
         val newCfg = Config(serverUrl.trim(), userHash.trim())
@@ -130,7 +135,7 @@ class NavigineSdkManager(
             _state.value = SdkState.Ready(newCfg)
             true
         } catch (t: Throwable) {
-            Log.e(tag, "Failed to configure SDK", t)
+            log.nonFatal(t, mapOf("where" to tag, "server" to serverUrl.safeUrlHost()))
             clearInternal()
             _state.value = SdkState.Error(t)
             false

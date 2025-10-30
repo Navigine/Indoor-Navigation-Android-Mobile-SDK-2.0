@@ -13,6 +13,8 @@ fun Double.format(n: Int) = "%.${n}f".format(this)
 fun Long.fmtTime(): String =
     java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(this))
 
+fun String.safeUrlHost(): String = runCatching { java.net.URI(this).host ?: this }.getOrDefault(this)
+
 @Composable
 fun PaddingValues.copy(
     start: Dp? = null,

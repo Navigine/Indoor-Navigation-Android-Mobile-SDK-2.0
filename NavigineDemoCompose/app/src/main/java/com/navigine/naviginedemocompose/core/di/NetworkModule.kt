@@ -1,6 +1,8 @@
-package com.navigine.naviginedemocompose.core.di.network
+package com.navigine.naviginedemocompose.core.di
 
 import com.navigine.naviginedemocompose.BuildConfig
+import com.navigine.naviginedemocompose.core.log.AppLogger
+import com.navigine.naviginedemocompose.core.util.safeUrlHost
 import com.navigine.naviginedemocompose.data.local.HostUrlStore
 import com.navigine.naviginedemocompose.data.network.auth.AuthApi
 import com.navigine.naviginedemocompose.data.network.profile.ProfileApi
@@ -38,17 +40,24 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideDynamicBaseUrlInterceptor(store: HostUrlStore): Interceptor = Interceptor { chain ->
+    fun provideDynamicBaseUrlInterceptor(store: HostUrlStore, logger: AppLogger): Interceptor = Interceptor { chain ->
         val req = chain.request()
         val savedBase = runBlocking { store.serverUrlFlow.first() } // small, once per app start typically
         val base = (savedBase.ifBlank { BuildConfig.DEFAULT_SERVER_URL }).trim()
-        val baseUrl = base.toHttpUrl()
-        val newUrl = req.url.newBuilder()
-            .scheme(baseUrl.scheme)
-            .host(baseUrl.host)
-            .port(baseUrl.port)
-            .build()
-        chain.proceed(req.newBuilder().url(newUrl).build())
+        val newReq = runCatching {
+            val baseUrl = base.toHttpUrl()
+            req.newBuilder()
+                .url(req.url.newBuilder()
+                    .scheme(baseUrl.scheme)
+                    .host(baseUrl.host)
+                    .port(baseUrl.port)
+                    .build())
+                .build()
+        }.getOrElse { e ->
+            logger.nonFatal(e, mapOf("where" to "dyn_base_interceptor", "host" to base.safeUrlHost()))
+            req
+        }
+        chain.proceed(newReq)
     }
 
     @Provides

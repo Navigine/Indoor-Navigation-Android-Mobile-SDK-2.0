@@ -4,6 +4,7 @@ import com.navigine.idl.java.MeasurementListener
 import com.navigine.idl.java.SensorMeasurement
 import com.navigine.idl.java.SensorType
 import com.navigine.idl.java.SignalMeasurement
+import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import com.navigine.naviginedemocompose.domain.monitor.MeasurementMonitor
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,8 @@ import java.util.HashMap
 import javax.inject.Inject
 
 class MeasurementMonitorImpl @Inject constructor(
-    private val sdk: NavigineSdkManager
+    private val sdk: NavigineSdkManager,
+    private val log: AppLogger
 ) : MeasurementMonitor {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -55,7 +57,8 @@ class MeasurementMonitorImpl @Inject constructor(
                 _signals.tryEmit(map )
             }
         }
-        mm.addMeasurementListener(l)
+        runCatching { mm.addMeasurementListener(l) }
+            .onFailure { e -> log.nonFatal(e, mapOf("where" to "measurement_attach")) }
         listener = l
     }
 

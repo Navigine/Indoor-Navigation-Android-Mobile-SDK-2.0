@@ -2,6 +2,7 @@ package com.navigine.naviginedemocompose.data.monitor
 
 import com.navigine.idl.java.Location
 import com.navigine.idl.java.LocationListener
+import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import com.navigine.naviginedemocompose.domain.model.LocationEvent
 import com.navigine.naviginedemocompose.domain.model.LocationModel
@@ -27,7 +28,8 @@ import javax.inject.Singleton
 
 @Singleton
 class LocationMonitorImpl @Inject constructor(
-    private val sdk: NavigineSdkManager
+    private val sdk: NavigineSdkManager,
+    log: AppLogger
 ) : LocationMonitor {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -57,6 +59,7 @@ class LocationMonitorImpl @Inject constructor(
 
                         override fun onLocationFailed(code: Int, error: Error) {
                             trySend(LocationEvent.Failed(code, error.message ?: "Unknown error"))
+                            log.nonFatal(error, mapOf("where" to "loc_monitor"))
                         }
                     }
                     sdk.locationManager.addLocationListener(listener)

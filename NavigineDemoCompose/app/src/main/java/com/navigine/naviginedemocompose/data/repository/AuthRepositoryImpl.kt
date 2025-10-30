@@ -1,6 +1,6 @@
 package com.navigine.naviginedemocompose.data.repository
 
-import com.navigine.naviginedemocompose.core.di.network.RetrofitFactory
+import com.navigine.naviginedemocompose.core.di.RetrofitFactory
 import com.navigine.naviginedemocompose.data.local.HostUrlStore
 import com.navigine.naviginedemocompose.data.network.auth.AuthApi
 import com.navigine.naviginedemocompose.data.network.auth.toDomain
@@ -8,7 +8,6 @@ import com.navigine.naviginedemocompose.domain.model.User
 import com.navigine.naviginedemocompose.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import retrofit2.Retrofit
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(

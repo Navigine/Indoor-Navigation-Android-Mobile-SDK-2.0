@@ -1,4 +1,4 @@
-package com.navigine.naviginedemocompose.core.di.network
+package com.navigine.naviginedemocompose.core.di
 
 import android.content.Context
 import com.navigine.naviginedemocompose.data.local.HostUrlStore

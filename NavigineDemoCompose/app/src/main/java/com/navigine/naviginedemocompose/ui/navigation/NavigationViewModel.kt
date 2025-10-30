@@ -14,6 +14,7 @@ import com.navigine.idl.java.Position
 import com.navigine.idl.java.RoutePath
 import com.navigine.idl.java.RouteStatus
 import com.navigine.idl.java.Venue
+import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import com.navigine.naviginedemocompose.domain.model.LocationModel
 import com.navigine.naviginedemocompose.domain.monitor.LocationMonitor
@@ -39,7 +40,8 @@ class NavigationViewModel @Inject constructor(
     private val positionMonitor: PositionMonitor,
     private val routeMonitor: RouteMonitor,
     private val sdk: NavigineSdkManager,
-    private val saveStateHandle: SavedStateHandle
+    private val saveStateHandle: SavedStateHandle,
+    private val log: AppLogger
 ) : ViewModel() {
 
     companion object {
@@ -101,10 +103,6 @@ class NavigationViewModel @Inject constructor(
             NavigationEvent.CancelPin -> onCancelPin()
             is NavigationEvent.FollowMyLocationToggle -> reduce { it.copy(followMyLocation = event.enabled) }
             is NavigationEvent.LongPressAt -> onLongPress(event.point)
-
-            NavigationEvent.SearchClear -> TODO()
-            is NavigationEvent.SearchFocusChanged -> TODO()
-            is NavigationEvent.SearchQueryChanged -> TODO()
 
             is NavigationEvent.VenuePickedOnMap -> onVenuePicked(event.venue)
 
@@ -225,6 +223,7 @@ class NavigationViewModel @Inject constructor(
                 }
             }.onFailure {
                 emitEffect(NavigationEffect.ShowSnackbar("Failed to start route: ${it.message}"))
+                log.nonFatal(it, mapOf("where" to "start_route"))
             }
         }
     }

@@ -230,7 +230,7 @@ private fun ProfileHeader(
             contentDescription = "Avatar",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(AvatarSize)
+                .size(com.navigine.naviginedemocompose.ui.profile.AvatarSize)
                 .align(Alignment.BottomCenter)
                 .offset(y = AvatarOffsetY)
                 .clip(CircleShape)

@@ -1,6 +1,7 @@
 package com.navigine.naviginedemocompose.core.di
 
 import android.content.Context
+import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import dagger.Module
 import dagger.Provides
@@ -14,5 +15,6 @@ import javax.inject.Singleton
 object SdkModule {
     @Provides
     @Singleton
-    fun provideNavigineSdkManager(@ApplicationContext context : Context) = NavigineSdkManager(context)
+    fun provideNavigineSdkManager(@ApplicationContext context: Context, log: AppLogger) =
+        NavigineSdkManager(context, log)
 }

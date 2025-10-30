@@ -1,5 +1,6 @@
 [versions]
 agp = "8.11.2"
+firebaseBom = "34.4.0"
 kotlin = "2.2.20"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -22,6 +23,8 @@ okHttp = "5.2.0"
 moshi = "1.15.2"
 zxingAndroidEmbedded = "4.3.0"
 zxing-core = "3.5.3"
+gms = "4.4.4"
+crashlytics = "3.0.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,10 +65,16 @@ zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+google-services = { id = "com.google.gms.google-services", version.ref = "gms" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics"}
 

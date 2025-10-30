@@ -3,6 +3,7 @@ package com.navigine.naviginedemocompose.data.repository
 import android.util.Log
 import com.navigine.idl.java.LocationInfo
 import com.navigine.idl.java.LocationListListener
+import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import com.navigine.naviginedemocompose.data.local.UserStore
 import com.navigine.naviginedemocompose.domain.model.LocationModel
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 class LocationsRepositoryImpl @Inject constructor(
     private val sdk: NavigineSdkManager,
-    private val userStore: UserStore
+    private val userStore: UserStore,
+    private val log: AppLogger
 ) : LocationsRepository {
 
     override fun observeLocations(): Flow<List<LocationModel>>  = callbackFlow {
@@ -42,6 +44,7 @@ class LocationsRepositoryImpl @Inject constructor(
             }
             override fun onLocationListFailed(error: Error) {
                 Log.e("LocationsRepository", "onLocationListFailed: $error")
+                log.nonFatal(error, mapOf("where" to "location_list"))
             }
         }
         llm.addLocationListListener(listener)

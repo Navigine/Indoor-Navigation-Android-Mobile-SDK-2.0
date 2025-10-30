@@ -1,6 +1,5 @@
 package com.navigine.naviginedemocompose.ui.auth
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.navigine.naviginedemocompose.data.local.UserStore
@@ -13,12 +12,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.navigine.naviginedemocompose.core.log.AppLogger
+import com.navigine.naviginedemocompose.core.log.LoginResult
+import com.navigine.naviginedemocompose.core.log.log
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_LOCATION_ID
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_SERVER
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_SUBLOCATION_ID
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_USERHASH
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_VENUE_ID
+import com.navigine.naviginedemocompose.core.util.safeUrlHost
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
@@ -28,7 +31,8 @@ private val HASH_REGEX = """^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$"""
 class LoginViewModel @Inject constructor(
     private val repo: AuthRepository,
     private val authStore: UserStore,
-    private val sdk: NavigineSdkManager
+    private val sdk: NavigineSdkManager,
+    private val log: AppLogger
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -58,6 +62,7 @@ class LoginViewModel @Inject constructor(
         val hash = _state.value.userHash
         if (!HASH_REGEX.matches(hash)) {
             _state.value = _state.value.copy(error = "Invalid hash format")
+            log.log(LoginResult(false, "invalid_format"))
             return
         }
         viewModelScope.launch {
@@ -76,10 +81,19 @@ class LoginViewModel @Inject constructor(
 
                 val server = repo.currentServerUrlFlow().first()
                 val ok = sdk.tryConfigure(server, it.hash)
-                if (ok) onSuccess() else _state.value = _state.value.copy(error = "SDK init failed. Check server/hash.")
+                if (ok) {
+                    log.setUserId(it.hash)
+                    log.setUserProperty("server", server.safeUrlHost())
+                    onSuccess()
+                } else {
+                    _state.value = _state.value.copy(error = "SDK init failed. Check server/hash.")
+                    log.log(LoginResult(false, "sdk_init_failed"))
+                }
                 onSuccess()
             }.onFailure { e ->
                 _state.value = _state.value.copy(error = e.message ?: "Login failed")
+                log.nonFatal(e, mapOf("where" to "login"))
+                log.log(LoginResult(false, e.message))
             }
         }
     }
@@ -103,6 +117,7 @@ class LoginViewModel @Inject constructor(
             }.onFailure { e ->
                 val msg = e.message ?: "Server is not reachable"
                 _serverCheck.value = ServerCheckUi.Error(msg)
+                log.nonFatal(e, mapOf("host" to url, "where" to "server_check"))
                 onError(msg)
             }
         }

@@ -29,10 +29,7 @@ sealed interface NavigationEvent {
     data class LocationLoaded(val location: LocationModel) : NavigationEvent
     data class SwitchFloor(val sublocationId: Int) : NavigationEvent
 
-    // Search/POI basic
-    data class SearchQueryChanged(val query: String) : NavigationEvent
-    data class SearchFocusChanged(val focused: Boolean) : NavigationEvent
-    data object SearchClear : NavigationEvent
+    //POI basic
     data class VenuePickedOnMap(val venue: Venue) : NavigationEvent
 
     // Pins / long tap
