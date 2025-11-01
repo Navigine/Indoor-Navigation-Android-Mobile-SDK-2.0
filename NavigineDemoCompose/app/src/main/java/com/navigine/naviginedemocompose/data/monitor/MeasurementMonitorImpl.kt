@@ -1,6 +1,7 @@
 package com.navigine.naviginedemocompose.data.monitor
 
 import com.navigine.idl.java.MeasurementListener
+import com.navigine.idl.java.MeasurementManager
 import com.navigine.idl.java.SensorMeasurement
 import com.navigine.idl.java.SensorType
 import com.navigine.idl.java.SignalMeasurement
@@ -24,6 +25,7 @@ class MeasurementMonitorImpl @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
+    private var mm: MeasurementManager? = null
     private var listener: MeasurementListener? = null
 
     private val _signals = MutableSharedFlow<Map<String, SignalMeasurement>>(replay = 1, extraBufferCapacity = 32)
@@ -46,7 +48,7 @@ class MeasurementMonitorImpl @Inject constructor(
     @Synchronized
     private fun attach(){
         if (listener != null) return
-        val mm = runCatching { sdk.measurementManager }.getOrNull() ?: return
+        val manager = runCatching { sdk.measurementManager }.getOrNull() ?: return
 
         val l = object : MeasurementListener() {
             override fun onSensorMeasurementDetected(map: HashMap<SensorType, SensorMeasurement>) {
@@ -57,7 +59,10 @@ class MeasurementMonitorImpl @Inject constructor(
                 _signals.tryEmit(map )
             }
         }
-        runCatching { mm.addMeasurementListener(l) }
+        runCatching {
+            manager.addMeasurementListener(l)
+            mm = manager
+        }
             .onFailure { e -> log.nonFatal(e, mapOf("where" to "measurement_attach")) }
         listener = l
     }
@@ -67,6 +72,7 @@ class MeasurementMonitorImpl @Inject constructor(
         val l = listener ?: return
         runCatching { sdk.measurementManager.removeMeasurementListener(l) }
         listener = null
+        mm = null
     }
 
 }

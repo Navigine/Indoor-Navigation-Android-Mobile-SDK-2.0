@@ -40,6 +40,13 @@ class LocationMonitorImpl @Inject constructor(
         sdk.state.flatMapLatest { st ->
             if (st is NavigineSdkManager.SdkState.Ready) {
                 callbackFlow {
+
+                    val lm = runCatching { sdk.locationManager }.getOrNull()
+                    if (lm == null) {
+                        awaitClose { /* no-op */ }
+                        return@callbackFlow
+                    }
+
                     val listener = object : LocationListener() {
                         override fun onLocationLoaded(location: Location) {
                             trySend(
@@ -62,9 +69,9 @@ class LocationMonitorImpl @Inject constructor(
                             log.nonFatal(error, mapOf("where" to "loc_monitor"))
                         }
                     }
-                    sdk.locationManager.addLocationListener(listener)
+                    lm.addLocationListener(listener)
 
-                    awaitClose { sdk.locationManager.removeLocationListener(listener) }
+                    awaitClose { lm.removeLocationListener(listener) }
                 }
             } else emptyFlow()
     }
