@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">NavigineDemoCompose</string>
+    <string name="tab_locations">Locations</string>
+    <string name="tab_navigation">Navigation</string>
+    <string name="tab_debug">Debug</string>
+    <string name="tab_profile">Profile</string>
+</resources>
