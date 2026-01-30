@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.24.3
+* Added MqttSession
+* Fixed ble scanning
+
+## 2.24.2
+* Added DefaultNavigationView
+* Added UserLocationLayer
+
 ## 2.24.1
 * Fixed gl resource deletion.
 * Added 3d barriers support
