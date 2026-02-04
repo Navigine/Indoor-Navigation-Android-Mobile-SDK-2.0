@@ -130,8 +130,6 @@ public class NavigationFragment extends BaseFragment {
     private FrameLayout mTransparentBackground = null;
     private FrameLayout mVenueListLayout = null;
     private FrameLayout mVenueIconsLayout = null;
-    private FrameLayout mArrowUpLayout = null;
-    private FrameLayout mArrowDownLayout = null;
     private FrameLayout mCircularProgress = null;
     private MaterialTextView mFromCurrentText = null;
     private MaterialTextView mToText = null;
@@ -198,12 +196,10 @@ public class NavigationFragment extends BaseFragment {
     private IntentFilter mPositionReceiverFilter = null;
 
 
-    private boolean mAdjustMode = false;
     private boolean mSelectMapPoint = false;
     private boolean mLocationChanged = false;
     private boolean mLocationLoaded = false;
     private boolean mRouting = false;
-    private boolean mSetupPosition = true;
 
     private boolean mOrientationPointState = false;
 
@@ -222,7 +218,6 @@ public class NavigationFragment extends BaseFragment {
 
     private BottomSheetRouteFinish mBottomSheetRouteFinish = null;
 
-    private Position mPosition = null;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -391,8 +386,6 @@ public class NavigationFragment extends BaseFragment {
         mSearchPanel = view.findViewById(R.id.navigation__search_panel);
         mSearchField = view.findViewById(R.id.navigation__search_field);
         mSearchBtnClear = mSearchField.findViewById(R.id.navigation__search_btn_close);
-        mArrowUpLayout = view.findViewById(R.id.panel_sublocations__arrow_up);
-        mArrowDownLayout = view.findViewById(R.id.panel_sublocations__arrow_down);
         mChipsScroll = view.findViewById(R.id.navigation__search_chips_scroll);
         mChipGroup = view.findViewById(R.id.navigation__search_chips_group);
 
@@ -1463,14 +1456,13 @@ public class NavigationFragment extends BaseFragment {
                         }
                     }
 
-                    if (mAdjustMode) {
-                        int id = lp.getSublocationId();
-                        if (mSublocation.getId() != id) {
-                            mSublocation = mLocation.getSublocationById(id);
-                            loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
-                        }
-                        adjustDevice(lp.getPoint());
+                    int id = lp.getSublocationId();
+                    if (mSublocation.getId() != id) {
+                        mSublocation = mLocation.getSublocationById(id);
+                        loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
                     }
+                    adjustDevice(lp.getPoint());
+
                     mFromPoint = lp;
                     break;
                 case ACTION_POSITION_ERROR:
