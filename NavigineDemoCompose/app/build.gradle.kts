@@ -104,3 +104,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+afterEvaluate {
+    tasks.findByName("mergeDebugResources")?.dependsOn("processDebugGoogleServices")
+
+    tasks.findByName("assembleDebug")?.doLast {
+        copy {
+            from("$projectDir/build/outputs/apk/debug/app-debug.apk")
+            into(rootDir)
+            rename("app-debug.apk", "NavigineCompose-debug.apk")
+        }
+    }
+}

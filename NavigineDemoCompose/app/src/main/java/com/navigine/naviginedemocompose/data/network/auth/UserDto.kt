@@ -11,7 +11,7 @@ data class UserDto(
     @Json(name = "salt") val salt: String?,
     @Json(name = "hash") val hash: String,
     @Json(name = "role") val role: String?,
-    @Json(name = "active") val active: Int?,
+    @Json(name = "active") val active: Boolean?,
     @Json(name = "last_entry") val lastEntry: String?,
     @Json(name = "language") val language: String?,
     @Json(name = "phone_number") val phoneNumber: String?,

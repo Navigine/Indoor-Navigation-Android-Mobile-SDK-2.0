@@ -12,3 +12,7 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# APK files (use GitHub Releases instead)
+*.apk
+*.aab

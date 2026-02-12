@@ -16,3 +16,7 @@ local.properties
 
 **/google-services.json
 **/GoogleService-Info.plist
+
+# APK files (use GitHub Releases instead)
+*.apk
+*.aab
