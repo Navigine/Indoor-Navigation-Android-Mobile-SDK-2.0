@@ -2,9 +2,11 @@
 
 # Android SDK 2.0
 
+**📱 Quick Start:** [**🆕 Modern Compose Demo (Recommended)**](#-naviginedemocompose---modern-kotlin--jetpack-compose) | [Legacy Java/XML Demo](#naviginedemo---legacy-javaxml)
+
 The following sections describe the contents of the Navigine Android SDK repository. The files in our public repository for Android are: 
 
-- Sources of the Navigine Demo Application for Android
+- Sources of the Navigine Demo Applications for Android (Compose + Java)
 - Navigine SDK for Android in form of a AAR file
 
 ## Useful Links
@@ -40,21 +42,72 @@ The following sections describe the contents of the Navigine Android SDK reposit
 
 **Developer-Friendly Tools and Support**: Indoor Navigation SDKs come with comprehensive documentation, developer tools, and dedicated support channels. This empowers developers to efficiently integrate and utilize the SDK, accelerating the development process and ensuring a smooth implementation.
 
-## Android Demo Application
+## Android Demo Applications
 
-Navigine Demo application for Android enables you to test indoor navigation as well as measure your target location's radiomap.
-Source files as well as compiled application reside in the Navigine folder and nested folders.
+We provide **two demo applications** to help you get started with Navigine SDK. Choose based on your tech stack:
 
-To get the Navigine demo application for Android,
+### 🆕 NavigineDemoCompose - Modern Kotlin + Jetpack Compose
 
-- Either [download the precompiled APK file](https://github.com/Navigine/Android-SDK-2.0/blob/master/NavigineDemo/NavigineDemo-debug.apk).
-- Or compile the application yourself [using sources, available at GitHub](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemo).
+**⭐ Recommended for new projects** - Production-ready demo showcasing Navigine SDK with modern Android development.
 
-For complete guidelines on using the Demo, refer to the [corresponding sections in the Navigine User Manual](https://docs.navigine.com/en/Using_Navigine_Application_for_Android), or refer to the Help file incorporated into the application.
+**Why choose the Compose version:**
+- ✨ **50% less boilerplate** - Clean Architecture with Kotlin-first approach
+- 🚀 **Modern UI/UX** - Material 3 design, intuitive navigation
+- 🎯 **Production patterns** - Hilt DI, Coroutines/Flow, proper state management
+- 🔧 **Developer-friendly** - Type-safe navigation, better testability, clear code structure
+- 📱 **Latest standards** - Follows current Android best practices (2024+)
 
-Below, you can see some screenshots of the Demo representing locations list, defined location levels, navigation bar, and debug process.
+**Tech Stack:** Kotlin, Jetpack Compose, Material 3, Hilt DI, Coroutines/Flow, Retrofit, DataStore
 
-  <img src="img/locations.png" alt="img/locations.png" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/navigation.png" alt="img/navigation.png" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/debug.png" alt="img/debug.png" width="250"/>
+**Get Started:**
+- 📦 **[Download APK](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemoCompose/NavigineCompose-debug.apk)** - Try it now on your device
+- 📖 **[Full Documentation](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemoCompose/)** - Setup guide, architecture details, troubleshooting
+- 💻 **[Source Code](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemoCompose/)** - Clone and adapt to your needs
+
+**Screenshots:**
+
+<img src="NavigineDemoCompose/screenshots/navigation.jpg" alt="Navigation" width="200"/>&nbsp;&nbsp;<img src="NavigineDemoCompose/screenshots/locations.jpg" alt="Locations" width="200"/>&nbsp;&nbsp;<img src="NavigineDemoCompose/screenshots/debug.jpg" alt="Debug" width="200"/>&nbsp;&nbsp;/>
+
+**Quick Start:**
+```bash
+git clone https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0.git
+cd Indoor-Navigation-Android-Mobile-SDK-2.0/NavigineDemoCompose
+# Open in Android Studio and run
+```
+
+---
+
+### NavigineDemo - Legacy Java/XML
+
+Our stable Java/XML demo application for developers working with legacy codebases or preferring traditional Android patterns.
+
+Navigine Demo application enables you to test indoor navigation as well as measure your target location's radiomap.
+
+**Get the Java Demo:**
+- [Download APK](https://github.com/Navigine/Android-SDK-2.0/blob/master/NavigineDemo/NavigineDemo-debug.apk)
+- [Browse Source Code](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemo)
+
+For complete guidelines, refer to the [Navigine User Manual](https://docs.navigine.com/en/Using_Navigine_Application_for_Android).
+
+**Screenshots:**
+
+<img src="img/locations.png" alt="img/locations.png" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/navigation.png" alt="img/navigation.png" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/debug.png" alt="img/debug.png" width="250"/>
+
+---
+
+### 📊 Which Demo Should I Use?
+
+| Aspect | NavigineDemoCompose | NavigineDemo (Java) |
+|:--|:--|:--|
+| **UI Framework** | Jetpack Compose | XML Views |
+| **Language** | Kotlin | Java |
+| **Architecture** | Clean Architecture + MVVM | Traditional Android |
+| **State Management** | Flow + Coroutines | Callbacks |
+| **Dependency Injection** | Hilt | Manual |
+| **Code Complexity** | ~2,500 lines | ~5,000+ lines |
+| **Material Design** | Material 3 (2024) | Material 2 |
+| **Recommended For** | ⭐ New projects, modern apps | Legacy codebases |
+| **Maintenance** | **Actively maintained** | Stable, limited updates |
 
 ## Navigation SDK and Implementation
 
@@ -140,6 +193,17 @@ A modern, production-ready Compose wrapper around Navigine’s `LocationView` �
 - Polylines/polygons/circles as declarative map objects
 - Proper cleanup across recompositions & lifecycle events
 
+### 🎯 See it in a real app!
+
+Want to see `LocationViewCompose` in action? Check out **[NavigineDemoCompose](NavigineDemoCompose/)** - a production-ready demo that showcases all features:
+- Camera state management & animations
+- Map objects (polylines, circles, polygons)
+- Input handlers (tap, long-press, feature picking)
+- Lifecycle-aware setup
+- Integration with Hilt & Clean Architecture
+
+The demo is a perfect reference for building your own indoor navigation app with Compose!
+
 ### Getting started
 
 **1) Add dependencies**
@@ -147,7 +211,7 @@ A modern, production-ready Compose wrapper around Navigine’s `LocationView` �
 ```kotlin
 dependencies {
     // Note: core sdk is pulled transitively with the library
-    implementation("com.navigine:navigine-locationview-compose:1.7.2")
+    implementation("com.navigine:navigine-locationview-compose:2.24.1")
 }
 ```
 
