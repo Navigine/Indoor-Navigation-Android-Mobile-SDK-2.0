@@ -60,9 +60,9 @@ We provide **two demo applications** to help you get started with Navigine SDK. 
 **Tech Stack:** Kotlin, Jetpack Compose, Material 3, Hilt DI, Coroutines/Flow, Retrofit, DataStore
 
 **Get Started:**
-- 📦 **[Download APK](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemoCompose/NavigineCompose-debug.apk)** - Try it now on your device
-- 📖 **[Full Documentation](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemoCompose/)** - Setup guide, architecture details, troubleshooting
-- 💻 **[Source Code](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemoCompose/)** - Clone and adapt to your needs
+- 📦 **[Download APK](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases/tag/2.24.4/download/NavigineCompose-debug.apk)** - Try it now on your device
+- 📖 **[Full Documentation](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/tree/master/NavigineDemoCompose/)** - Setup guide, architecture details, troubleshooting
+- 💻 **[Source Code](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/tree/master/NavigineDemoCompose/)** - Clone and adapt to your needs
 
 **Screenshots:**
 
@@ -84,8 +84,8 @@ Our stable Java/XML demo application for developers working with legacy codebase
 Navigine Demo application enables you to test indoor navigation as well as measure your target location's radiomap.
 
 **Get the Java Demo:**
-- [Download APK](https://github.com/Navigine/Android-SDK-2.0/blob/master/NavigineDemo/NavigineDemo-debug.apk)
-- [Browse Source Code](https://github.com/Navigine/Android-SDK-2.0/tree/master/NavigineDemo)
+- [Download APK](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases/tag/2.24.4/download/NavigineDemo-debug.apk)
+- [Browse Source Code](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/tree/master/NavigineDemo)
 
 For complete guidelines, refer to the [Navigine User Manual](https://docs.navigine.com/en/Using_Navigine_Application_for_Android).
 
