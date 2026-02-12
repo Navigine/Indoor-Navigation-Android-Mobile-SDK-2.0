@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.24.4
+* Fix flutter android initialization
+
 ## 2.24.3
 * Added MqttSession
 * Fixed ble scanning
