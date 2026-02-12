@@ -9,7 +9,7 @@ fun UserDto.toDomain(): User = User(
     email = email,
     hash = hash,
     role = role,
-    active = (active ?: 0) == 1,
+    active = (active ?: false),
     lastEntryIso = lastEntry,
     language = language,
     phone = phoneNumber,
