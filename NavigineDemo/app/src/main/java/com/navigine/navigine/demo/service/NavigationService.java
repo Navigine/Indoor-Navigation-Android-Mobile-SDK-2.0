@@ -46,7 +46,7 @@ public class NavigationService extends Service {
             intent.putExtra(KEY_POINT_Y, position.getLocationPoint().getPoint().getY());
             intent.putExtra(KEY_LOCATION_HEADING, position.getLocationHeading());
 
-            sendBroadcast(intent);
+            sendPositionBroadcast(intent);
         }
 
         @Override
@@ -57,12 +57,18 @@ public class NavigationService extends Service {
         }
     };
 
+    private void sendPositionBroadcast(Intent intent) {
+        intent.setPackage(getPackageName());
+        sendBroadcast(intent);
+    }
+
     private PowerManager.WakeLock wakeLock = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
+
     }
 
     @Nullable
