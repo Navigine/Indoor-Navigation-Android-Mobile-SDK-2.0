@@ -526,6 +526,8 @@ public class NavigationFragment extends BaseFragment {
 
             @Override
             public void onViewLongTap(PointF pointF) {
+                System.out.println("hasTarget" + hasTarget());
+                System.out.println("pos" + mPositionLocationPoint);
                 if (hasTarget() || mPositionLocationPoint == null) return;
                 Point p = mLocationView.getLocationWindow().screenPositionToMeters(pointF);
                 NavigineSdkManager.RouteManager.clearTargets();
@@ -1433,6 +1435,7 @@ public class NavigationFragment extends BaseFragment {
             if (action == null) return;
             switch (action) {
                 case ACTION_POSITION_UPDATED:
+                    System.out.println("Intent " + intent);
 
                     float x = intent.getFloatExtra(NavigationService.KEY_POINT_X, -1f);
                     float y = intent.getFloatExtra(NavigationService.KEY_POINT_Y, -1f);
@@ -1441,6 +1444,8 @@ public class NavigationFragment extends BaseFragment {
                     double pointLocationHeading = intent.getDoubleExtra(NavigationService.KEY_LOCATION_HEADING, -1.0);
 
                     LocationPoint lp = new LocationPoint(new Point(x, y), locationId, sublocationId);
+
+                    System.out.println(x + " " +  y + " " +  locationId + " " +  sublocationId);
 
                     if (x == -1f || y == -1f || locationId == -1 || sublocationId == -1) return;
 
@@ -1457,11 +1462,14 @@ public class NavigationFragment extends BaseFragment {
                     }
 
                     int id = lp.getSublocationId();
-                    if (mSublocation.getId() != id) {
-                        mSublocation = mLocation.getSublocationById(id);
-                        loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
+                    if(mSublocation != null) {
+                        if (mSublocation.getId() != id) {
+                            mSublocation = mLocation.getSublocationById(id);
+                            loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
+                            adjustDevice(lp.getPoint());
+                        }
                     }
-                    adjustDevice(lp.getPoint());
+
 
                     mFromPoint = lp;
                     break;
