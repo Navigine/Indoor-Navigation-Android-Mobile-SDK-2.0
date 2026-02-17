@@ -48,6 +48,7 @@ public class Constants {
     public static final String KEY_VENUE_SUBLOCATION = "venue_sublocation";
     public static final String KEY_VENUE_POINT       = "venue_point";
     public static final String KEY_VENUE_CATEGORY    = "venue_category";
+    public static final String KEY_VENUE_ID    = "venue_id";
 
     // debug mode
     public static final int LIST_SIZE_DEFAULT = 6;

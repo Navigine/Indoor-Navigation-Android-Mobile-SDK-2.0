@@ -69,6 +69,7 @@ public class VenuesIconsListAdapter extends VenuesListAdapterBase<VenueIconViewH
 
     private void sendBroadcast() {
         Intent intent = new Intent(!mSelectedVenueIconsObjs.isEmpty() ? VENUE_FILTER_ON : VENUE_FILTER_OFF);
+        intent.setPackage(this.mRecyclerView.getContext().getPackageName());
         intent.putExtra(KEY_VENUE_CATEGORY, ((ArrayList<VenueIconObj>) mSelectedVenueIconsObjs));
         mContext.sendBroadcast(intent);
     }
