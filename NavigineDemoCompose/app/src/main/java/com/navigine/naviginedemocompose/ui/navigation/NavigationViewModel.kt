@@ -113,7 +113,7 @@ class NavigationViewModel @Inject constructor(
             NavigationEvent.HideRouteInfo -> reduce { it.copy(routeInfoVisible = false) }
             NavigationEvent.HideFinish -> reduce { it.copy(isFinishNear = false) }
             NavigationEvent.HideVenueSheet -> reduce { it.copy(venueSheet = null) }
-            NavigationEvent.OnRouteVenue -> reduce { it.copy(makeRouteSheetVisible = true) }
+            NavigationEvent.OnRouteVenue -> onRouteVenue()
         }
     }
 
@@ -162,6 +162,15 @@ class NavigationViewModel @Inject constructor(
             venueSheet = VenueSheetState(venue, true)
         ) }
         venue.point?.let { emitEffect(NavigationEffect.MoveCameraToPoint(it)) }
+    }
+
+    private fun onRouteVenue() {
+        val prev = _state.value
+        if (prev.isRouting) {
+            onBuildRoute()
+        } else {
+            reduce { it.copy(makeRouteSheetVisible = true) }
+        }
     }
 
     private fun onPositionUpdated(position: Position?) {
