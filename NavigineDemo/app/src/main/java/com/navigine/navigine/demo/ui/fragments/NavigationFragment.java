@@ -10,6 +10,7 @@ import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_LOCATION_ID;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_SUBLOCATION_ID;
 import static com.navigine.navigine.demo.utils.Constants.DL_QUERY_VENUE_ID;
 import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_CATEGORY;
+import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_ID;
 import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_POINT;
 import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_SUBLOCATION;
 import static com.navigine.navigine.demo.utils.Constants.LOCATION_CHANGED;
@@ -526,8 +527,6 @@ public class NavigationFragment extends BaseFragment {
 
             @Override
             public void onViewLongTap(PointF pointF) {
-                System.out.println("hasTarget" + hasTarget());
-                System.out.println("pos" + mPositionLocationPoint);
                 if (hasTarget() || mPositionLocationPoint == null) return;
                 Point p = mLocationView.getLocationWindow().screenPositionToMeters(pointF);
                 NavigineSdkManager.RouteManager.clearTargets();
@@ -952,7 +951,21 @@ public class NavigationFragment extends BaseFragment {
         mVenueBottomSheet.setDescription(mPinVenue.getDescript());
         mVenueBottomSheet.setImageRef(bm);
         mVenueBottomSheet.setRouteButtonVisibility(mFromPoint == null ? GONE : VISIBLE);
+
         mVenueBottomSheet.setRouteButtonClick(v -> {
+            if (mRouting) {
+                // skip make route dialog, change route straight up
+                mTargetVenue = mPinVenue;
+                mTargetPoint = null;
+                mPinVenue = null;
+                mToVenue = null;
+                NavigineSdkManager.RouteManager.setTarget(
+                        new LocationPoint(mTargetVenue.getPoint(), mLocation.getId(), mSublocation.getId())
+                );
+                if (mVenueBottomSheet.isAdded()) mVenueBottomSheet.dismiss();
+                return;
+            }
+
             mPinPoint = null;
             mToVenue = mPinVenue;
             String title = mPinVenue.getName();
@@ -1022,6 +1035,10 @@ public class NavigationFragment extends BaseFragment {
     }
 
     private void handleClick(float x, float y) {
+        if (mRouting) {
+            mLocationView.getLocationWindow().pickMapFeatureAt(new PointF(x, y));
+            return;
+        }
         if (mTargetPoint != null || mTargetVenue != null || mPinPoint != null || mPinVenue != null || mMakeRouteBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
             cancelPin();
             return;
@@ -1402,11 +1419,16 @@ public class NavigationFragment extends BaseFragment {
                     break;
                 case VENUE_SELECTED:
                     int sublocationId = intent.getIntExtra(KEY_VENUE_SUBLOCATION, 0);
+                    int venueId = intent.getIntExtra(KEY_VENUE_ID, -1);
                     float[] point = intent.getFloatArrayExtra(KEY_VENUE_POINT);
                     int sublocationIndex = mLocation.getSublocations().indexOf(mLocation.getSublocationById(sublocationId));
                     onCloseSearch();
                     hideTransparentLayout();
                     pointCameraToVenue(sublocationIndex, point);
+                    if (venueId != -1) {
+                        mPinVenue = findVenueById(venueId);
+                        if (mPinVenue != null) showVenueBottomSheet();
+                    }
                     break;
                 case VENUE_FILTER_ON:
                 case VENUE_FILTER_OFF:
@@ -1435,7 +1457,6 @@ public class NavigationFragment extends BaseFragment {
             if (action == null) return;
             switch (action) {
                 case ACTION_POSITION_UPDATED:
-                    System.out.println("Intent " + intent);
 
                     float x = intent.getFloatExtra(NavigationService.KEY_POINT_X, -1f);
                     float y = intent.getFloatExtra(NavigationService.KEY_POINT_Y, -1f);
@@ -1444,8 +1465,6 @@ public class NavigationFragment extends BaseFragment {
                     double pointLocationHeading = intent.getDoubleExtra(NavigationService.KEY_LOCATION_HEADING, -1.0);
 
                     LocationPoint lp = new LocationPoint(new Point(x, y), locationId, sublocationId);
-
-                    System.out.println(x + " " +  y + " " +  locationId + " " +  sublocationId);
 
                     if (x == -1f || y == -1f || locationId == -1 || sublocationId == -1) return;
 
@@ -1469,7 +1488,6 @@ public class NavigationFragment extends BaseFragment {
                             adjustDevice(lp.getPoint());
                         }
                     }
-
 
                     mFromPoint = lp;
                     break;

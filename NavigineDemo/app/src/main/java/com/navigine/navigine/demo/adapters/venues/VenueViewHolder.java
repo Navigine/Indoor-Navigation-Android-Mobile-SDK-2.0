@@ -1,5 +1,6 @@
 package com.navigine.navigine.demo.adapters.venues;
 
+import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_ID;
 import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_POINT;
 import static com.navigine.navigine.demo.utils.Constants.KEY_VENUE_SUBLOCATION;
 import static com.navigine.navigine.demo.utils.Constants.VENUE_SELECTED;
@@ -31,8 +32,10 @@ public class VenueViewHolder extends RecyclerView.ViewHolder {
         venueSublocation.setText(location.getSublocationById(venue.getSublocationId()).getName());
         itemView.        setOnClickListener(v -> {
             Intent i = new Intent(VENUE_SELECTED);
+            i.setPackage(v.getContext().getPackageName());
             i.putExtra(KEY_VENUE_SUBLOCATION, venue.getSublocationId());
             i.putExtra(KEY_VENUE_POINT, new float[]{venue.getPoint().getX(), venue.getPoint().getY()});
+            i.putExtra(KEY_VENUE_ID, venue.getId());
             v.getContext().sendBroadcast(i);
         });
     }
