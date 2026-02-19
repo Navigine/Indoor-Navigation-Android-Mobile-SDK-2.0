@@ -1,5 +1,6 @@
 package com.navigine.locationviewcompose.screens
 
+import android.R.attr.visible
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,11 +16,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.Point
+import com.navigine.locationview.DefaultNavigineLocation
 import com.navigine.locationview.NavigineLocation
+import com.navigine.locationview.objects.config.AppearanceConfig
+import com.navigine.locationview.objects.config.IconConfig
 import com.navigine.locationview.objects.icon.Icon
 import com.navigine.locationview.objects.icon.rememberIconState
 import com.navigine.locationviewcompose.R
@@ -43,7 +48,7 @@ fun MapIconsList(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     Column {
-        NavigineLocation(
+        DefaultNavigineLocation(
             modifier = modifier.weight(1f),
             onWindowReady = { it.setSublocationId(SUBLOC_ID) }
         ) {
@@ -54,10 +59,10 @@ fun MapIconsList(modifier: Modifier = Modifier) {
                         state = st,
                         position = pin.lp,
                         bitmap = getBitmapFromImage(context, R.drawable.gun),
-                        sizeWidth = 24f, sizeHeight = 24f,
-                        title = pin.title,
-                        interactive = true,
-                        visible = true,
+                        config = IconConfig(
+                            size = com.navigine.locationview.objects.config.Size(24f,24f),
+                            appearance = AppearanceConfig(title = pin.title)
+                        ),
                         onObjectReady = { id, _ ->
                             Log.d("Icon", "icon ${pin.id} -> sdkId=$id")
                         }

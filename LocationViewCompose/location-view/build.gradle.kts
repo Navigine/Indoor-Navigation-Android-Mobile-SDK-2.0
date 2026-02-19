@@ -4,11 +4,25 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-//    id("maven-publish")
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 kotlin { explicitApi() }
+
+val navigineSdkVersionProvider = providers.gradleProperty("navigineSdk")
+    .orElse(providers.environmentVariable("NAVIGINE_SDK_VERSION"))
+    .orElse("2.24.4")
+
+val navigineSdkVersion = navigineSdkVersionProvider.get()
+
+val isPublishing = gradle.startParameter.taskRequests.any { req ->
+    req.args.any { it.contains("publish", ignoreCase = true) }
+}
+if (isPublishing) {
+    check(navigineSdkVersion.isNotBlank()) {
+        "Set Navigine SDK version via -PnavigineSdk=x.yy.z or NAVIGINE_SDK_VERSION env or navigation/mobile/release/VERSION"
+    }
+}
 
 android {
     namespace = "com.navigine.location_view"
@@ -39,10 +53,15 @@ android {
 }
 
 dependencies {
-    api(libs.navigine.android.mobile.sdk)
+//    api(libs.navigine.android.mobile.sdk)
+//    api("com.navigine:navigine:0.0.1-local")
+
+    //noinspection UseTomlInstead
+    api("com.github.Navigine:Indoor-Navigation-Android-Mobile-SDK-2.0:${navigineSdkVersion}")
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.recyclerview)  // for default location view
     implementation(libs.androidx.material3)
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.ui)
@@ -56,11 +75,11 @@ dependencies {
 }
 
 mavenPublishing {
-
+    // ./gradlew :location-view:publishToMavenLocal
     coordinates(
         "com.navigine",
         "navigine-locationview-compose",
-        "1.7.2"
+        navigineSdkVersion
     )
 
     configure(
@@ -72,7 +91,11 @@ mavenPublishing {
     )
 
     publishToMavenCentral(automaticRelease = true)
-    signAllPublications()
+    val isCi = listOf("CI", "GITLAB_CI")
+        .any { providers.environmentVariable(it).map { v -> v.equals("true", true) || v == "1" }.isPresent }
+    if (isCi) {
+        signAllPublications()
+    }
 
     pom {
         name.set("Navigine LocationView Compose")

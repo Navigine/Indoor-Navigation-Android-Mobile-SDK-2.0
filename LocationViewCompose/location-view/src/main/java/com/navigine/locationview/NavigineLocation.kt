@@ -2,7 +2,9 @@ package com.navigine.locationview
 
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
+import android.provider.SyncStateContract.Helpers.update
 import android.util.Log
+import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,6 +37,8 @@ import com.navigine.locationview.settings.DefaultLocationProperties
 import com.navigine.locationview.settings.DefaultLocationUiSettings
 import com.navigine.locationview.settings.LocationProperties
 import com.navigine.locationview.settings.LocationUiSettings
+import com.navigine.locationview.utils.findGlChild
+import com.navigine.view.DefaultNavigationView
 
 
 /**
@@ -60,32 +64,39 @@ public fun NavigineLocation(
     cameraPositionState: NavCameraPositionState = rememberNavCameraPositionState(),
     properties: LocationProperties = DefaultLocationProperties,
     uiSettings: LocationUiSettings = DefaultLocationUiSettings,
+    isVisible: Boolean = true,
     onWindowReady: (LocationWindow) -> Unit = {},
-    content : @Composable @NavigineMapComposable () -> Unit = {}
+    content: @Composable @NavigineMapComposable () -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val viewHolder = remember { LocationViewHolder() }
+    val viewHolder = remember(context) { LocationViewHolder() }
     val windowState: MutableState<LocationWindow?> = remember { mutableStateOf(null) }
     val onWindowReadyState = rememberUpdatedState(onWindowReady)
 
+    var glChild by remember { mutableStateOf<View?>(null) }
+
     AndroidView(
         modifier = modifier,
-        factory = { ctx ->
-            viewHolder.createView(ctx).also { lv ->
-                val win = lv.locationWindow
-                windowState.value = win
-                onWindowReadyState.value.invoke(win)
+        factory = remember(context) {
+            { ctx ->
+                viewHolder.createView(ctx).also { lv ->
+                    glChild = findGlChild(lv)
+                    val win = lv.locationWindow
+                    windowState.value = win
+                    onWindowReadyState.value.invoke(win)
+                }
             }
         },
-         update = {
-         /* `update` will be added later for properties/uiSettings */
-         }
+        update = { lv ->
+            if (glChild == null) glChild = findGlChild(lv)
+            glChild?.visibility = if (isVisible) View.VISIBLE else View.GONE
+        }
     )
 
     DisposableEffect(lifecycleOwner, viewHolder) {
-        val observer = LifecycleEventObserver{ _, event ->
-            when(event){
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
                 Lifecycle.Event.ON_START -> viewHolder.onStart()
                 Lifecycle.Event.ON_STOP -> viewHolder.onStop()
                 else -> Unit
@@ -97,11 +108,20 @@ public fun NavigineLocation(
             viewHolder.onStart()
 
         onDispose {
-            if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
+            val win = windowState.value
+            windowState.value = null
+
+            if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 viewHolder.onStop()
+            }
+
+            win?.let { window ->
+                runCatching {
+                    window.removeAllMapObjects()
+                }
+            }
             lifecycleOwner.lifecycle.removeObserver(observer)
             viewHolder.clear()
-            windowState.value = null
         }
     }
 
@@ -111,11 +131,13 @@ public fun NavigineLocation(
             override fun onLowMemory() {
                 viewHolder.onLowMemory()
             }
+
             override fun onTrimMemory(level: Int) {
                 if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
                     viewHolder.onLowMemory()
                 }
             }
+
             override fun onConfigurationChanged(newConfig: Configuration) = Unit
         }
         appContext.registerComponentCallbacks(callbacks)
@@ -133,7 +155,7 @@ public fun NavigineLocation(
 
             cameraPositionState.window = window
 
-            // Register SDK camera listener -> state.
+            // Register sdk camera listener -> state.
             val cameraBridge = CameraListenerBridge(cameraPositionState)
             runCatching { window.addCameraListener(cameraBridge) }
                 .onFailure { Log.e("NavigineLocation", "Failed to add camera listener", it) }
@@ -156,6 +178,7 @@ public fun NavigineLocation(
             }
         }
 
+        // compose tree for map objects
         DisposableEffect(window, parentComposition) {
             if (window == null) return@DisposableEffect onDispose {}
 

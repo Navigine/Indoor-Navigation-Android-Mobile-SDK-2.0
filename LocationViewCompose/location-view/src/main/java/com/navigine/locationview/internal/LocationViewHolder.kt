@@ -1,6 +1,8 @@
 package com.navigine.locationview.internal
 
 import android.content.Context
+import android.util.Log
+import android.view.ViewGroup
 import androidx.annotation.MainThread
 import com.navigine.view.LocationView
 
@@ -35,6 +37,14 @@ internal class LocationViewHolder {
 
     @MainThread
     fun clear() {
-        _view = null
+        _view?.let { view ->
+            view.onStop()
+            view.onLowMemory()
+            (view as? ViewGroup)?.removeAllViews()
+
+            _view = null
+
+            Log.d("LocationViewHolder", "LocationView cleaned up properly")
+        }
     }
 }
