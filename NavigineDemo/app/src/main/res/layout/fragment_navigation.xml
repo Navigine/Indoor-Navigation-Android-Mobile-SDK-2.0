@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation__layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -17,43 +18,58 @@
             android:animateLayoutChanges="true"
             android:clickable="true"
             android:focusable="true"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
-            <com.navigine.view.DefaultNavigationView
+            <com.navigine.view.LocationView
                 android:id="@+id/navigation__location_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center" />
 
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/navigation__panels_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.25" />
+
             <!-- Sublocation panel -->
-<!--            <include layout="@layout/panel_sublocations" />-->
+            <include
+                android:id="@+id/navigation__sublocations_panel"
+                layout="@layout/panel_sublocations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/control_btn_margin_side"
+                app:layout_constraintTop_toTopOf="@id/navigation__panels_guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                />
 
             <!-- Zoom panel -->
-<!--            <include-->
-<!--                layout="@layout/panel_zoom"-->
-<!--                android:layout_width="@dimen/control_btn_size"-->
-<!--                android:layout_height="@dimen/control_btn_height_zoom"-->
-<!--                android:layout_marginEnd="@dimen/control_btn_margin_side"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintVertical_bias=".25" />-->
+            <include
+                layout="@layout/panel_zoom"
+                android:layout_width="@dimen/control_btn_size"
+                android:layout_height="@dimen/control_btn_height_zoom"
+                android:layout_marginEnd="@dimen/control_btn_margin_side"
+                app:layout_constraintTop_toTopOf="@id/navigation__panels_guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
 
-            <!-- Adjust button -->
-<!--            <FrameLayout-->
-<!--                android:id="@+id/navigation__adjust_mode_button"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="@dimen/control_btn_margin_side"-->
-<!--                android:layout_marginBottom="@dimen/navigation_margin_adjust_btn"-->
-<!--                android:background="@drawable/bg_adjust_btn"-->
-<!--                android:clickable="true"-->
-<!--                android:elevation="@dimen/control_btn_elevation"-->
-<!--                android:focusable="true"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent">-->
+<!--             Adjust button -->
+            <FrameLayout
+                android:id="@+id/navigation__adjust_mode_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/control_btn_margin_side"
+                android:layout_marginBottom="@dimen/navigation_margin_adjust_btn"
+                android:background="@drawable/bg_adjust_btn"
+                android:clickable="true"
+                android:elevation="@dimen/control_btn_elevation"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-<!--            </FrameLayout>-->
+            </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/navigation__search_transparent_bg"
@@ -166,7 +182,8 @@
         <!-- No location layout -->
         <include
             android:id="@+id/navigation__no_location_layout"
-            layout="@layout/no_location" />
+            layout="@layout/no_location"
+            tools:visibility="gone"/>
 
         <!-- loading circular progress -->
         <FrameLayout

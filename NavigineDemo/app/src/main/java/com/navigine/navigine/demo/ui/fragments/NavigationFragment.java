@@ -139,7 +139,7 @@ public class NavigationFragment extends BaseFragment {
     private MaterialTextView mWarningMessage = null;
     private MaterialTextView mDelayMessage = null;
     private CircularProgressIndicator mCircularProgressIndicator = null;
-    private DefaultNavigationView mLocationView = null;
+    private LocationView mLocationView = null;
     private ImageView mFromImageView = null;
     private ImageView mSearchBtnClear = null;
     private MaterialButton mSearchBtn = null;
@@ -156,6 +156,13 @@ public class NavigationFragment extends BaseFragment {
     private MaterialDividerItemDecoration mItemDivider = null;
     private HorizontalScrollView mChipsScroll = null;
     private ChipGroup mChipGroup = null;
+    private FrameLayout mArrowUpLayout = null;
+    private FrameLayout mArrowDownLayout = null;
+    private FrameLayout mZoomInLayout = null;
+    private FrameLayout mZoomOutLayout = null;
+    private FrameLayout mAdjustModeButton = null;
+    private ListViewLimit mSublocationsListView = null;
+    private IconMapObject mPositionIcon = null;
 
 
     private LocationPoint mPinPoint = null;
@@ -179,6 +186,7 @@ public class NavigationFragment extends BaseFragment {
     private RouteEventAdapter mRouteEventAdapter = null;
     private VenueListAdapter mVenueListAdapter = null;
     private VenuesIconsListAdapter mVenuesIconsListAdapter = null;
+    private SublocationsAdapter<Sublocation> mSublocationsAdapter = null;
 
     private IconMapObject mPinIconTarget = null;
     private IconMapObject mPinIconFrom = null;
@@ -196,11 +204,12 @@ public class NavigationFragment extends BaseFragment {
     private IntentFilter mStateReceiverFilter = null;
     private IntentFilter mPositionReceiverFilter = null;
 
-
+    private boolean mAdjustMode = false;
     private boolean mSelectMapPoint = false;
     private boolean mLocationChanged = false;
     private boolean mLocationLoaded = false;
     private boolean mRouting = false;
+    private boolean mSetupPosition = true;
 
     private boolean mOrientationPointState = false;
 
@@ -371,6 +380,7 @@ public class NavigationFragment extends BaseFragment {
         mSearchBtnClose = view.findViewById(R.id.navigation__search_btn_close);
         mRouteSheetCancelButton = mCancelRouteSheet.findViewById(R.id.cancel_route_sheet__cancel_button);
         mChoseMapButton = view.findViewById(R.id.no_location__button_choose_map);
+        mAdjustModeButton = view.findViewById(R.id.navigation__adjust_mode_button);
         mStartRouteButton = mMakeRouteSheet.findViewById(R.id.start_route__button);
         mFromCurrentText = mMakeRouteSheet.findViewById(R.id.make_route__from_current_title);
         mToText = mMakeRouteSheet.findViewById(R.id.make_route__to_text);
@@ -387,6 +397,11 @@ public class NavigationFragment extends BaseFragment {
         mSearchPanel = view.findViewById(R.id.navigation__search_panel);
         mSearchField = view.findViewById(R.id.navigation__search_field);
         mSearchBtnClear = mSearchField.findViewById(R.id.navigation__search_btn_close);
+        mZoomInLayout = view.findViewById(R.id.panel_zoom__zoom_in);
+        mZoomOutLayout = view.findViewById(R.id.panel_zoom__zoom_out);
+        mArrowUpLayout = view.findViewById(R.id.panel_sublocations__arrow_up);
+        mArrowDownLayout = view.findViewById(R.id.panel_sublocations__arrow_down);
+        mSublocationsListView = view.findViewById(R.id.panel_sublocations__listview);
         mChipsScroll = view.findViewById(R.id.navigation__search_chips_scroll);
         mChipGroup = view.findViewById(R.id.navigation__search_chips_group);
 
@@ -431,6 +446,54 @@ public class NavigationFragment extends BaseFragment {
         });
 
         mSearchBtnClose.setOnClickListener(v -> onHandleCancelSearch());
+
+        mSublocationsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (totalItemCount > 3) {
+                    View first = view.getChildAt(firstVisibleItem);
+                    View last = view.getChildAt(visibleItemCount - 1);
+                    if (first != null) {
+                        boolean halfVisible = first.getTop() != 0;
+                        mArrowUpLayout.setVisibility(halfVisible ? VISIBLE : GONE);
+                    }
+                    if (last != null) {
+                        boolean halfVisible = last.getBottom() != view.getHeight();
+                        mArrowDownLayout.setVisibility(halfVisible ? VISIBLE : GONE);
+                    }
+                }
+            }
+        });
+
+        mSublocationsListView.setOnItemClickListener((parent, view, position, id) -> loadSubLocation(position));
+
+        mArrowUpLayout.setOnClickListener(v -> {
+            int index = mSublocationsListView.getFirstVisiblePosition();
+            mSublocationsListView.smoothScrollToPosition(index - 1);
+        });
+
+        mArrowDownLayout.setOnClickListener(v -> {
+            int index = mSublocationsListView.getLastVisiblePosition();
+            mSublocationsListView.smoothScrollToPosition(index + 1);
+        });
+
+        mSublocationsAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                if (mSublocationsAdapter.getCount() > 3) {
+                    mArrowUpLayout.setVisibility(VISIBLE);
+                    mArrowDownLayout.setVisibility(VISIBLE);
+                } else {
+                    mArrowUpLayout.setVisibility(GONE);
+                    mArrowDownLayout.setVisibility(GONE);
+                }
+            }
+        });
 
         mChoseMapButton.setOnClickListener(v -> onMapChoose());
 
@@ -493,6 +556,10 @@ public class NavigationFragment extends BaseFragment {
         });
 
         mRouteSheetCancelButton.setOnClickListener(v -> mCancelRouteBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN));
+
+        mZoomInLayout.setOnClickListener(v -> onZoomIn());
+        mZoomOutLayout.setOnClickListener(v -> onZoomOut());
+        mAdjustModeButton.setOnClickListener(v -> toggleAdjustMode());
 
         mLocationView.getLocationWindow().addPickListener(new PickListener() {
             @Override
@@ -617,15 +684,19 @@ public class NavigationFragment extends BaseFragment {
             mLocationLoaded = mLocation != null;
 
             if (mLocationLoaded) {
+                mSublocationsListView.clearChoices();
+                mSublocationsAdapter.clear();
                 mVenueListAdapter.clear();
                 mVenuesList.clear();
 
+                mSublocationsListView.setVisibility(mLocation.getSublocations().size() <= 1 ? GONE : VISIBLE);
 
                 for (Sublocation sublocation : mLocation.getSublocations()) {
                     mVenuesList.addAll(sublocation.getVenues());
                 }
 
                 mVenueListAdapter.submit(mVenuesList, mLocation);
+                mSublocationsAdapter.submit(mLocation.getSublocations());
                 updateFilteredVenuesIconsList();
 
                 if (isVisible()) loadMap();
@@ -634,12 +705,14 @@ public class NavigationFragment extends BaseFragment {
     }
 
     private void initAdapters() {
+        mSublocationsAdapter = new SublocationsAdapter<>(requireActivity(), R.layout.list_item_sublocation);
         mRouteEventAdapter = new RouteEventAdapter();
         mVenuesIconsListAdapter = new VenuesIconsListAdapter();
         mVenueListAdapter = new VenueListAdapter();
     }
 
     private void setAdapters() {
+        mSublocationsListView.setAdapter(mSublocationsAdapter);
         mCancelRouteListView.setAdapter(mRouteEventAdapter);
         mVenueIconsListView.setAdapter(mVenuesIconsListAdapter);
         mVenueListView.setAdapter(mVenueListAdapter);
@@ -655,6 +728,14 @@ public class NavigationFragment extends BaseFragment {
         mPolylineMapObject.setSize(8f, 8f);
         mPolylineMapObject.setPlacement(Placement.SPACED);
         mPolylineMapObject.setCollisionEnabled(false);
+
+        mPositionIcon = mLocationView.getLocationWindow().addIconMapObject();
+        mPositionIcon.setSize(30, 30);
+        mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_png));
+        mPositionIcon.setCollisionEnabled(false);
+        mPositionIcon.setFlat(true);
+        mPositionIcon.setPriority(1f);
+        mPositionIcon.setVisible(false);
     }
 
     private void initViewModels() {
@@ -849,6 +930,9 @@ public class NavigationFragment extends BaseFragment {
         if (show != null) show.setState(showState);
         if (show != null && show == mMakeRouteBehavior) {
             setActiveMakeRouteButton(false, false);
+            if (mAdjustMode) {
+                toggleAdjustMode();
+            }
         }
     }
 
@@ -896,6 +980,16 @@ public class NavigationFragment extends BaseFragment {
         hideAndShowBottomSheets(null, mMakeRouteBehavior, BottomSheetBehavior.STATE_HIDDEN);
 
         setRoutingFlag();
+    }
+
+    public void onZoomIn() {
+        float currentZoomFactor = mLocationView.getLocationWindow().getZoomFactor();
+        mLocationView.getLocationWindow().setZoomFactor(currentZoomFactor * 2.f);
+    }
+
+    public void onZoomOut() {
+        float currentZoomFactor = mLocationView.getLocationWindow().getZoomFactor();
+        mLocationView.getLocationWindow().setZoomFactor(currentZoomFactor / 2.f);
     }
 
     private void setRoutingFlag() {
@@ -984,6 +1078,18 @@ public class NavigationFragment extends BaseFragment {
         mLocationLoaded = false;
     }
 
+    public void toggleAdjustMode() {
+        if (mPositionLocationPoint == null)
+            showWarningTemp(getString(R.string.err_navigation_position_define), 1500);
+        else {
+            mAdjustMode = !mAdjustMode;
+            mAdjustModeButton.setSelected(mAdjustMode);
+            if (mAdjustMode && mPositionLocationPoint != null) {
+                adjustDevice(mPositionLocationPoint.getPoint());
+            }
+        }
+    }
+
     private void loadMap() {
 
         if (mLocation == null || mLocation.getSublocations().size() == 0) return;
@@ -1027,7 +1133,12 @@ public class NavigationFragment extends BaseFragment {
             mLocationView.getLocationWindow().setZoomFactor(pixelWidth / mSublocation.getWidth());
             mLocationView.getLocationWindow().applyFilter("", getVenueLayerExp());
             setupZoomCameraDefault();
+            selectSublocationListItem(index);
         });
+    }
+
+    private void selectSublocationListItem(int index) {
+        mSublocationsListView.setItemChecked(index, true);
     }
 
     private void setupZoomCameraDefault() {
@@ -1080,6 +1191,12 @@ public class NavigationFragment extends BaseFragment {
 
     private void adjustDevice(Point point) {
         Camera camera = new Camera(point, mZoomCameraDefault * 2, 0);
+        mLocationView.getLocationWindow().flyTo(camera, 1000, null);
+    }
+
+    private void followPosition(Point point) {
+        float currentZoom = mLocationView.getLocationWindow().getCamera().getZoom();
+        Camera camera = new Camera(point, currentZoom, 0);
         mLocationView.getLocationWindow().flyTo(camera, 1000, null);
     }
 
@@ -1203,10 +1320,12 @@ public class NavigationFragment extends BaseFragment {
     }
 
     private void zoomToVenue(float[] venueCoords) {
+        if (mAdjustMode) toggleAdjustMode();
         mLocationView.post(() -> adjustDevice(new Point(venueCoords[0], venueCoords[1])));
     }
 
     private void zoomToVenue(Venue venue) {
+        if (mAdjustMode) toggleAdjustMode();
         mLocationView.post(() -> adjustDevice(venue.getPoint()));
     }
 
@@ -1410,6 +1529,7 @@ public class NavigationFragment extends BaseFragment {
             switch (intent.getAction()) {
                 case LOCATION_CHANGED:
                     mLocationChanged = true;
+                    if (mAdjustMode) toggleAdjustMode();
                     hideMessageDelay();
                     cancelRouteAndHideSheet();
                     removeChipsFromGroup();
@@ -1473,26 +1593,40 @@ public class NavigationFragment extends BaseFragment {
                     if (pointLocationHeading != -1) {
                         if (!mOrientationPointState) {
                             mOrientationPointState = true;
+                            mPositionIcon.setSize(48, 52);
+                            mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_direction_png));
+                            mPositionIcon.setAngle((float) pointLocationHeading);
                         }
+                        mPositionIcon.setAngleAnimated((float) pointLocationHeading, 1.0f, AnimationType.CUBIC);
                     } else {
                         if (mOrientationPointState) {
                             mOrientationPointState = false;
+                            mPositionIcon.setSize(30, 30);
+                            mPositionIcon.setBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_current_point_png));
                         }
                     }
 
-                    int id = lp.getSublocationId();
-                    if(mSublocation != null) {
+                    if (mAdjustMode) {
+                        int id = lp.getSublocationId();
                         if (mSublocation.getId() != id) {
                             mSublocation = mLocation.getSublocationById(id);
                             loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));
-                            adjustDevice(lp.getPoint());
                         }
+                        followPosition(lp.getPoint());
                     }
-
                     mFromPoint = lp;
+                    mPositionIcon.setVisible(true);
+                    if (mSetupPosition) {
+                        mSetupPosition = false;
+                        mPositionIcon.setPosition(mFromPoint);
+                    } else {
+                        mPositionIcon.setPositionAnimated(mFromPoint, 1.0f, AnimationType.CUBIC);
+                    }
                     break;
                 case ACTION_POSITION_ERROR:
                     mPositionLocationPoint = null;
+                    mAdjustModeButton.setSelected(false);
+                    mPositionIcon.setVisible(false);
                     String errMsg = intent.getStringExtra(ACTION_POSITION_ERROR);
                     if (errMsg != null) {
                         Log.e(TAG, getString(R.string.err_navigation_position_update) + ":" + errMsg);
