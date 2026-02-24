@@ -27,6 +27,9 @@ import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.camera.rememberNavCameraPositionState
 import com.navigine.locationview.interaction.InputHandlers
 import com.navigine.locationview.interaction.PickHandlers
+import com.navigine.locationview.objects.config.DottedPolylineConfig
+import com.navigine.locationview.objects.config.PlacementConfig
+import com.navigine.locationview.objects.config.Size
 import com.navigine.locationview.objects.icon.Icon
 import com.navigine.locationview.objects.icon.rememberIconState
 import com.navigine.locationview.objects.polyline.DottedPolyline
@@ -135,8 +138,7 @@ fun NavigationScreen(
                             Icon(
                                 position = pos.locationPoint ?: return@let,
                                 bitmap = getBitmapFromImage(ctx, R.drawable.ic_current_point),
-                                state = positionIconState,
-                                collisionEnabled = false
+                                state = positionIconState
                             )
                             positionIconState.mapObject?.setPositionAnimated(
                                 pos.locationPoint, 1f,
@@ -147,18 +149,16 @@ fun NavigationScreen(
                         state.toPoint?.let { pin ->
                             Icon(
                                 position = pin,
-                                bitmap = getBitmapFromImage(ctx, R.drawable.ic_pin_point),
-                                collisionEnabled = false
+                                bitmap = getBitmapFromImage(ctx, R.drawable.ic_pin_point)
                             )
                         }
 
                         state.routePolylines.forEach { poly ->
                             DottedPolyline(
-                                locationPolyline = poly,
+                                points = poly,
                                 color = MaterialTheme.extendedColors.success,
-                                sizeWidth = 8f,
-                                sizeHeight = 8f,
-                                placementSpacing = 8f
+                                dotSize = Size(8f,8f),
+                                config = DottedPolylineConfig(placement = PlacementConfig(spacing = 8f))
                             )
                         }
 
