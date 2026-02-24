@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -33,7 +33,6 @@
         android:id="@+id/panel_sublocations__listview"
         android:layout_width="@dimen/control_btn_size"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/control_btn_margin_side"
         android:background="@color/colorOnBackground_80"
         android:choiceMode="singleChoice"
         android:clickable="true"
@@ -42,7 +41,6 @@
         android:listSelector="?attr/selectableItemBackground"
         android:nestedScrollingEnabled="true"
         android:scrollbars="none"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:maxHeight="@dimen/listview_sublocations_height_max"
@@ -69,4 +67,4 @@
             android:background="@drawable/ic_arrow_down_filled" />
     </FrameLayout>
 
-</merge>
+</androidx.constraintlayout.widget.ConstraintLayout>
