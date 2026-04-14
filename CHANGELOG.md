@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.24.5
+* Added Android light and iOS lite mobile binary builds.
+* Added `sdk reset` API and `setPublishIntervalMs` for `MeasurementManager`.
+* Added public logger support and user agent forwarding in requests.
+* Added outdoor scenario support and in `DefaultNavigationView`.
+* Improved gesture handling and map filter state updates while rebuilding tiles.
+* Cleanup and dependency optimization in mobile builds and contribs.
+
 ## 2.24.4
 * Fix flutter android initialization
 
