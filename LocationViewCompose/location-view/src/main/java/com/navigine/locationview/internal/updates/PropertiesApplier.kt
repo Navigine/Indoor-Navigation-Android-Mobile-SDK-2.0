@@ -30,6 +30,6 @@ internal fun applyProperties(
     }
     props.sublocationId?.let { value ->
         val changed = prev?.sublocationId != value
-        if (prev == null || changed) runCatching { window.setSublocationId(value) }
+        if (prev == null || changed) runCatching { window.sublocationId = value }
     }
 }

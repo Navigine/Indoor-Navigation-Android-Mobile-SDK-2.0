@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 public val LocalLocationWindow: ProvidableCompositionLocal<LocationWindow?> = staticCompositionLocalOf { null }
 
 /**
- * Launches a composable side-effect using [LaunchedEffect] to execute the provided [block],
+ * Launches a composable side effect using [LaunchedEffect] to execute the provided [block],
  * passing the managed [LocationWindow] as a parameter to the [CoroutineScope]. The effect
  * relaunches whenever the provided [keys] change.
  *

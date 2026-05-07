@@ -1,0 +1,247 @@
+# LocationViewCompose CI
+
+Publish-LocationViewCompose-To-Central:
+  stage: Upload
+  tags:
+    - docker-images
+  image: "$DOCKER_REGISTRY/android_app:latest"
+  rules:
+    - when: manual
+  variables:
+    PROJECT_DIR_FS: "LocationViewCompose"
+    MODULE_NAME: "location-view"
+    SUBDIR: "LocationViewCompose"
+    GITHUB_REPO: "Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0"
+    GITHUB_BASE: "master"
+    ALLOW_DELETE: "false"
+  script:
+    - |
+      set -euo pipefail
+ 
+      echo ">>> CI_PROJECT_DIR=$CI_PROJECT_DIR"
+      echo ">>> PROJECT_DIR_FS=$PROJECT_DIR_FS, MODULE_NAME=$MODULE_NAME"
+ 
+      REPO_DIR="$CI_PROJECT_DIR"
+      LIB_DIR="$REPO_DIR/$PROJECT_DIR_FS"
+      WRAPPER_LIB="$LIB_DIR/gradlew"
+      WRAPPER_ROOT="$REPO_DIR/gradlew"
+ 
+      PROJECT_ARG=""
+      if [ -f "$WRAPPER_LIB" ]; then
+        echo "Using wrapper in $PROJECT_DIR_FS/"
+        cd "$LIB_DIR"
+        GRADLE="./gradlew"
+      elif [ -f "$WRAPPER_ROOT" ]; then
+        echo "Using wrapper in repo root with -p $PROJECT_DIR_FS"
+        cd "$REPO_DIR"
+        GRADLE="./gradlew"
+        PROJECT_ARG="-p $LIB_DIR"
+      else
+        echo "ERROR: gradlew not found in repo root or $PROJECT_DIR_FS. Scanning..."
+        WRAP_PATH="$(find "$REPO_DIR" -maxdepth 3 -type f -name gradlew | head -n1 || true)"
+        if [ -n "${WRAP_PATH:-}" ]; then
+          WRAP_DIR="$(dirname "$WRAP_PATH")"
+          echo "Found wrapper at $WRAP_DIR"
+          cd "$WRAP_DIR"
+          GRADLE="./gradlew"
+          if [ "$WRAP_DIR" != "$LIB_DIR" ]; then
+            PROJECT_ARG="-p $LIB_DIR"
+          fi
+        else
+          echo "ERROR: gradlew not found anywhere under repo"
+          exit 1
+        fi
+      fi
+ 
+      chmod +x "$GRADLE" || true
+      "$GRADLE" $PROJECT_ARG --version
+ 
+      export ORG_GRADLE_PROJECT_mavenCentralUsername="$mavenCentralUsername"
+      export ORG_GRADLE_PROJECT_mavenCentralPassword="$mavenCentralPassword"
+      export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat "$SIGNING_KEY_ASC")"
+      export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="$signingInMemoryKeyPassword"
+ 
+      echo ">>> Resolving Navigine SDK version..."
+ 
+      VERSION=""
+ 
+      if [ -n "${NAVIGINE_SDK_VERSION:-}" ]; then
+        echo "Using version from NAVIGINE_SDK_VERSION env var"
+        VERSION="$NAVIGINE_SDK_VERSION"
+      fi
+ 
+      if [ -z "$VERSION" ]; then
+        echo "Fetching version from GitLab API..."
+        NAVIGATION_REF="${NAVIGATION_REF:-master}"
+        GITLAB_FILE_URL="$CI_SERVER_URL/api/v4/projects/navigine%2Fnavigation/repository/files/mobile%2Frelease%2FVERSION/raw?ref=$NAVIGATION_REF"
+        RAW_VERSION="$(curl -sf --header "JOB-TOKEN: $CI_JOB_TOKEN" "$GITLAB_FILE_URL" || echo "")"
+        VERSION="$(echo "$RAW_VERSION" | tr -d '\r\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || echo "")"
+      fi
+ 
+      if [ -z "$VERSION" ]; then
+        echo "Fetching version from GitHub..."
+        GH_REF="${NAVIGATION_GH_REF:-master}"
+        RAW_VERSION="$(curl -sfL "https://raw.githubusercontent.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/refs/heads/${GH_REF}/VERSION" || echo "")"
+        VERSION="$(echo "$RAW_VERSION" | tr -d '\r\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || echo "")"
+      fi
+ 
+      if [ -z "$VERSION" ]; then
+        echo "ERROR: Cannot resolve VERSION from any source (env, GitLab, GitHub)"
+        exit 1
+      fi
+ 
+      echo "Resolved Navigine SDK version: $VERSION"
+      export ORG_GRADLE_PROJECT_navigineSdk="$VERSION"
+ 
+      echo ">>> Pre-publish checks..."
+ 
+      echo "Checking if version already exists on Maven Central..."
+      if curl -sf "https://repo1.maven.org/maven2/com/navigine/navigine-locationview-compose/${VERSION}/" > /dev/null 2>&1; then
+        echo "ERROR: Version $VERSION already exists on Maven Central!"
+        echo "Maven Central artifacts are immutable - cannot republish same version."
+        echo "Please bump the version number."
+        exit 1
+      fi
+      echo "✓ Version $VERSION does not exist on Maven Central (OK to publish)"
+ 
+      echo ""
+      echo "═══════════════════════════════════════════════════════════"
+      echo "  READY TO PUBLISH"
+      echo "═══════════════════════════════════════════════════════════"
+      echo "  Version: $VERSION"
+      echo "  Module:  $MODULE_NAME"
+      echo "  Target:  Maven Central (production)"
+      echo "═══════════════════════════════════════════════════════════"
+      echo ""
+      echo "Starting in 10 seconds... (Ctrl+C to abort)"
+      sleep 10
+ 
+      echo ">>> Step 1/2: Syncing to GitHub (can rollback if fails)"
+ 
+      apt-get update > /dev/null 2>&1
+      apt-get install -y git curl rsync > /dev/null 2>&1
+ 
+      echo "Installing GitHub CLI..."
+      cd /tmp
+      curl -L https://github.com/cli/cli/releases/download/v2.48.0/gh_2.48.0_linux_amd64.tar.gz | tar xz
+      mv gh_2.48.0_linux_amd64/bin/gh /usr/local/bin/
+      chmod +x /usr/local/bin/gh
+      rm -rf gh_2.48.0_linux_amd64
+ 
+      echo "✓ Dependencies installed"
+ 
+      export GH_TOKEN="$GITHUB_TOKEN"
+ 
+      git config --global user.name "GitLab CI Bot"
+      git config --global user.email "ci-bot@navigine.com"
+      mkdir -p ~/.ssh
+      echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+ 
+      if ! gh auth status; then
+        echo "ERROR: GitHub authentication failed"
+        exit 1
+      fi
+      echo "✓ GitHub CLI authenticated"
+ 
+      SRC_DIR="$CI_PROJECT_DIR/$SUBDIR"
+      if [ ! -d "$SRC_DIR" ]; then
+        echo "ERROR: source dir not found: $SRC_DIR"
+        exit 1
+      fi
+ 
+      TMP_DIR="$(mktemp -d)"
+      GH_DIR="$TMP_DIR/github-repo"
+ 
+      echo "Cloning GitHub repo: $GITHUB_REPO ..."
+      git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git" "$GH_DIR"
+ 
+      cd "$GH_DIR"
+      BASE_BRANCH="${GITHUB_BASE:-master}"
+      BRANCH_NAME="ci-sync-locationview-$(date +%Y%m%d-%H%M)-${CI_COMMIT_SHORT_SHA}"
+      git checkout -b "$BRANCH_NAME"
+ 
+      DEST_DIR="$GH_DIR/$SUBDIR"
+      mkdir -p "$DEST_DIR"
+ 
+      if [ "$DEST_DIR" = "$GH_DIR" ] || [ "$DEST_DIR" = "/" ]; then
+        echo "ERROR: DEST_DIR invalid"
+        exit 1
+      fi
+ 
+      RSYNC_ARGS="-a --delete --exclude /build/ --exclude .gradle/ --exclude .idea/ --exclude *.iml --exclude local.properties --exclude .kotlin/"
+ 
+      DRY_LOG="$TMP_DIR/rsync_dry.log"
+      rsync -an $RSYNC_ARGS "$SRC_DIR/" "$DEST_DIR/" | tee "$DRY_LOG" || true
+ 
+      DEL_COUNT="$(grep -c '^deleting ' "$DRY_LOG" || echo "0")"
+      echo "Would delete: $DEL_COUNT file(s)"
+ 
+      if [ "$ALLOW_DELETE" != "true" ] && [ "$DEL_COUNT" -gt 0 ]; then
+        echo "ERROR: Deletion detected but ALLOW_DELETE=false"
+        grep '^deleting ' "$DRY_LOG" | head -n 20 || true
+        exit 1
+      fi
+ 
+      if [ "$ALLOW_DELETE" = "true" ]; then
+        rsync $RSYNC_ARGS "$SRC_DIR/" "$DEST_DIR/"
+      else
+        rsync $(echo "$RSYNC_ARGS" | sed 's/--delete//g') "$SRC_DIR/" "$DEST_DIR/"
+      fi
+ 
+      git add "$SUBDIR"
+ 
+      if git status --porcelain | grep -q 'gh_2.48.0_linux_amd64'; then
+        echo "ERROR: gh CLI artifacts detected in git status!"
+        git status
+        exit 1
+      fi
+ 
+      if git diff --staged --quiet; then
+        echo "No changes to sync."
+      else
+        git commit -m "Sync $SUBDIR from GitLab (v${VERSION}, commit ${CI_COMMIT_SHA})"
+ 
+        MAX_RETRIES=3
+        RETRY_COUNT=0
+        while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+          if git push -u origin "$BRANCH_NAME"; then
+            echo "✓ Push successful"
+            break
+          fi
+          RETRY_COUNT=$((RETRY_COUNT + 1))
+          echo "Push failed, retry $RETRY_COUNT/$MAX_RETRIES..."
+          sleep 5
+        done
+ 
+        if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+          echo "ERROR: Failed to push"
+          exit 1
+        fi
+ 
+        gh pr create \
+          --repo "$GITHUB_REPO" \
+          --head "$BRANCH_NAME" \
+          --base "$BASE_BRANCH" \
+          --title "Sync $SUBDIR from GitLab (v${VERSION})" \
+          --body "Automated sync after publishing version \`${VERSION}\` to Maven Central. Updates \`$SUBDIR\` to match GitLab commit ${CI_COMMIT_SHA}."
+ 
+        echo "✓ PR created"
+      fi
+ 
+      echo "GitHub sync complete"
+ 
+      echo ">>> Step 2/2: Publishing to Maven Central (cannot rollback)"
+ 
+      cd "$LIB_DIR"
+      "$GRADLE" $PROJECT_ARG ":$MODULE_NAME:publishToMavenCentral" --stacktrace --no-daemon --info
+ 
+      echo ""
+      echo "═══════════════════════════════════════════════════════════"
+      echo "  SUCCESS"
+      echo "═══════════════════════════════════════════════════════════"
+      echo "  Version $VERSION published to Maven Central"
+      echo "  GitHub PR created in $GITHUB_REPO"
+      echo ""
+      echo "  Maven Central: https://repo1.maven.org/maven2/com/navigine/navigine-locationview-compose/${VERSION}/"
+      echo "  (May take 10-30 minutes to appear)"
+      echo "═══════════════════════════════════════════════════════════"

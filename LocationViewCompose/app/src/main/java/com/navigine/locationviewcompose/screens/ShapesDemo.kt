@@ -10,6 +10,8 @@ import com.navigine.idl.java.Point
 import com.navigine.idl.java.Polygon
 import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.objects.circle.Circle
+import com.navigine.locationview.objects.config.DottedPolylineConfig
+import com.navigine.locationview.objects.config.Size
 import com.navigine.locationview.objects.polyline.DottedPolyline
 import com.navigine.locationview.objects.polyline.Polyline
 import com.navigine.locationviewcompose.Utils.LOC_ID
@@ -31,30 +33,26 @@ fun MapShapesDemo(modifier: Modifier = Modifier) {
         onWindowReady = { it.setSublocationId(SUBLOC_ID) }
     ) {
         Polyline(
-            locationPolyline = line,
-            fillColor = Color(0xFF0080FF),
+            points = line,
+            color = Color(0xFF0080FF),
             width = 3f
         )
 
         DottedPolyline(
-            locationPolyline = line,
+            points = line,
             color = Color(0xFFFF3D00),
-            sizeWidth = 4f,
-            sizeHeight = 4f,
-            placementSpacing = 8f
+            dotSize = Size(4f,4f)
         )
 
         com.navigine.locationview.objects.polygon.Polygon(
             polygon = poly,
-            fillColor = Color(red = 0f, green = 1f, blue = 0f, alpha = 0.3f),
-            order = 5,
-            interactive = true
+            color = Color(red = 0f, green = 1f, blue = 0f, alpha = 0.3f)
         )
 
         Circle(
             position = LocationPoint(Point(3f, 2.5f), LOC_ID, SUBLOC_ID),
             radius = 0.002f,
-            colorArgb = 0x550000FF
+            color = Color.Yellow
         )
     }
 }
