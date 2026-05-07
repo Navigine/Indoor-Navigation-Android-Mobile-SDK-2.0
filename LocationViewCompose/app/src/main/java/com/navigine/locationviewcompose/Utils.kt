@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 
 object Utils {
 
-    const val SUBLOC_ID = 0  // your sublocation id
+    const val SUBLOC_ID = 0 // your sublocation id
     const val LOC_ID = 0  // your location id
 
     val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -49,5 +49,4 @@ internal class LocationApplier(
         (root as LocationRootNode).onCleared()
     }
 
-
 }

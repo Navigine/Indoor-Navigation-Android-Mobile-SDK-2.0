@@ -16,6 +16,8 @@ import com.navigine.idl.java.Camera
 import com.navigine.idl.java.Point
 import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.camera.rememberNavCameraPositionState
+import com.navigine.locationview.settings.LocationProperties
+import com.navigine.locationview.settings.LocationUiSettings
 import com.navigine.locationviewcompose.Utils.SUBLOC_ID
 
 @Composable
@@ -27,7 +29,9 @@ fun MapCameraDemo(modifier: Modifier = Modifier) {
         NavigineLocation(
             modifier = modifier.weight(1f),
             cameraPositionState = cam,
-            onWindowReady = { it.setSublocationId(SUBLOC_ID) }
+//            onWindowReady = { it.setSublocationId(SUBLOC_ID) },
+            properties = LocationProperties(sublocationId = SUBLOC_ID),
+            uiSettings = LocationUiSettings(is3dEnabled = true)
         ) { /* content optional */ }
 
         Row(

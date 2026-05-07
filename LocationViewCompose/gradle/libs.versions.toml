@@ -1,6 +1,6 @@
 [versions]
 agp = "8.11.2"
-navigineSdk = "20250903"
+#navigineSdk = "20251001"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -12,10 +12,11 @@ composeBom = "2024.09.00"
 appcompat = "1.7.1"
 material = "1.13.0"
 navigationCompose = "2.9.5"
+recyclerview = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-navigine-android-mobile-sdk = { module = "com.github.Navigine:Indoor-Navigation-Android-Mobile-SDK-2.0", version.ref = "navigineSdk" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -34,6 +35,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+navigine-android-mobile-sdk = { module = "com.github.Navigine:Indoor-Navigation-Android-Mobile-SDK-2.0"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

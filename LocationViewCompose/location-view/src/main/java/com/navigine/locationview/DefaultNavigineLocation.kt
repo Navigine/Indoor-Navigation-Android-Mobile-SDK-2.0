@@ -26,65 +26,84 @@ import com.navigine.idl.java.LocationWindow
 import com.navigine.locationview.camera.NavCameraPositionState
 import com.navigine.locationview.camera.rememberNavCameraPositionState
 import com.navigine.locationview.effects.LocalLocationWindow
-import com.navigine.locationview.internal.LocationViewHolder
+import com.navigine.locationview.internal.DefaultLocationViewHolder
 import com.navigine.locationview.internal.listeners.CameraListenerBridge
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationRootNode
 import com.navigine.locationview.internal.updates.applyProperties
 import com.navigine.locationview.internal.updates.applyUiSettings
+import com.navigine.locationview.internal.updates.applyWidgetConfig
 import com.navigine.locationview.settings.DefaultLocationProperties
 import com.navigine.locationview.settings.DefaultLocationUiSettings
+import com.navigine.locationview.settings.DefaultNavigineWidgetConfig
 import com.navigine.locationview.settings.LocationProperties
 import com.navigine.locationview.settings.LocationUiSettings
 import com.navigine.locationview.utils.findGlChild
 
-
 /**
- * Core Navigine map container for Jetpack Compose.
+ * Ready-to-use Navigine map with built-in UI controls.
  *
- * Embeds the SDK's [com.navigine.view.LocationView] into Compose and provides full control
- * over the map UI. Unlike [DefaultNavigineLocation], this composable ships with no built-in
- * widgets — zoom controls, floor selector, and follow-me button are your responsibility.
+ * This is a convenience wrapper around [NavigineLocation] that uses
+ * [DefaultNavigationView] from the SDK, which automatically includes:
  *
- * Lifecycle (onStart/onStop/onLowMemory) is handled automatically and mirrors
- * the host [androidx.lifecycle.LifecycleOwner].
+ * - **Zoom buttons** (top-right corner)
+ * - **Floor selector** (top-left corner)
+ * - **Follow me button** (bottom-right corner)
+ * - **User location layer** (blue dot with accuracy circle)
+ *
+ * All UI elements and their listeners are managed automatically by the SDK.
  *
  * ## When to use
  *
- * Use [NavigineLocation] when:
- * - You need full control over UI layout and styling
- * - You want custom zoom controls, floor selector, or follow-me button
- * - You need to handle building/sublocation events manually via [com.navigine.locationview.interaction.BuildingHandlers]
- *
  * Use [DefaultNavigineLocation] when:
- * - You want a quick setup with standard built-in UI controls
- * - Custom styling of widgets is sufficient via [com.navigine.locationview.settings.DefaultNavigineWidgetConfig]
+ * - You want a quick setup with standard UI
+ * - You don't need custom UI styling
+ * - Standard zoom/floor/follow controls are sufficient
  *
- * ## Basic usage
+ * Use [NavigineLocation] when:
+ * - You need full control over UI
+ * - You want custom styled controls
+ * - You need specific widget positioning
+ *
+ * ## Basic Usage
  * ```kotlin
- * NavigineLocation(modifier = Modifier.fillMaxSize())
+ * DefaultNavigineLocation(
+ *     modifier = Modifier.fillMaxSize()
+ * )
  * ```
  *
- * ## With map objects
+ *
+ * ## Hide floor selector and customize follow me button:
  * ```kotlin
- * NavigineLocation(modifier = Modifier.fillMaxSize()) {
- *     Circle(
+ * DefaultNavigineLocation(
+ *     modifier = Modifier.fillMaxSize(),
+ *     widgetConfig = DefaultNavigineWidgetConfig(
+ *         visibility = DefaultWidgetVisibility(showFloorSelector = false),
+ *         followMe = FollowMeButtonAppearance(accentColor = Color.Blue)
+ *     )
+ * )
+ * ```
+ *
+ * ## With Map Objects
+ * ```kotlin
+ * DefaultNavigineLocation {
+ *     Icon(
  *         position = LocationPoint(100.0, 200.0),
+ *         bitmap = myBitmap
+ *     )
+ *     Circle(
+ *         position = center,
  *         radius = 50f,
  *         color = Color.Blue
- *     )
- *     InputHandlers(
- *         onTap = { viewPoint, meters -> /* handle tap */ }
  *     )
  * }
  * ```
  *
- * ## Camera control
+ * ## Camera Control
  * ```kotlin
  * val cameraState = rememberNavCameraPositionState()
  *
- * NavigineLocation(
- *     modifier = Modifier.fillMaxSize(),
+ * DefaultNavigineLocation(
  *     cameraPositionState = cameraState
  * )
  *
@@ -96,63 +115,39 @@ import com.navigine.locationview.utils.findGlChild
  * }
  * ```
  *
- * ## Campus mode — handling building events
- * ```kotlin
- * NavigineLocation(modifier = Modifier.fillMaxSize()) {
- *     BuildingHandlers(
- *         onBuildingFocused = { sublocations, activeId, switchSublocation ->
- *             // Show your custom floor selector
- *             // Call switchSublocation(id) to change the active floor
- *         },
- *         onBuildingLeft = {
- *             // Hide floor selector
- *         }
- *     )
- * }
- * ```
+ * Note: [DefaultNavigineLocation] registers its own [BuildingListener] internally
+ * to manage the floor selector widget. Adding [BuildingHandlers] inside this
+ * composable may result in conflicting behavior. If you need to handle building
+ * events manually, use [NavigineLocation] instead.
  *
- * ## Gesture and rendering settings
- * ```kotlin
- * NavigineLocation(
- *     modifier = Modifier.fillMaxSize(),
- *     uiSettings = LocationUiSettings(
- *         rotateGesturesEnabled = false,
- *         is3dEnabled = true
- *     )
- * )
- * ```
+ * @param modifier Modifier for the map container
+ * @param cameraPositionState Camera state holder (two-way synced with SDK)
+ * @param properties Map configuration (zoom limits, pick radius, etc.)
+ * @param uiSettings Gesture controls (rotate, tilt, scroll, zoom)
+ * @param widgetConfig Visibility and appearance of the built-in widgets
+ * (zoom controls, follow me button, floor selector).
+ * @param isVisible Controls map visibility without destroying it
+ * @param onWindowReady Callback when LocationWindow is created (called once)
+ * @param content Map objects (Icon, Circle, Polyline, etc.)
  *
- * @param modifier Modifier for the map container.
- * @param cameraPositionState Camera state holder, two-way synced with the SDK.
- * Use [rememberNavCameraPositionState] to create one.
- * @param properties Map configuration such as zoom limits and pick radius.
- * @param uiSettings Gesture toggles and rendering options such as 3D mode.
- * @param isVisible Controls map visibility without destroying the underlying view.
- * Useful for temporarily hiding the map while preserving its state.
- * @param onWindowReady Escape hatch — invoked once when [LocationWindow] is ready.
- * Prefer higher-level APIs where possible; use this only for SDK features
- * not yet exposed by the library.
- * @param content Map objects and interaction handlers declared as composables
- * ([com.navigine.locationview.objects.circle.Circle],
- * [com.navigine.locationview.interaction.InputHandlers],
- * [com.navigine.locationview.interaction.BuildingHandlers], etc.).
- *
- * @see DefaultNavigineLocation for a ready-to-use map with built-in UI controls.
+ * @see NavigineLocation for more control over UI
  * @since 2.24.4
  */
 @Composable
-public fun NavigineLocation(
+public fun DefaultNavigineLocation(
     modifier: Modifier = Modifier,
     cameraPositionState: NavCameraPositionState = rememberNavCameraPositionState(),
     properties: LocationProperties = DefaultLocationProperties,
     uiSettings: LocationUiSettings = DefaultLocationUiSettings,
+    widgetConfig: DefaultNavigineWidgetConfig = DefaultNavigineWidgetConfig.Default,
     isVisible: Boolean = true,
     onWindowReady: (LocationWindow) -> Unit = {},
     content: @Composable @NavigineMapComposable () -> Unit = {}
 ) {
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val viewHolder = remember(context) { LocationViewHolder() }
+    val viewHolder = remember(context) { DefaultLocationViewHolder() }
     val windowState: MutableState<LocationWindow?> = remember { mutableStateOf(null) }
     val onWindowReadyState = rememberUpdatedState(onWindowReady)
 
@@ -160,16 +155,14 @@ public fun NavigineLocation(
 
     AndroidView(
         modifier = modifier,
-        factory = remember(context) {
-            { ctx ->
-                viewHolder.createView(ctx).also { lv ->
-                    glChild = findGlChild(lv)
-                    val win = lv.locationWindow
-                    windowState.value = win
-                    onWindowReadyState.value.invoke(win)
-                }
+        factory = remember(context) { { ctx ->
+            viewHolder.createView(ctx).also { lv ->
+                glChild = findGlChild(lv)
+                val win = lv.locationWindow
+                windowState.value = win
+                onWindowReadyState.value.invoke(win)
             }
-        },
+        } },
         update = { lv ->
             if (glChild == null) glChild = findGlChild(lv)
             glChild?.visibility = if (isVisible) View.VISIBLE else View.GONE
@@ -250,6 +243,7 @@ public fun NavigineLocation(
 
         var prevProps by remember(window) { mutableStateOf<LocationProperties?>(null) }
         var prevUi by remember(window) { mutableStateOf<LocationUiSettings?>(null) }
+        var prevWidgetConfig by remember { mutableStateOf<DefaultNavigineWidgetConfig?>(null) }
 
         SideEffect {
             window?.let { win ->
@@ -257,6 +251,10 @@ public fun NavigineLocation(
                 applyUiSettings(win, uiSettings, prevUi)
                 prevProps = properties
                 prevUi = uiSettings
+            }
+            viewHolder.view?.let { view ->
+                applyWidgetConfig(view, widgetConfig, prevWidgetConfig)
+                prevWidgetConfig = widgetConfig
             }
         }
 

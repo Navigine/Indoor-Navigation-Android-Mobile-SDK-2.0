@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
         runCatching {
             val sdk = NavigineSdk.getInstance().apply {
                 setServer("https://ips.navigine.com")
-                setUserHash("YOUR_USER_HASH")
+                setUserHash("0000-0000-0000-0000")
             }
             sdk.locationManager.locationId = Utils.LOC_ID
         }.onFailure { it.printStackTrace() }

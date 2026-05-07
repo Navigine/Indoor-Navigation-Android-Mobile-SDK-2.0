@@ -4,18 +4,18 @@ import android.content.Context
 import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.MainThread
-import com.navigine.view.LocationView
+import com.navigine.view.DefaultNavigationView
 
-internal class LocationViewHolder {
+internal class DefaultLocationViewHolder {
 
-    private var _view: LocationView? = null
+    private var _view: DefaultNavigationView? = null
 
-    val view: LocationView?
+    val view: DefaultNavigationView?
         get() = _view
 
     @MainThread
-    fun createView(context: Context): LocationView {
-        val lv = LocationView(context)
+    fun createView(context: Context): DefaultNavigationView {
+        val lv = DefaultNavigationView(context)
         _view = lv
         return lv
     }
@@ -38,13 +38,13 @@ internal class LocationViewHolder {
     @MainThread
     fun clear() {
         _view?.let { view ->
-            view.onStop()
-            view.onLowMemory()
-            (view as? ViewGroup)?.removeAllViews()
+            runCatching { view.onStop() }
 
-            _view = null
-
-            Log.d("LocationViewHolder", "LocationView cleaned up properly")
+            runCatching { view.onLowMemory() }
+            if (view is ViewGroup) {
+                runCatching { view.removeAllViews() }
+            }
         }
+        _view = null
     }
 }
