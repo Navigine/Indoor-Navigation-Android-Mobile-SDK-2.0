@@ -187,11 +187,14 @@ A modern, production-ready Compose wrapper around Navigine’s `LocationView` �
 `android-maps-compose`. It provides idiomatic Compose APIs, lifecycle-aware state, and property updaters.
 
 **Highlights**
-- Drop-in `@Composable` map container for Navigine SDK
-- Camera state with smooth, coroutine-friendly updates
-- Input & pick handlers (tap/long-press, feature/object picking)
-- Polylines/polygons/circles as declarative map objects
-- Proper cleanup across recompositions & lifecycle events
+- Two ready-to-use map composables: `DefaultNavigineLocation` (built-in UI widgets) and `NavigineLocation` (full control)
+- Camera state hoisting with animated and immediate movement
+- Tap, double-tap, long-tap and pick event handlers
+- Declarative map objects: `Circle`, `Icon`, `Polyline`, and more
+- Building and sublocation event handlers for campus mode
+- 3D rendering toggle and gesture controls
+- Widget customization: zoom controls, floor selector, follow-me button
+- Lifecycle-aware — cleanup handled automatically across recompositions
 
 ### 🎯 See it in a real app!
 
@@ -211,73 +214,138 @@ The demo is a perfect reference for building your own indoor navigation app with
 ```kotlin
 dependencies {
     // Note: core sdk is pulled transitively with the library
-    implementation("com.navigine:navigine-locationview-compose:2.24.1")
+    implementation("com.navigine:navigine-locationview-compose:2.24.5")
 }
 ```
 
-> Make sure the MavenCentral and JitPack repositories is added to your project as shown above.
+> Make sure `mavenCentral()` is added to your project repositories.
 
-**2) Initialize Navigine SDK once (e.g., in Application or an early Activity)**
-
-```kotlin
-val sdk = com.navigine.idl.java.NavigineSdk.getInstance().apply {
-    setServer("https://ips.navigine.com")
-    setUserHash("<YOUR-USER-HASH>")
-}
-sdk.locationManager.locationId = <YOUR_LOCATION_ID>
-```
-
-**3) Required permissions**
-
-Grant Location + Bluetooth (BLE) permissions according to your target SDK (foreground + background if needed).  
-Ensure the device supports BLE (Android 8.0+ as per SDK requirements).
-
-### Quick start (Compose)
+**2) Initialize Navigine in your `Application` class**
 
 ```kotlin
-@Composable
-fun LocationSample() {
-    val cameraState = com.navigine.locationview.camera.rememberNavCameraPositionState()
-
-    com.navigine.locationview.compose.NavigineLocation(
-        cameraPositionState = cameraState,
-        onWindowReady = { window ->
-            // Example: set initial sublocation if needed
-            window.setSublocationId(<SUBLOCATION_ID>)
-        }
-    ) {
-        // Optional: input handling & picking out of the box
-        com.navigine.locationview.compose.InputHandlers(
-            autoPickObjectOnTap = true,
-            autoPickFeatureOnTap = true,
-        )
-
-        com.navigine.locationview.compose.PickHandlers(
-            onObjectPicked = { result, viewPt ->
-                // Handle object pick
-            },
-            onFeaturePicked = { attrs, viewPt ->
-                // Handle feature pick (e.g., show bottom sheet)
-            }
-        )
-
-        // Examples of shapes:
-        // com.navigine.locationview.compose.Polyline(...)
-        // com.navigine.locationview.compose.Polygon(...)
-        // com.navigine.locationview.compose.Circle(...)
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        Navigine.initialize(this)
     }
 }
+```
+
+**3) Configure the SDK in your `Activity`**
+
+```kotlin
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+ 
+        runCatching {
+            val sdk = NavigineSdk.getInstance().apply {
+                setServer("https://ips.yourserver.com")
+                setUserHash("0000-0000-0000-0000")
+            }
+            sdk.locationManager.locationId = YOUR_LOCATION_ID
+        }.onFailure { it.printStackTrace() }
+ 
+        setContent { /* your Compose UI */ }
+    }
+}
+```
+
+**4) Required permissions**
+
+Grant Location + Bluetooth (BLE) permissions according to your target SDK (foreground + background if needed).
+Ensure the device supports BLE (Android 8.0+).
+
+### Quick start
+
+`DefaultNavigineLocation` is the quickest way to get a map with zoom controls, floor selector, and follow-me button out of the box:
+
+```kotlin
+DefaultNavigineLocation(modifier = Modifier.fillMaxSize())
+```
+
+Use `NavigineLocation` when you need full control over the UI:
+
+```kotlin
+NavigineLocation(modifier = Modifier.fillMaxSize())
 ```
 
 ### Camera control
 
 ```kotlin
-val camera = cameraState
+val cameraState = rememberNavCameraPositionState()
+ 
+NavigineLocation(
+    modifier = Modifier.fillMaxSize(),
+    cameraPositionState = cameraState
+)
+ 
 LaunchedEffect(Unit) {
-    // Animate or move camera (example API)
-    camera.animateTo(
-        target = com.navigine.locationview.model.NavPoint(x = 10.0, y = 20.0),
-        zoom = 1.2f
+    cameraState.flyTo(
+        camera = Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f),
+        durationMs = 1000
+    )
+}
+```
+
+### Map objects and input handlers
+
+```kotlin
+NavigineLocation(modifier = Modifier.fillMaxSize()) {
+    Circle(
+        position = LocationPoint(100.0, 200.0),
+        radius = 50f,
+        color = Color.Blue
+    )
+ 
+    InputHandlers(
+        onTap = { viewPoint, meters -> /* handle tap */ },
+        autoPickObjectOnTap = true
+    )
+ 
+    PickHandlers(
+        onObjectPicked = { result, viewPoint -> /* handle pick */ },
+        onFeaturePicked = { attrs, viewPoint -> /* handle feature */ }
+    )
+}
+```
+
+### Gesture and rendering settings
+
+```kotlin
+NavigineLocation(
+    modifier = Modifier.fillMaxSize(),
+    uiSettings = LocationUiSettings(
+        rotateGesturesEnabled = false,
+        is3dEnabled = true
+    )
+)
+```
+
+### Customizing built-in widgets
+
+```kotlin
+DefaultNavigineLocation(
+    modifier = Modifier.fillMaxSize(),
+    widgetConfig = DefaultNavigineWidgetConfig(
+        visibility = DefaultWidgetVisibility(showFloorSelector = false),
+        followMe = FollowMeButtonAppearance(accentColor = Color(0xFF0057FF))
+    )
+)
+```
+
+### Campus mode — building events
+
+```kotlin
+NavigineLocation(modifier = Modifier.fillMaxSize()) {
+    BuildingHandlers(
+        onBuildingFocused = { sublocations, activeId, switchSublocation ->
+            // Show your custom floor selector
+            // Call switchSublocation(id) to change the active floor
+        },
+        onBuildingLeft = {
+            // Hide floor selector
+        }
     )
 }
 ```
@@ -289,8 +357,10 @@ routing, drawing shapes, and handling taps. It’s a good starting point for you
 
 ### Notes
 
-- The wrapper takes care of resource cleanup and respects recomposition & lifecycle.
-- For release builds, remember to keep your SDK classes if using R8/Proguard (add rules as needed).
+- The wrapper handles resource cleanup and respects recomposition and lifecycle events.
+- For release builds, add R8/Proguard keep rules for SDK classes if needed.
+- **Source code:** [LocationViewCompose/location-view](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/tree/master/LocationViewCompose/location-view)
+- Full API reference: [navigine-locationview-compose on Maven Central](https://central.sonatype.com/artifact/com.navigine/navigine-locationview-compose)
 
 ### Android&HW compatibility
 Indoor positioning SDK and applications require Android 8.0 or higher as well your smartphone should have BLE 4.0 or higher.
