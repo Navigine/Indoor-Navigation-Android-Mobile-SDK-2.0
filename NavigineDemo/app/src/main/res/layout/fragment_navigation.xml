@@ -171,12 +171,11 @@
         android:id="@+id/navigation__fab_map_settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="32dp"
         android:contentDescription="map settings fab"
-        app:srcCompat="@drawable/ic_map_layers"
-        app:layout_anchor="@id/navigation__navigation_layout"
-        app:layout_anchorGravity="bottom|end" />
+        app:srcCompat="@drawable/ic_map_layers"/>
 
     <include
         android:id="@+id/navigation__make_route_sheet"

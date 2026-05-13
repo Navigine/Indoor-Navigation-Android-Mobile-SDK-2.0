@@ -90,6 +90,7 @@ import com.navigine.idl.java.RoutePath;
 import com.navigine.idl.java.Sublocation;
 import com.navigine.idl.java.TurnType;
 import com.navigine.idl.java.Venue;
+import com.navigine.image.ImageProvider;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.adapters.route.RouteEventAdapter;
 import com.navigine.navigine.demo.adapters.sublocations.SublocationsAdapter;
@@ -865,7 +866,10 @@ public class NavigationFragment extends BaseFragment {
 
     private void setupPinIcon(IconMapObject pinMapObject, @DrawableRes int pinIcon, LocationPoint pinLocationPoint) {
         pinMapObject.setSize(36, 108);
-        pinMapObject.setBitmap(BitmapFactory.decodeResource(getResources(), pinIcon));
+        pinMapObject.setBitmap(
+                ImageProvider.fromResource(requireActivity(), pinIcon)
+//                BitmapFactory.decodeResource(getResources(), pinIcon)
+        );
         pinMapObject.setCollisionEnabled(false);
         pinMapObject.setPriority(100f);
         pinMapObject.setPosition(pinLocationPoint);
