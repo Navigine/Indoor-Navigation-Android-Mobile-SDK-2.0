@@ -19,41 +19,10 @@
             android:focusable="true"
             android:visibility="gone">
 
-            <com.navigine.view.DefaultNavigationView
-                android:id="@+id/navigation__location_view"
+            <FrameLayout
+                android:id="@+id/navigation__location_view_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center" />
-
-            <!-- Sublocation panel -->
-<!--            <include layout="@layout/panel_sublocations" />-->
-
-            <!-- Zoom panel -->
-<!--            <include-->
-<!--                layout="@layout/panel_zoom"-->
-<!--                android:layout_width="@dimen/control_btn_size"-->
-<!--                android:layout_height="@dimen/control_btn_height_zoom"-->
-<!--                android:layout_marginEnd="@dimen/control_btn_margin_side"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintVertical_bias=".25" />-->
-
-            <!-- Adjust button -->
-<!--            <FrameLayout-->
-<!--                android:id="@+id/navigation__adjust_mode_button"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="@dimen/control_btn_margin_side"-->
-<!--                android:layout_marginBottom="@dimen/navigation_margin_adjust_btn"-->
-<!--                android:background="@drawable/bg_adjust_btn"-->
-<!--                android:clickable="true"-->
-<!--                android:elevation="@dimen/control_btn_elevation"-->
-<!--                android:focusable="true"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent">-->
-
-<!--            </FrameLayout>-->
+                android:layout_height="match_parent" />
 
             <FrameLayout
                 android:id="@+id/navigation__search_transparent_bg"
@@ -197,6 +166,17 @@
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/navigation__fab_map_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="map settings fab"
+        app:srcCompat="@drawable/ic_map_layers"
+        app:layout_anchor="@id/navigation__navigation_layout"
+        app:layout_anchorGravity="bottom|end" />
 
     <include
         android:id="@+id/navigation__make_route_sheet"
