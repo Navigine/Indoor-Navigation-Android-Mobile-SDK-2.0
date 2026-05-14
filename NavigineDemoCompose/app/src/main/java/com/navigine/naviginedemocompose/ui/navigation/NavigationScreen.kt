@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -18,12 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.navigine.idl.java.AnimationType
 import com.navigine.idl.java.Camera
+import com.navigine.locationview.DefaultNavigineLocation
 import com.navigine.locationview.ExperimentalNavigineApi
-import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.camera.rememberNavCameraPositionState
 import com.navigine.locationview.interaction.InputHandlers
 import com.navigine.locationview.interaction.PickHandlers
@@ -37,13 +40,11 @@ import com.navigine.naviginedemocompose.R
 import com.navigine.naviginedemocompose.core.util.copy
 import com.navigine.naviginedemocompose.core.util.getBitmapFromImage
 import com.navigine.naviginedemocompose.core.util.venueName
-import com.navigine.naviginedemocompose.ui.composables.AdjustFab
 import com.navigine.naviginedemocompose.ui.composables.ArrivedSheet
 import com.navigine.naviginedemocompose.ui.composables.MakeRouteSheet
+import com.navigine.naviginedemocompose.ui.composables.MapSettingsSheet
 import com.navigine.naviginedemocompose.ui.composables.RouteInfoSheet
-import com.navigine.naviginedemocompose.ui.composables.SublocationsList
 import com.navigine.naviginedemocompose.ui.composables.VenueModalSheet
-import com.navigine.naviginedemocompose.ui.composables.ZoomPanel
 import com.navigine.naviginedemocompose.ui.theme.extendedColors
 
 @OptIn(ExperimentalNavigineApi::class)
@@ -84,18 +85,7 @@ fun NavigationScreen(
         }
     }
 
-    Scaffold(
-        floatingActionButton = {
-            AdjustFab(
-                selected = state.followMyLocation,
-                enabled = state.position != null,
-                visible = !state.makeRouteSheetVisible,
-                onClick = {
-                    viewModel.onEvent(NavigationEvent.FollowMyLocationToggle(!state.followMyLocation))
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold() { padding ->
         if (state.loadingVisible)
             CircularProgressIndicator()
         else
@@ -105,9 +95,10 @@ fun NavigationScreen(
                     .padding(padding.copy(bottom = 0.dp))
             ) {
                 key(mapKey) {
-                    NavigineLocation(
+                    DefaultNavigineLocation(
                         isVisible = isVisible,
                         cameraPositionState = cam,
+                        uiSettings = state.locationUiSettings,
                         onWindowReady = {
                             viewModel.onEvent(NavigationEvent.WindowReady(it))
                         }
@@ -134,18 +125,6 @@ fun NavigationScreen(
                             }
                         )
 
-                        state.position?.let { pos ->
-                            Icon(
-                                position = pos.locationPoint ?: return@let,
-                                bitmap = getBitmapFromImage(ctx, R.drawable.ic_current_point),
-                                state = positionIconState
-                            )
-                            positionIconState.mapObject?.setPositionAnimated(
-                                pos.locationPoint, 1f,
-                                AnimationType.CUBIC
-                            )
-                        }
-
                         state.toPoint?.let { pin ->
                             Icon(
                                 position = pin,
@@ -164,20 +143,19 @@ fun NavigationScreen(
 
                     }
                 }
-                SublocationsList(
+
+                FloatingActionButton(
+                    onClick = { viewModel.onEvent(NavigationEvent.ShowMapSettings) },
                     modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 16.dp, top = 24.dp),
-                    sublocations = state.location?.location?.sublocations ?: emptyList(),
-                    onSublocationClick = { viewModel.onEvent(NavigationEvent.SwitchFloor(it.id)) }
-                )
-                ZoomPanel(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp, top = 24.dp),
-                    onZoomIn = { cam.moveZoomTo((cam.zoomFactor ?: 9f) * 2f) },
-                    onZoomOut = { cam.moveZoomTo((cam.zoomFactor ?: 9f) / 2f) }
-                )
+                        .align(Alignment.BottomStart)
+                        .padding(start = 16.dp, bottom = 48.dp),
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_map_layers),
+                        contentDescription = stringResource(R.string.map_settings_title)
+                    )
+                }
 
                 MakeRouteSheet(
                     visible = state.makeRouteSheetVisible,
@@ -217,7 +195,12 @@ fun NavigationScreen(
                         viewModel.onEvent(NavigationEvent.HideVenueSheet)
                     }
                 )
-
+                MapSettingsSheet(
+                    visible = state.mapSettingsSheetVisible,
+                    settings = state.locationUiSettings,
+                    onDismiss = { viewModel.onEvent(NavigationEvent.HideMapSettings) },
+                    onSettingsChanged = { viewModel.onEvent(NavigationEvent.MapSettingsChanged(it)) }
+                )
             }
     }
 }

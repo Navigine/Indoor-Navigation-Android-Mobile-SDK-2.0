@@ -15,11 +15,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.navigine.naviginedemocompose.data.local.UserStore
 import com.navigine.naviginedemocompose.ui.auth.GateViewModel
 import com.navigine.naviginedemocompose.ui.auth.LoginScreen
-import com.navigine.naviginedemocompose.ui.screens.MainScaffold
 import com.navigine.naviginedemocompose.ui.auth.PermissionGateScreen
+import com.navigine.naviginedemocompose.ui.screens.MainScaffold
 
 sealed class AppRoute(val route : String){
     data object Gate : AppRoute("gate")

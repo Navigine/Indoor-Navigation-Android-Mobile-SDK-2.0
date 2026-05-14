@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -24,8 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.navigine.locationview.settings.LocationUiSettings
+import com.navigine.naviginedemocompose.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,5 +108,97 @@ fun VenueModalSheet(
             }
             Spacer(Modifier.height(12.dp))
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MapSettingsSheet(
+    visible: Boolean,
+    settings: LocationUiSettings,
+    onDismiss: () -> Unit,
+    onSettingsChanged: (LocationUiSettings) -> Unit,
+) {
+    if (!visible) return
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.map_settings_title),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            MapSettingSwitch(
+                label = stringResource(R.string.map_settings_rotate),
+                checked = settings.rotateGesturesEnabled,
+                onCheckedChange = { onSettingsChanged(settings.copy(rotateGesturesEnabled = it)) }
+            )
+            MapSettingSwitch(
+                label = stringResource(R.string.map_settings_tilt),
+                checked = settings.tiltGesturesEnabled,
+                onCheckedChange = { enabled ->
+                    val updated = settings.copy(
+                        tiltGesturesEnabled = enabled,
+                        is3dEnabled = if (!enabled) false else settings.is3dEnabled
+                    )
+                    onSettingsChanged(updated)
+                }
+            )
+            MapSettingSwitch(
+                label = stringResource(R.string.map_settings_scroll),
+                checked = settings.scrollGesturesEnabled,
+                onCheckedChange = { onSettingsChanged(settings.copy(scrollGesturesEnabled = it)) }
+            )
+            MapSettingSwitch(
+                label = stringResource(R.string.map_settings_zoom),
+                checked = settings.zoomGesturesEnabled,
+                onCheckedChange = { onSettingsChanged(settings.copy(zoomGesturesEnabled = it)) }
+            )
+            MapSettingSwitch(
+                label = stringResource(R.string.map_settings_3d),
+                checked = settings.is3dEnabled,
+                enabled = settings.tiltGesturesEnabled,
+                onCheckedChange = { enabled ->
+                    val updated = settings.copy(
+                        is3dEnabled = enabled,
+                        tiltGesturesEnabled = if (enabled) true else settings.tiltGesturesEnabled
+                    )
+                    onSettingsChanged(updated)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun MapSettingSwitch(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled
+        )
     }
 }

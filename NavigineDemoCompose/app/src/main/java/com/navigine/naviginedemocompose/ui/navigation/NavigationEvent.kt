@@ -1,12 +1,11 @@
 package com.navigine.naviginedemocompose.ui.navigation
 
 import android.graphics.PointF
-import com.navigine.idl.java.LocationPoint
-import com.navigine.idl.java.LocationPolyline
 import com.navigine.idl.java.LocationWindow
 import com.navigine.idl.java.Point
 import com.navigine.idl.java.Position
 import com.navigine.idl.java.Venue
+import com.navigine.locationview.settings.LocationUiSettings
 import com.navigine.naviginedemocompose.domain.model.LocationModel
 import com.navigine.naviginedemocompose.domain.monitor.RouteMonitorEvent
 
@@ -51,4 +50,7 @@ sealed interface NavigationEvent {
     data object HideFinish : NavigationEvent
     data object HideVenueSheet : NavigationEvent
     data object OnRouteVenue : NavigationEvent
+    data object ShowMapSettings : NavigationEvent
+    data object HideMapSettings : NavigationEvent
+    data class MapSettingsChanged(val settings: LocationUiSettings) : NavigationEvent
 }

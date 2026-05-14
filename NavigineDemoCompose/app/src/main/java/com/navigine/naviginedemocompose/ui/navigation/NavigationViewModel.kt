@@ -114,6 +114,9 @@ class NavigationViewModel @Inject constructor(
             NavigationEvent.HideFinish -> reduce { it.copy(isFinishNear = false) }
             NavigationEvent.HideVenueSheet -> reduce { it.copy(venueSheet = null) }
             NavigationEvent.OnRouteVenue -> onRouteVenue()
+            NavigationEvent.HideMapSettings -> reduce { it.copy(mapSettingsSheetVisible = false) }
+            NavigationEvent.ShowMapSettings -> reduce { it.copy(mapSettingsSheetVisible = true) }
+            is NavigationEvent.MapSettingsChanged -> reduce { it.copy(locationUiSettings = event.settings) }
         }
     }
 
@@ -266,7 +269,7 @@ class NavigationViewModel @Inject constructor(
         val length = path.length
         val eta = (length / WALK_SPEED_MPS).toInt()
 
-        val pointsBySublocation = path.points.reversed()
+        val pointsBySublocation = path.nodes().map { it.point }.reversed()
             .groupBy { it.sublocationId }
         val polys = buildPolylines(pointsBySublocation)
 
@@ -288,7 +291,7 @@ class NavigationViewModel @Inject constructor(
         val path = _state.value.routePath ?: return
         val tail = path.tail(distance) ?: return
 
-        val pointsBySublocation = tail.points
+        val pointsBySublocation = tail.nodes().map { it.point }
             .groupBy { it.sublocationId }
 
         val left = tail.length

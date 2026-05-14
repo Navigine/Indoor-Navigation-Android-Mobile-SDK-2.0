@@ -1,17 +1,8 @@
 package com.navigine.naviginedemocompose.ui.auth
 
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.navigine.naviginedemocompose.data.local.UserStore
-import com.navigine.naviginedemocompose.domain.model.QrPayload
-import com.navigine.naviginedemocompose.domain.repository.AuthRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-import androidx.core.net.toUri
 import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.log.LoginResult
 import com.navigine.naviginedemocompose.core.log.log
@@ -22,8 +13,17 @@ import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_SUBLOCATION
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_USERHASH
 import com.navigine.naviginedemocompose.core.util.Constants.DL_QUERY_VENUE_ID
 import com.navigine.naviginedemocompose.core.util.safeUrlHost
+import com.navigine.naviginedemocompose.data.local.UserStore
+import com.navigine.naviginedemocompose.domain.model.QrPayload
+import com.navigine.naviginedemocompose.domain.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private val HASH_REGEX = """^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$""".toRegex()
 
