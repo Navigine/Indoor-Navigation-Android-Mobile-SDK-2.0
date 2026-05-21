@@ -25,8 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.DataSetObserver;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.GradientDrawable;
@@ -39,9 +37,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -63,10 +61,7 @@ import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
-import com.navigine.idl.java.AnimationType;
 import com.navigine.idl.java.Camera;
-import com.navigine.idl.java.CameraListener;
-import com.navigine.idl.java.CameraUpdateReason;
 import com.navigine.idl.java.Category;
 import com.navigine.idl.java.DottedPolylineMapObject;
 import com.navigine.idl.java.IconMapObject;
@@ -81,7 +76,6 @@ import com.navigine.idl.java.PickListener;
 import com.navigine.idl.java.Placement;
 import com.navigine.idl.java.Point;
 import com.navigine.idl.java.Polyline;
-import com.navigine.idl.java.Position;
 import com.navigine.idl.java.RouteEvent;
 import com.navigine.idl.java.RouteEventType;
 import com.navigine.idl.java.RouteListener;
@@ -93,13 +87,11 @@ import com.navigine.idl.java.Venue;
 import com.navigine.image.ImageProvider;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.adapters.route.RouteEventAdapter;
-import com.navigine.navigine.demo.adapters.sublocations.SublocationsAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenueListAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenuesIconsListAdapter;
 import com.navigine.navigine.demo.models.VenueIconObj;
 import com.navigine.navigine.demo.service.NavigationService;
 import com.navigine.navigine.demo.ui.custom.lists.BottomSheetListView;
-import com.navigine.navigine.demo.ui.custom.lists.ListViewLimit;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetMapSettings;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetRouteFinish;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetVenue;
@@ -111,7 +103,6 @@ import com.navigine.navigine.demo.utils.VenueIconsListProvider;
 import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 import com.navigine.view.DefaultNavigationView;
 import com.navigine.view.DefaultNavigationViewConfig;
-import com.navigine.view.LocationView;
 import com.navigine.view.widgets.FloorSelectorViewConfig;
 import com.navigine.view.widgets.FollowMeButtonConfig;
 import com.navigine.view.widgets.ZoomControlsConfig;
@@ -175,7 +166,7 @@ public class NavigationFragment extends BaseFragment {
     private MaterialDividerItemDecoration mItemDivider = null;
     private HorizontalScrollView mChipsScroll = null;
     private ChipGroup mChipGroup = null;
-    private FloatingActionButton mFabMapSettings = null;
+    private ImageButton mFabMapSettings = null;
 
 
     private LocationPoint mPinPoint = null;
@@ -411,7 +402,7 @@ public class NavigationFragment extends BaseFragment {
         mSearchBtnClear = mSearchField.findViewById(R.id.navigation__search_btn_close);
         mChipsScroll = view.findViewById(R.id.navigation__search_chips_scroll);
         mChipGroup = view.findViewById(R.id.navigation__search_chips_group);
-        mFabMapSettings = view.findViewById(R.id.navigation__fab_map_settings);
+        mFabMapSettings = view.findViewById(R.id.navigation__btn_map_settings);
     }
 
     private void setViewsParams() {

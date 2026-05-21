@@ -167,15 +167,27 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <FrameLayout
         android:id="@+id/navigation__fab_map_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="top|end"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="32dp"
-        android:contentDescription="map settings fab"
-        app:srcCompat="@drawable/ic_map_layers"/>
+        android:layout_marginTop="96dp"
+        android:background="@drawable/bg_map_settings_btn"
+        android:elevation="6dp">
+
+        <ImageButton
+            android:id="@+id/navigation__btn_map_settings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="map settings"
+            android:padding="10dp"
+            android:src="@drawable/ic_map_layers" />
+
+    </FrameLayout>
 
     <include
         android:id="@+id/navigation__make_route_sheet"
