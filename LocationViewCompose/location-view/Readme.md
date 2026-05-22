@@ -10,7 +10,7 @@ A thin, idiomatic Jetpack Compose wrapper around the [Navigine Indoor Navigation
 
 - Compose-first API — no direct interaction with the underlying OpenGL/View layer required
 - Two ready-to-use map composables: `NavigineLocation` (full control) and `DefaultNavigineLocation` (built-in UI widgets)
-- Declarative map objects: `Circle`, `Icon`, `Polyline`, and more
+- Declarative map objects: `Circle`, `Icon`, `Polyline`, `Model` (3D), and more
 - Camera state hoisting via `NavCameraPositionState`
 - Tap, double-tap, long-tap and pick event handlers
 - Building and sublocation event handlers for campus mode
@@ -106,7 +106,7 @@ NavigineLocation(
 
 LaunchedEffect(Unit) {
     cameraState.flyTo(
-        camera = Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f),
+        camera = Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f, tilt = 0f),
         durationMs = 1000
     )
 }
@@ -127,6 +127,56 @@ NavigineLocation(modifier = Modifier.fillMaxSize()) {
     )
 }
 ```
+
+#### Icon
+
+Use `ImageProvider` to load the icon image from a bitmap, resource, asset, or file:
+
+```kotlin
+NavigineLocation(modifier = Modifier.fillMaxSize()) {
+    // From a drawable resource
+    Icon(
+        position = LocationPoint(100.0, 200.0),
+        image = ImageProvider.fromResource(context, R.drawable.pin)
+    )
+
+    // From an asset file
+    Icon(
+        position = LocationPoint(100.0, 200.0),
+        image = ImageProvider.fromAsset(context, "icons/pin.png")
+    )
+
+    // From a bitmap
+    Icon(
+        position = LocationPoint(100.0, 200.0),
+        image = ImageProvider.fromBitmap(myBitmap)
+    )
+}
+```
+
+#### 3D Model
+
+Use `ModelProvider` to load a `.obj` model with a texture:
+
+```kotlin
+NavigineLocation(modifier = Modifier.fillMaxSize()) {
+    val texture = ImageProvider.fromResource(context, R.drawable.model_texture)
+
+    // From an asset file
+    Model(
+        position = LocationPoint(100.0, 200.0),
+        model = ModelProvider.fromAsset(context, "models/chair.obj", texture)
+    )
+
+    // From a raw resource
+    Model(
+        position = LocationPoint(100.0, 200.0),
+        model = ModelProvider.fromResource(context, R.raw.chair, texture)
+    )
+}
+```
+
+> **Note:** The texture bitmap must use `Bitmap.Config.ARGB_8888`.
 
 ---
 

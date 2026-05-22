@@ -74,10 +74,10 @@ public class NavCameraPositionState(initial: Camera? = null) {
         if (w != null) {
             runCatching { w.zoomFactor = zoom }
             runCatching { position = w.camera }.onFailure {
-                position = position?.let { Camera(it.point, zoom, it.rotation) }
+                position = position?.let { Camera(it.point, zoom, it.rotation, it.tilt) }
             }
         } else {
-            position = position?.let { Camera(it.point, zoom, it.rotation) }
+            position = position?.let { Camera(it.point, zoom, it.rotation, it.tilt) }
         }
     }
 

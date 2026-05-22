@@ -90,7 +90,7 @@ import com.navigine.locationview.utils.findGlChild
  *
  * LaunchedEffect(Unit) {
  *     cameraState.flyTo(
- *         Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f),
+ *         Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f, tilt = 0f),
  *         durationMs = 1000
  *     )
  * }
