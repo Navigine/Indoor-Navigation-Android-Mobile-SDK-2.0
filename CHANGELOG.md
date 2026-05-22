@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.25.1
+# Fix crash in SDK reset method
+
 ## 2.25.0
 * Added **ModelMapObject** and **ModelProvider** (Wavefront OBJ + texture): C++ rendering (**model_asset** / **model_style**, shaders), sample POI mesh assets, bindings for Android, iOS (**NCModelProviderFactory**, file/data providers), and Flutter (**model_provider.dart**).
 * Reworked **ImageProvider** and platform bitmap handling for decoded RGBA (**icon_downloader**, markers, sprites); **IconMapObject** and related pipelines now use **ImageProvider**; Flutter **image_provider.dart** extended (**image_provider_result**, **raw_image**, slimmer **image_wrapper**); removed the legacy standalone bitmap shim from bundled IDL.
