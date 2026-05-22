@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.navigine.idl.java.AnimationType
@@ -23,13 +22,12 @@ import com.navigine.locationviewcompose.Utils.SUBLOC_ID
 @Composable
 fun MapCameraDemo(modifier: Modifier = Modifier) {
     val cam = rememberNavCameraPositionState()
-    val scope = rememberCoroutineScope()
 
     Column {
         NavigineLocation(
             modifier = modifier.weight(1f),
             cameraPositionState = cam,
-//            onWindowReady = { it.setSublocationId(SUBLOC_ID) },
+            onWindowReady = { it.sublocationId = SUBLOC_ID },
             properties = LocationProperties(sublocationId = SUBLOC_ID),
             uiSettings = LocationUiSettings(is3dEnabled = true)
         ) { /* content optional */ }
@@ -41,12 +39,12 @@ fun MapCameraDemo(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(onClick = {
-                val target = Camera(Point(3f, 2f), 8f, 0f)
+                val target = Camera(Point(3f, 2f), 8f, 0f, 0f)
                 cam.move(target)
             }) { Text("Move") }
 
             Button(onClick = {
-                val target = Camera(Point(6f, 5f), 10f, 0f)
+                val target = Camera(Point(6f, 5f), 10f, 0f, 0f)
                 cam.animateTo(target, durationMs = 800, type = AnimationType.QUINT)
             }) { Text("Animate") }
 

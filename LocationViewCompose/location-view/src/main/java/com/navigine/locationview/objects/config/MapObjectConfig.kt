@@ -461,3 +461,45 @@ public data class PolygonConfig(
         public val Default: PolygonConfig = PolygonConfig()
     }
 }
+
+
+// 3d model config
+
+/**
+ * Configuration for the [com.navigine.locationview.objects.model.Model] composable.
+ *
+ * Groups all optional parameters for a 3D model map object.
+ * Only non-null fields are applied to the SDK object.
+ *
+ * ## Example
+ * ```kotlin
+ * ModelConfig(
+ *     size = Size(1f, 1f),
+ *     rotation = RotationConfig(angle = 90f),
+ *     appearance = AppearanceConfig(alpha = 0.8f, title = "Chair"),
+ *     rendering = RenderingConfig(priority = 5f)
+ * )
+ * ```
+ *
+ * @param size Width and height of the model in meters. If null, SDK default is used.
+ * @param rotation Rotation angle configuration. Supports animated rotation.
+ * @param appearance Visibility, alpha, and title of the object.
+ * @param interaction Whether the object is interactive and participates in collision detection.
+ * @param rendering Rendering priority of the object.
+ * @param buffer Invisible buffer zone around the object for collision purposes.
+ * @param animation Position change animation configuration.
+ */
+@Immutable
+public data class ModelConfig(
+    val size: Size? = null,
+    val rotation: RotationConfig? = null,
+    val appearance: AppearanceConfig = AppearanceConfig(),
+    val interaction: InteractionConfig = InteractionConfig(),
+    val rendering: RenderingConfig = RenderingConfig(),
+    val buffer: Size? = null,
+    val animation: PositionAnimationConfig? = null,
+) {
+    public companion object {
+        public val Default: ModelConfig = ModelConfig()
+    }
+}

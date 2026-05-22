@@ -1,6 +1,5 @@
 package com.navigine.locationviewcompose.screens
 
-import android.R.attr.visible
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,13 +15,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.Point
+import com.navigine.image.ImageProvider
 import com.navigine.locationview.DefaultNavigineLocation
-import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.objects.config.AppearanceConfig
 import com.navigine.locationview.objects.config.IconConfig
 import com.navigine.locationview.objects.icon.Icon
@@ -30,7 +28,6 @@ import com.navigine.locationview.objects.icon.rememberIconState
 import com.navigine.locationviewcompose.R
 import com.navigine.locationviewcompose.Utils.LOC_ID
 import com.navigine.locationviewcompose.Utils.SUBLOC_ID
-import com.navigine.locationviewcompose.Utils.getBitmapFromImage
 import kotlin.random.Random
 
 data class Pin(val id: String, val lp: LocationPoint, val title: String)
@@ -58,7 +55,7 @@ fun MapIconsList(modifier: Modifier = Modifier) {
                     Icon(
                         state = st,
                         position = pin.lp,
-                        bitmap = getBitmapFromImage(context, R.drawable.gun),
+                        image = ImageProvider.fromResource(context, R.drawable.gun),
                         config = IconConfig(
                             size = com.navigine.locationview.objects.config.Size(24f,24f),
                             appearance = AppearanceConfig(title = pin.title)
