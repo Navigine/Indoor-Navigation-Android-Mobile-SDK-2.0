@@ -44,7 +44,7 @@ import com.navigine.locationview.utils.findGlChild
  * Ready-to-use Navigine map with built-in UI controls.
  *
  * This is a convenience wrapper around [NavigineLocation] that uses
- * [DefaultNavigationView] from the SDK, which automatically includes:
+ * [com.navigine.view.DefaultNavigationView] from the SDK, which automatically includes:
  *
  * - **Zoom buttons** (top-right corner)
  * - **Floor selector** (top-left corner)
@@ -109,14 +109,14 @@ import com.navigine.locationview.utils.findGlChild
  *
  * LaunchedEffect(Unit) {
  *     cameraState.flyTo(
- *         Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f),
+ *         Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f, tilt = 0f),
  *         durationMs = 1000
  *     )
  * }
  * ```
  *
- * Note: [DefaultNavigineLocation] registers its own [BuildingListener] internally
- * to manage the floor selector widget. Adding [BuildingHandlers] inside this
+ * Note: [DefaultNavigineLocation] registers its own [com.navigine.idl.java.BuildingListener] internally
+ * to manage the floor selector widget. Adding [com.navigine.locationview.interaction.BuildingHandlers] inside this
  * composable may result in conflicting behavior. If you need to handle building
  * events manually, use [NavigineLocation] instead.
  *

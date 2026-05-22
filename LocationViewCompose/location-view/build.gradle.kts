@@ -11,7 +11,7 @@ kotlin { explicitApi() }
 
 val navigineSdkVersionProvider = providers.gradleProperty("navigineSdk")
     .orElse(providers.environmentVariable("NAVIGINE_SDK_VERSION"))
-    .orElse("2.24.5")
+    .orElse("2.25.1")
 
 val navigineSdkVersion = navigineSdkVersionProvider.get()
 

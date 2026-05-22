@@ -1,12 +1,12 @@
 package com.navigine.locationview.objects.icon
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
 import com.navigine.idl.java.IconMapObject
 import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.MapObjectType
+import com.navigine.image.ImageProvider
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
@@ -19,7 +19,28 @@ import com.navigine.locationview.objects.config.IconConfig
  * ```kotlin
  * Icon(
  *     position = LocationPoint(100.0, 200.0),
- *     bitmap = myBitmap
+ *     image = ImageProvider.fromBitmap(myBitmap)
+ * )
+ * ```
+ *
+ * ## Loading from different sources
+ * ```kotlin
+ * // From a drawable resource
+ * Icon(
+ *     position = point,
+ *     image = ImageProvider.fromResource(context, R.drawable.pin)
+ * )
+ *
+ * // From an asset file
+ * Icon(
+ *     position = point,
+ *     image = ImageProvider.fromAsset(context, "icons/pin.png")
+ * )
+ *
+ * // From a file path
+ * Icon(
+ *     position = point,
+ *     image = ImageProvider.fromFile("/path/to/icon.png")
  * )
  * ```
  *
@@ -27,7 +48,7 @@ import com.navigine.locationview.objects.config.IconConfig
  * ```kotlin
  * Icon(
  *     position = point,
- *     bitmap = bitmap,
+ *     image = ImageProvider.fromResource(context, R.drawable.pin),
  *     config = IconConfig(
  *         size = Size(64f, 64f),
  *         rotation = RotationConfig(
@@ -59,19 +80,21 @@ import com.navigine.locationview.objects.config.IconConfig
  * - Only changed properties trigger SDK updates on recomposition
  *
  * @param position Icon position in location coordinates (required)
- * @param bitmap Icon image (optional, can be set later)
+ * @param image Icon image provider (optional, can be set later).
+ * Use [ImageProvider.fromBitmap], [ImageProvider.fromResource],
+ * [ImageProvider.fromAsset], or [ImageProvider.fromFile] to create one.
  * @param config Icon configuration grouping all optional parameters
  * @param animatePosition If true, position changes will be animated
  * @param state Optional handle to observe id/type/data
  * @param onObjectReady Callback invoked once after creation with (id, type)
  *
- * @since 2.24.4
+ * @since 2.25.0
  */
 @Composable
 @NavigineMapComposable
 public fun Icon(
     position: LocationPoint,
-    bitmap: Bitmap? = null,
+    image: ImageProvider? = null,
     config: IconConfig = IconConfig.Default,
     animatePosition: Boolean = false,
     state: IconState? = null,
@@ -95,7 +118,7 @@ public fun Icon(
                 icon.setPosition(position)
             }
 
-            bitmap?.let { icon.setBitmap(it) }
+            image?.let { icon.setBitmap(it) }
 
             config.size?.let { icon.setSize(it.width, it.height) }
 
@@ -134,7 +157,7 @@ public fun Icon(
                     icon.setPosition(p)
                 }
             }
-            update(bitmap) { b -> if (b != null) icon.setBitmap(b) }
+            update(image) { b -> if (b != null) icon.setBitmap(b) }
 
             // Config updates - only update if config changed
             update(config.size) { size ->

@@ -27,8 +27,6 @@ import com.navigine.locationviewcompose.Utils.REQUIRED_PERMISSIONS
 import com.navigine.locationviewcompose.screens.SamplesNav
 import com.navigine.locationviewcompose.ui.theme.LocationViewComposeTheme
 
-
-
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
         runCatching {
             val sdk = NavigineSdk.getInstance().apply {
-                setServer("https://ips.navigine.com")
+                setServer("https://ips.your-host.com")
                 setUserHash("0000-0000-0000-0000")
             }
             sdk.locationManager.locationId = Utils.LOC_ID
