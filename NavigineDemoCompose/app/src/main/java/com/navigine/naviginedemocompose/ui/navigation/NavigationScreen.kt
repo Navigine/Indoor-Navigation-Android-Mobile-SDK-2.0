@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.navigine.idl.java.Camera
+import com.navigine.image.ImageProvider
 import com.navigine.locationview.DefaultNavigineLocation
 import com.navigine.locationview.ExperimentalNavigineApi
 import com.navigine.locationview.camera.rememberNavCameraPositionState
@@ -71,7 +72,8 @@ fun NavigationScreen(
                     Camera(
                         effect.point,
                         cam.position?.zoom ?: 10f,
-                        cam.position?.rotation ?: 1f
+                        cam.position?.rotation ?: 1f,
+                        cam.position?.tilt ?: 1f
                     )
                 )
 
@@ -128,7 +130,7 @@ fun NavigationScreen(
                         state.toPoint?.let { pin ->
                             Icon(
                                 position = pin,
-                                bitmap = getBitmapFromImage(ctx, R.drawable.ic_pin_point)
+                                image = ImageProvider.fromResource(ctx, R.drawable.ic_pin_point)
                             )
                         }
 
