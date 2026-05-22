@@ -4,4 +4,10 @@
     <string name="tab_navigation">Navigation</string>
     <string name="tab_debug">Debug</string>
     <string name="tab_profile">Profile</string>
+    <string name="map_settings_title">Map settings</string>
+    <string name="map_settings_rotate">Rotation</string>
+    <string name="map_settings_tilt">Tilt</string>
+    <string name="map_settings_scroll">Scroll gestures</string>
+    <string name="map_settings_zoom">Zoom gestures</string>
+    <string name="map_settings_3d">3D mode</string>
 </resources>

@@ -141,4 +141,13 @@ For push notifications, the application has to work in background mode</string>
     <!--    sheet route finish-->
     <string name="sheet_route_finish_title">You have reached your destination</string>
     <string name="sheet_route_finish_button">Finish</string>
+
+    <!--    sheet map settings-->
+    <string name="map_settings_title">Map settings</string>
+    <string name="map_settings_rotate">Rotate gesture</string>
+    <string name="map_settings_tilt">Tilt gesture</string>
+    <string name="map_settings_scroll">Scroll gesture</string>
+    <string name="map_settings_zoom">Zoom gesture</string>
+    <string name="map_settings_stick">Stick to border</string>
+    <string name="map_settings_3d">3D buildings</string>
 </resources>

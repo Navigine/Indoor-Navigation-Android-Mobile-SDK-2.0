@@ -26,54 +26,8 @@ public class NavigineApp extends Application implements LifecycleObserver {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         DimensionUtils.setDisplayMetrics(displayMetrics);
 
-        Navigine.initialize(getApplicationContext());
+        Navigine.initialize(getApplicationContext(), true);
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    private void onEnterForeground() {
-        try {
-            Navigine.setMode(Navigine.Mode.NORMAL);
-        } catch (Throwable e) {
-            Log.e("NavigineSDK", "Navigine SDK is not initialized yet");
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    private void onResume() {
-        try {
-            Navigine.setMode(Navigine.Mode.NORMAL);
-        } catch (Throwable e) {
-            Log.e("NavigineSDK", "Navigine SDK is not initialized yet");
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    private void onPause() {
-        try {
-            Navigine.setMode(Navigine.Mode.BACKGROUND);
-        } catch (Throwable e) {
-            Log.e("NavigineSDK", "Navigine SDK is not initialized yet");
-        }
-    }
-
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    private void onEnterBackground() {
-        try {
-            Navigine.setMode(Navigine.Mode.BACKGROUND);
-        } catch (Throwable e) {
-            Log.e("NavigineSDK", "Navigine SDK is not initialized yet");
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    private void onDestroy() {
-        try {
-            Navigine.setMode(Navigine.Mode.BACKGROUND);
-        } catch (Throwable e) {
-            Log.e("NavigineSDK", "Navigine SDK is not initialized yet");
-        }
     }
 }

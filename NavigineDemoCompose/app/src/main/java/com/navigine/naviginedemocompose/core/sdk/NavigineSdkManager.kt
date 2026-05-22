@@ -1,7 +1,6 @@
 package com.navigine.naviginedemocompose.core.sdk
 
 import android.content.Context
-import android.util.Log
 import com.navigine.idl.java.AsyncRouteManager
 import com.navigine.idl.java.BeaconProximityEstimator
 import com.navigine.idl.java.LocationEditManager

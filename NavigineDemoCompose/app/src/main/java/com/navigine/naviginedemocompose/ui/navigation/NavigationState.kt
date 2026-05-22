@@ -7,6 +7,7 @@ import com.navigine.idl.java.LocationWindow
 import com.navigine.idl.java.Position
 import com.navigine.idl.java.RoutePath
 import com.navigine.idl.java.Venue
+import com.navigine.locationview.settings.LocationUiSettings
 import com.navigine.naviginedemocompose.domain.model.LocationModel
 
 @Immutable
@@ -18,6 +19,8 @@ data class NavigationState(
 
     val followMyLocation: Boolean = false,
     val zoomDefaults: ZoomDefaults? = null,
+
+    val locationUiSettings: LocationUiSettings = LocationUiSettings(),
 
     val searchQuery: String = "",
     val isSearchFocused: Boolean = false,
@@ -41,13 +44,13 @@ data class NavigationState(
     // sheets/panels
     val makeRouteSheetVisible: Boolean = false,
     val routeInfoVisible: Boolean = false,
+    val mapSettingsSheetVisible : Boolean = false,
     val venueSheet: VenueSheetState? = null,
 
     val warningMessage: String? = null,
     val loadingVisible: Boolean = false,
     val mapKey: Int = 0,
 )
-
 
 data class ZoomDefaults(val min: Float, val max: Float, val default: Float)
 

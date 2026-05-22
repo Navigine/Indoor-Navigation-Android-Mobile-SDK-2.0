@@ -2,8 +2,6 @@ package com.navigine.naviginedemocompose.core.util
 
 import com.navigine.idl.java.SignalMeasurement
 import com.navigine.idl.java.SignalType
-import kotlin.collections.filterNotNull
-import kotlin.collections.orEmpty
 
 object DebugSignalRenderer {
 

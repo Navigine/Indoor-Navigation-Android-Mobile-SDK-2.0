@@ -25,8 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.DataSetObserver;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.GradientDrawable;
@@ -39,9 +37,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -60,12 +58,10 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
-import com.navigine.idl.java.AnimationType;
 import com.navigine.idl.java.Camera;
-import com.navigine.idl.java.CameraListener;
-import com.navigine.idl.java.CameraUpdateReason;
 import com.navigine.idl.java.Category;
 import com.navigine.idl.java.DottedPolylineMapObject;
 import com.navigine.idl.java.IconMapObject;
@@ -73,27 +69,30 @@ import com.navigine.idl.java.InputListener;
 import com.navigine.idl.java.Location;
 import com.navigine.idl.java.LocationPoint;
 import com.navigine.idl.java.LocationPolyline;
+import com.navigine.idl.java.LocationWindow;
+import com.navigine.idl.java.MapFilterCondition;
 import com.navigine.idl.java.MapObjectPickResult;
 import com.navigine.idl.java.PickListener;
 import com.navigine.idl.java.Placement;
 import com.navigine.idl.java.Point;
 import com.navigine.idl.java.Polyline;
-import com.navigine.idl.java.Position;
 import com.navigine.idl.java.RouteEvent;
 import com.navigine.idl.java.RouteEventType;
 import com.navigine.idl.java.RouteListener;
+import com.navigine.idl.java.RouteNode;
 import com.navigine.idl.java.RoutePath;
 import com.navigine.idl.java.Sublocation;
+import com.navigine.idl.java.TurnType;
 import com.navigine.idl.java.Venue;
+import com.navigine.image.ImageProvider;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.adapters.route.RouteEventAdapter;
-import com.navigine.navigine.demo.adapters.sublocations.SublocationsAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenueListAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenuesIconsListAdapter;
 import com.navigine.navigine.demo.models.VenueIconObj;
 import com.navigine.navigine.demo.service.NavigationService;
 import com.navigine.navigine.demo.ui.custom.lists.BottomSheetListView;
-import com.navigine.navigine.demo.ui.custom.lists.ListViewLimit;
+import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetMapSettings;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetRouteFinish;
 import com.navigine.navigine.demo.ui.dialogs.sheets.BottomSheetVenue;
 import com.navigine.navigine.demo.utils.ColorUtils;
@@ -103,9 +102,14 @@ import com.navigine.navigine.demo.utils.NavigineSdkManager;
 import com.navigine.navigine.demo.utils.VenueIconsListProvider;
 import com.navigine.navigine.demo.viewmodel.SharedViewModel;
 import com.navigine.view.DefaultNavigationView;
-import com.navigine.view.LocationView;
+import com.navigine.view.DefaultNavigationViewConfig;
+import com.navigine.view.widgets.FloorSelectorViewConfig;
+import com.navigine.view.widgets.FollowMeButtonConfig;
+import com.navigine.view.widgets.ZoomControlsConfig;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -117,6 +121,12 @@ public class NavigationFragment extends BaseFragment {
     public static final int LOCATION_LOAD_DELAY = 5_000;
 
     private static final float ROUTE_FINISH_DISTANCE_NOTICE = 1.5f;
+    private static final String VENUE_FILTER_VALUE_DEFAULT = "";
+    public static final String VENUE_FILTER_LAYER_DEFAULT = "venues";
+
+    private static final String BARRIER_LAYER = "barrier";
+    private static final ArrayList<String> BARRIER_3D_VALUES_ON  = new ArrayList<>(Arrays.asList("line", "polygon"));
+    private static final ArrayList<String> BARRIER_3D_VALUES_OFF = new ArrayList<>(Collections.singletonList("none"));
 
     private SharedViewModel viewModel = null;
 
@@ -156,6 +166,7 @@ public class NavigationFragment extends BaseFragment {
     private MaterialDividerItemDecoration mItemDivider = null;
     private HorizontalScrollView mChipsScroll = null;
     private ChipGroup mChipGroup = null;
+    private ImageButton mFabMapSettings = null;
 
 
     private LocationPoint mPinPoint = null;
@@ -170,7 +181,7 @@ public class NavigationFragment extends BaseFragment {
     private Location mLocation = null;
     private Sublocation mSublocation = null;
 
-    private List<RouteEvent> mCancelRouteList = new ArrayList<>();
+    private List<RouteNode> mCancelRouteList = new ArrayList<>();
     private ArrayList<Point> mPoints = new ArrayList<>();
     private List<Venue> mVenuesList = new ArrayList<>();
     private List<VenueIconObj> mFilteredVenueIconsList = new ArrayList<>();
@@ -201,6 +212,7 @@ public class NavigationFragment extends BaseFragment {
     private boolean mLocationChanged = false;
     private boolean mLocationLoaded = false;
     private boolean mRouting = false;
+    private boolean m3dEnabled = false;
 
     private boolean mOrientationPointState = false;
 
@@ -380,7 +392,8 @@ public class NavigationFragment extends BaseFragment {
         mCircularProgress = view.findViewById(R.id.navigation__progress_circular);
         mCircularProgressIndicator = view.findViewById(R.id.navigation__progress_circular_indicator);
         mDelayMessage = view.findViewById(R.id.navigation__msg_delay);
-        mLocationView = view.findViewById(R.id.navigation__location_view);
+        mLocationView = createCustomNavigationView();
+        ((ViewGroup) view.findViewById(R.id.navigation__location_view_container)).addView(mLocationView);
         mVenueIconsListView = view.findViewById(R.id.recycler_list_venue_icons);
         mVenueListView = view.findViewById(R.id.recycler_list_venues);
         mItemDivider = new MaterialDividerItemDecoration(requireActivity(), MaterialDividerItemDecoration.VERTICAL);
@@ -389,7 +402,7 @@ public class NavigationFragment extends BaseFragment {
         mSearchBtnClear = mSearchField.findViewById(R.id.navigation__search_btn_close);
         mChipsScroll = view.findViewById(R.id.navigation__search_chips_scroll);
         mChipGroup = view.findViewById(R.id.navigation__search_chips_group);
-
+        mFabMapSettings = view.findViewById(R.id.navigation__btn_map_settings);
     }
 
     private void setViewsParams() {
@@ -435,6 +448,8 @@ public class NavigationFragment extends BaseFragment {
         mChoseMapButton.setOnClickListener(v -> onMapChoose());
 
         mMakeRouteSheet.setOnTouchListener((view, motionEvent) -> true);
+
+        mFabMapSettings.setOnClickListener(v -> showMapSettingsSheet());
 
         mStartRouteButton.setOnClickListener(v -> {
             if (mPinPoint == null && mToVenue == null) {
@@ -536,6 +551,33 @@ public class NavigationFragment extends BaseFragment {
                 updateRouteSheetInfo();
             }
         });
+    }
+
+    private DefaultNavigationView createCustomNavigationView() {
+        FollowMeButtonConfig followMeConfig = new FollowMeButtonConfig.Builder()
+                .marginRight(16)
+                .marginBottom(120)
+                .build();
+
+        FloorSelectorViewConfig floorSelectorConfig = new FloorSelectorViewConfig.Builder()
+                .marginLeft(16)
+                .marginTop(180)
+                .build();
+
+        ZoomControlsConfig zoomControlsConfig = new ZoomControlsConfig.Builder()
+                .build();
+
+        DefaultNavigationViewConfig navigationViewConfig = new DefaultNavigationViewConfig.Builder()
+                .build();
+
+        return new DefaultNavigationView(
+                requireContext(),
+                null,
+                navigationViewConfig,
+                zoomControlsConfig,
+                followMeConfig,
+                floorSelectorConfig
+        );
     }
 
     private void onHandleSearchQueryChange(String query) {
@@ -679,22 +721,24 @@ public class NavigationFragment extends BaseFragment {
 
                 try {
                     mRoutePath = arrayList.get(0);
-
                     if (mRoutePath == null) return;
 
-                    List<LocationPoint> routePathPoints = mRoutePath.getPoints();
+                    ArrayList<RouteNode> nodes = mRoutePath.nodes();
+                    if (nodes == null) return;
 
-                    if (routePathPoints == null) return;
-
-
-                    for (LocationPoint locationPoint : mRoutePath.getPoints()) {
-                        if (locationPoint.getSublocationId() == mSublocation.getId()) {
-                            mPoints.add(locationPoint.getPoint());
+                    for (RouteNode node : nodes) {
+                        LocationPoint lp = node.getPoint();
+                        if (lp.getSublocationId() == mSublocation.getId()) {
+                            mPoints.add(lp.getPoint());
                         }
                     }
 
                     if (!mPoints.isEmpty()) {
-                        LocationPolyline polyline = new LocationPolyline(new Polyline(mPoints), mLocation.getId(), mSublocation.getId());
+                        LocationPolyline polyline = new LocationPolyline(
+                                new Polyline(mPoints),
+                                mLocation.getId(),
+                                mSublocation.getId()
+                        );
                         mPolylineMapObject.setPolyLine(polyline);
                         mPolylineMapObject.setVisible(true);
                     } else {
@@ -813,7 +857,10 @@ public class NavigationFragment extends BaseFragment {
 
     private void setupPinIcon(IconMapObject pinMapObject, @DrawableRes int pinIcon, LocationPoint pinLocationPoint) {
         pinMapObject.setSize(36, 108);
-        pinMapObject.setBitmap(BitmapFactory.decodeResource(getResources(), pinIcon));
+        pinMapObject.setBitmap(
+                ImageProvider.fromResource(requireActivity(), pinIcon)
+//                BitmapFactory.decodeResource(getResources(), pinIcon)
+        );
         pinMapObject.setCollisionEnabled(false);
         pinMapObject.setPriority(100f);
         pinMapObject.setPosition(pinLocationPoint);
@@ -979,6 +1026,50 @@ public class NavigationFragment extends BaseFragment {
         hideAndShowBottomSheets(mMakeRouteBehavior, null, BottomSheetBehavior.STATE_COLLAPSED);
     }
 
+    private void showMapSettingsSheet() {
+        LocationWindow window = mLocationView.getLocationWindow();
+
+        BottomSheetMapSettings.newInstance(
+                window.getRotateGestureEnabled(),
+                window.getTiltGesturesEnabled(),
+                window.getScrollGesturesEnabled(),
+                window.getZoomGesturesEnabled(),
+                window.getStickToBorder(),
+                m3dEnabled,
+                new BottomSheetMapSettings.OnSettingsChangedListener() {
+                    @Override
+                    public void onRotateChanged(boolean e) {window.setRotateGestureEnabled(e);}
+
+                    @Override
+                    public void onTiltChanged(boolean e) {window.setTiltGesturesEnabled(e);}
+
+                    @Override
+                    public void onScrollChanged(boolean e) {window.setScrollGesturesEnabled(e);}
+
+                    @Override
+                    public void onZoomChanged(boolean e) {window.setZoomGesturesEnabled(e);}
+
+                    @Override
+                    public void onStickToBorderChanged(boolean e) {window.setStickToBorder(e);}
+
+                    @Override
+                    public void on3dChanged(boolean e) { set3dEnabled(e); }
+                }
+        ).show(getParentFragmentManager(), null);
+    }
+
+    private void set3dEnabled(boolean enabled) {
+        m3dEnabled = enabled;
+        LocationWindow window = mLocationView.getLocationWindow();
+
+        if (enabled) window.setTiltGesturesEnabled(true);
+
+        ArrayList<String> values = enabled ? BARRIER_3D_VALUES_ON : BARRIER_3D_VALUES_OFF;
+        ArrayList<MapFilterCondition> conditions = new ArrayList<>();
+        conditions.add(new MapFilterCondition("$geometry", values));
+        window.applyLayerFilter(BARRIER_LAYER, conditions);
+    }
+
     private void resetLocationFlags() {
         mLocationChanged = false;
         mLocationLoaded = false;
@@ -1025,7 +1116,7 @@ public class NavigationFragment extends BaseFragment {
             mLocationView.getLocationWindow().setMaxZoomFactor((pixelWidth * 16.f) / mSublocation.getWidth());
             mLocationView.getLocationWindow().setMinZoomFactor((pixelWidth / 16.f) / mSublocation.getWidth());
             mLocationView.getLocationWindow().setZoomFactor(pixelWidth / mSublocation.getWidth());
-            mLocationView.getLocationWindow().applyFilter("", getVenueLayerExp());
+            mLocationView.getLocationWindow().applyLayerFilter(VENUE_FILTER_LAYER_DEFAULT, new ArrayList<>());
             setupZoomCameraDefault();
         });
     }
@@ -1084,7 +1175,6 @@ public class NavigationFragment extends BaseFragment {
     }
 
     private void handleDeviceUpdate(RoutePath routePath) {
-
         if (mLocation == null) return;
 
         String infoText = "";
@@ -1096,68 +1186,24 @@ public class NavigationFragment extends BaseFragment {
         mLastActiveRoutePath = routePath;
         if (mLastActiveRoutePath != null) {
 
-            if (mLastActiveRoutePath.getLength() != 0 && mFromPoint == null && mFromVenue == null) {
-                int i = 0;
-                float distance = 0.0f;
-                RouteEventType type = null;
+            boolean hasStaticFrom = mFromPoint != null || mFromVenue != null;
 
-                for (RouteEvent ev : mLastActiveRoutePath.getEvents()) {
-                    distance = ev.getDistance();
-                    type = ev.getType();
-                    if (distance >= 1) {
-                        break;
-                    }
-                }
-
-                if (distance != 0.0f) {
-                    double time = (distance / 1.43) / 60;
+            if (!hasStaticFrom && mLastActiveRoutePath.getLength() != 0) {
+                RouteNodeInfo info = findFirstSignificantNode(mLastActiveRoutePath);
+                if (info != null) {
+                    double time = (info.distance / 1.43) / 60;
                     if (time >= 1) {
-                        infoText = String.format(Locale.ENGLISH, "You have less than %.0f meters to go", distance);
+                        infoText = String.format(Locale.ENGLISH, "You have less than %.0f meters to go", info.distance);
                         timeText = String.format(Locale.ENGLISH, "(~%.0f min)", time);
                     } else {
-                        String distanceText = String.format(Locale.ENGLISH, "after %.0f meters", distance);
-                        if (type == RouteEventType.TURN_RIGHT) {
-                            infoText = String.format(Locale.ENGLISH, "You should turn right %s", distanceText);
-                        } else if (type == RouteEventType.TURN_LEFT) {
-                            infoText = String.format(Locale.ENGLISH, "You should turn left %s", distanceText);
-                        } else if (type == RouteEventType.TRANSITION) {
-                            infoText = String.format(Locale.ENGLISH, "You should change floor %s", distanceText);
-                        }
-                        timeText = time + " min";
-                    }
-                }
-            } else if (mLastActiveRoutePath.getEvents().size() >= 1) {
-                float distance = 0.0f;
-                RouteEventType type = null;
-
-                for (RouteEvent ev : mLastActiveRoutePath.getEvents()) {
-                    distance = ev.getDistance();
-                    type = ev.getType();
-                    if (distance >= 1) {
-                        break;
-                    }
-                }
-
-                if (distance != 0.0f) {
-                    double time = (distance / 1.43) / 60;
-                    if (time >= 1) {
-                        infoText = String.format(Locale.ENGLISH, "You have less than %.0f meters to go", distance);
-                        timeText = String.format(Locale.ENGLISH, "(~%.0f min)", time);
-                    } else {
-                        String distanceText = String.format(Locale.ENGLISH, "after %.0f meters", distance);
-                        if (type == RouteEventType.TURN_RIGHT) {
-                            infoText = String.format(Locale.ENGLISH, "You should turn right %s", distanceText);
-                        } else if (type == RouteEventType.TURN_LEFT) {
-                            infoText = String.format(Locale.ENGLISH, "You should turn left %s", distanceText);
-                        } else if (type == RouteEventType.TRANSITION) {
-                            infoText = String.format(Locale.ENGLISH, "You should change floor %s", distanceText);
-                        }
+                        String distanceText = String.format(Locale.ENGLISH, "after %.0f meters", info.distance);
+                        infoText = buildTurnText(info.eventType, info.turnType, distanceText);
                         timeText = String.format(Locale.ENGLISH, "%.0f min", time);
                     }
                 }
             }
 
-            if (mFromPoint != null || mFromVenue != null) {
+            if (hasStaticFrom) {
                 RoutePath path = makeRoutePath();
                 if (path != null && path.getLength() != 0.0f) {
                     float distance = path.getLength();
@@ -1178,23 +1224,62 @@ public class NavigationFragment extends BaseFragment {
         mRouteEventAdapter.submit(mCancelRouteList, mSublocation);
     }
 
+    private static class RouteNodeInfo {
+        final float distance;
+        final RouteEventType eventType;
+        final TurnType turnType;  // null if not turn event
+
+        RouteNodeInfo(float distance, RouteEventType eventType, TurnType turnType) {
+            this.distance = distance;
+            this.eventType = eventType;
+            this.turnType = turnType;
+        }
+    }
+
+    @Nullable
+    private RouteNodeInfo findFirstSignificantNode(RoutePath path) {
+        for (RouteNode node : path.nodes()) {
+            if (node.getDistance() < 1 || node.getEvents() == null || node.getEvents().isEmpty())
+                continue;
+
+            RouteEvent event = node.getEvents().get(0);
+            TurnType turnType = null;
+
+            if (event.getType() == RouteEventType.TURN_EVENT && event.getTurnEvent() != null) {
+                turnType = event.getTurnEvent().getType();
+            }
+
+            return new RouteNodeInfo(node.getDistance(), event.getType(), turnType);
+        }
+        return null;
+    }
+
+    private String buildTurnText(RouteEventType eventType, @Nullable TurnType turnType, String distanceText) {
+        if (eventType == RouteEventType.TURN_EVENT && turnType != null) {
+            if (isTurnLeft(turnType))
+                return String.format(Locale.ENGLISH, "You should turn left %s", distanceText);
+            if (isTurnRight(turnType))
+                return String.format(Locale.ENGLISH, "You should turn right %s", distanceText);
+        }
+        if (eventType == RouteEventType.TRANSITION_ENTRY_EVENT) {
+            return String.format(Locale.ENGLISH, "You should change floor %s", distanceText);
+        }
+        return "";
+    }
+
     private boolean hasTarget() {
         return mTargetPoint != null || mTargetVenue != null;
     }
 
     private void addRouteEventsToList(RoutePath path) {
-        if (path != null) {
-            int distance = 0;
-            List<RouteEvent> events = new ArrayList<>();
-            for (RouteEvent event : path.getEvents()) {
-                distance += event.getDistance();
-                if (distance >= 1) {
-                    events.add(event);
-                }
+        mCancelRouteList.clear();
+        if (path == null) return;
+
+        for (RouteNode node : path.nodes()) {
+            if (node.getDistance() >= 1 && node.getEvents() != null) {
+                mCancelRouteList.add(node);
             }
-            mCancelRouteList.clear();
-            mCancelRouteList.addAll(events);
-        } else mCancelRouteList.clear();
+        }
     }
 
     private void pointCameraToVenue(int sublocationIndex, float[] venueCoords) {
@@ -1246,32 +1331,26 @@ public class NavigationFragment extends BaseFragment {
         mVenueId = -1;
     }
 
-    private void applyVenueFilter(List<VenueIconObj> venueIconObjs) {
-        String filter = getVenueFilterFunc(venueIconObjs);
-        String layer = getVenueLayerExp();
-        mLocationView.post(() -> mLocationView.getLocationWindow().applyFilter(filter, layer));
+    private void applyVenueFilter(ArrayList<String> categories, String layer) {
+        if (mLocationView == null) return;
+        mLocationView.post(() -> {
+            ArrayList<MapFilterCondition> conditions = new ArrayList<>();
+            conditions.add(new MapFilterCondition("category", categories));
+            mLocationView.getLocationWindow().applyLayerFilter(layer, conditions);
+        });
+    }
+
+    private ArrayList<String> extractCategoryNames(List<VenueIconObj> venueIconObjs) {
+        ArrayList<String> names = new ArrayList<>();
+        for (VenueIconObj obj : venueIconObjs) {
+            names.add(obj.getCategoryName());
+        }
+        return names;
     }
 
     private void resetVenueFilter() {
-        mLocationView.post(() -> mLocationView.getLocationWindow().applyFilter("", getVenueLayerExp()));
-    }
-
-    private String getVenueFilterFunc(List<VenueIconObj> venueIconObjs) {
-        if (venueIconObjs.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder();
-        sb.append("function () { return (");
-        for (int i = 0; i < venueIconObjs.size(); i++) {
-            sb.append("feature.kind == '");
-            sb.append(venueIconObjs.get(i).getCategoryName());
-            sb.append("'");
-            if (i != venueIconObjs.size() - 1) sb.append(" || ");
-            else sb.append(") }");
-        }
-        return sb.toString();
-    }
-
-    private String getVenueLayerExp() {
-        return "base:pois:venues";
+        if (mLocationView != null)
+            mLocationView.post(() -> mLocationView.getLocationWindow().applyLayerFilter(VENUE_FILTER_VALUE_DEFAULT, new ArrayList<>()));
     }
 
     private void updateFilteredVenuesIconsList() {
@@ -1358,6 +1437,18 @@ public class NavigationFragment extends BaseFragment {
         mChipsMap.remove(chip);
     }
 
+    private boolean isTurnLeft(TurnType type) {
+        return type == TurnType.LEFT_SLIGHT
+                || type == TurnType.LEFT_NORMAL
+                || type == TurnType.LEFT_SHARP;
+    }
+
+    private boolean isTurnRight(TurnType type) {
+        return type == TurnType.RIGHT_SLIGHT
+                || type == TurnType.RIGHT_NORMAL
+                || type == TurnType.RIGHT_SHARP;
+    }
+
     private VenueIconObj getMappingVenueIcon(Chip chip) {
         return mChipsMap.get(chip);
     }
@@ -1368,7 +1459,7 @@ public class NavigationFragment extends BaseFragment {
         unselectVenueIcon(venueIconObj);
         removeChip(chip);
         populateVenueIconsLayout();
-        applyVenueFilter(mStateReceiver.filteredVenues);
+        applyVenueFilter(extractCategoryNames(mStateReceiver.filteredVenues), VENUE_FILTER_LAYER_DEFAULT);
     }
 
     private void onSearchBoxFocusChange(View v, boolean hasFocus) {
@@ -1436,7 +1527,7 @@ public class NavigationFragment extends BaseFragment {
                     if (filteredVenues != null) {
                         if (intent.getAction().equals(VENUE_FILTER_ON)) {
                             updateSearchViewWithChips(filteredVenues);
-                            applyVenueFilter(filteredVenues);
+                            applyVenueFilter(extractCategoryNames(filteredVenues), VENUE_FILTER_LAYER_DEFAULT);
                         } else {
                             removeChipsFromGroup();
                             resetVenueFilter();
@@ -1481,7 +1572,7 @@ public class NavigationFragment extends BaseFragment {
                     }
 
                     int id = lp.getSublocationId();
-                    if(mSublocation != null) {
+                    if (mSublocation != null) {
                         if (mSublocation.getId() != id) {
                             mSublocation = mLocation.getSublocationById(id);
                             loadSubLocation(mLocation.getSublocations().indexOf(mSublocation));

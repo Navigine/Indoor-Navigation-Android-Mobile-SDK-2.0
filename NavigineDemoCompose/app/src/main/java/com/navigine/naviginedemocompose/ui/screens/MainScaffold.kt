@@ -16,9 +16,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.navigine.naviginedemocompose.core.navigation.MainBottomBar
 import com.navigine.naviginedemocompose.core.navigation.MainNavHost
 import com.navigine.naviginedemocompose.core.navigation.TopLevelRoute
-import com.navigine.naviginedemocompose.core.navigation.MainBottomBar
 
 /**
  * Single-activity scaffold with a BottomBar and a single NavHost.
