@@ -1,4 +1,8 @@
-<a href="http://navigine.com"><img src="https://navigine.com/assets/web/images/logo.svg" align="right" height="60" width="180" hspace="10" vspace="5"></a>
+<p align="center">
+  <a href="https://navigine.com">
+    <img src="https://navigine.com/assets/web/images/logo.svg" height="60" alt="Navigine"/>
+  </a>
+</p>
 
 <p align="center">
     <a href="https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases"><img src="https://img.shields.io/github/v/release/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0" alt="SDK Version"/></a>
@@ -13,7 +17,9 @@
 
 ---
 
-https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
+<div align="center">
+  https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
+</div>
  
 ---
 
