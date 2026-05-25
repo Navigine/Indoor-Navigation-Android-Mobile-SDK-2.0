@@ -17,9 +17,7 @@
 
 ---
 
-<div align="center">
-  https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
-</div>
+https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
  
 ---
 
