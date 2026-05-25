@@ -59,7 +59,7 @@ dependencies {
 }
 ```
 
-<img src="LocationViewCompose/screenshots/preview.jpg" alt="LocationViewCompose preview" width="240"/>
+<img src="NavigineDemoCompose/screenshots/3d-object.jpg" alt="LocationViewCompose preview" width="240"/>
 
 ---
 

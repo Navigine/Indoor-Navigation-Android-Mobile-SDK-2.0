@@ -259,8 +259,6 @@ public class NavigationFragment extends BaseFragment {
         return view;
     }
 
-    ModelMapObject model = null;
-
     @Override
     public void onResume() {
         super.onResume();
