@@ -25,6 +25,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.GradientDrawable;
@@ -72,6 +74,7 @@ import com.navigine.idl.java.LocationPolyline;
 import com.navigine.idl.java.LocationWindow;
 import com.navigine.idl.java.MapFilterCondition;
 import com.navigine.idl.java.MapObjectPickResult;
+import com.navigine.idl.java.ModelMapObject;
 import com.navigine.idl.java.PickListener;
 import com.navigine.idl.java.Placement;
 import com.navigine.idl.java.Point;
@@ -85,6 +88,7 @@ import com.navigine.idl.java.Sublocation;
 import com.navigine.idl.java.TurnType;
 import com.navigine.idl.java.Venue;
 import com.navigine.image.ImageProvider;
+import com.navigine.model.ModelProvider;
 import com.navigine.navigine.demo.R;
 import com.navigine.navigine.demo.adapters.route.RouteEventAdapter;
 import com.navigine.navigine.demo.adapters.venues.VenueListAdapter;
@@ -125,7 +129,7 @@ public class NavigationFragment extends BaseFragment {
     public static final String VENUE_FILTER_LAYER_DEFAULT = "venues";
 
     private static final String BARRIER_LAYER = "barrier";
-    private static final ArrayList<String> BARRIER_3D_VALUES_ON  = new ArrayList<>(Arrays.asList("line", "polygon"));
+    private static final ArrayList<String> BARRIER_3D_VALUES_ON = new ArrayList<>(Arrays.asList("line", "polygon"));
     private static final ArrayList<String> BARRIER_3D_VALUES_OFF = new ArrayList<>(Collections.singletonList("none"));
 
     private SharedViewModel viewModel = null;
@@ -537,7 +541,6 @@ public class NavigationFragment extends BaseFragment {
 
             @Override
             public void onViewDoubleTap(PointF pointF) {
-
             }
 
             @Override
@@ -1038,22 +1041,34 @@ public class NavigationFragment extends BaseFragment {
                 m3dEnabled,
                 new BottomSheetMapSettings.OnSettingsChangedListener() {
                     @Override
-                    public void onRotateChanged(boolean e) {window.setRotateGestureEnabled(e);}
+                    public void onRotateChanged(boolean e) {
+                        window.setRotateGestureEnabled(e);
+                    }
 
                     @Override
-                    public void onTiltChanged(boolean e) {window.setTiltGesturesEnabled(e);}
+                    public void onTiltChanged(boolean e) {
+                        window.setTiltGesturesEnabled(e);
+                    }
 
                     @Override
-                    public void onScrollChanged(boolean e) {window.setScrollGesturesEnabled(e);}
+                    public void onScrollChanged(boolean e) {
+                        window.setScrollGesturesEnabled(e);
+                    }
 
                     @Override
-                    public void onZoomChanged(boolean e) {window.setZoomGesturesEnabled(e);}
+                    public void onZoomChanged(boolean e) {
+                        window.setZoomGesturesEnabled(e);
+                    }
 
                     @Override
-                    public void onStickToBorderChanged(boolean e) {window.setStickToBorder(e);}
+                    public void onStickToBorderChanged(boolean e) {
+                        window.setStickToBorder(e);
+                    }
 
                     @Override
-                    public void on3dChanged(boolean e) { set3dEnabled(e); }
+                    public void on3dChanged(boolean e) {
+                        set3dEnabled(e);
+                    }
                 }
         ).show(getParentFragmentManager(), null);
     }

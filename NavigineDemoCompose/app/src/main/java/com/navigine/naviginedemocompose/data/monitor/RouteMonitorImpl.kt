@@ -39,7 +39,7 @@ class RouteMonitorImpl @Inject constructor(
     private var session: RouteSession? = null
     private var listener : AsyncRouteListener? = null
     private var currentCollectJob: Job? = null
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(Dispatchers.Main.immediate)
 
     override suspend fun startRouteTo(
         target: LocationPoint
@@ -92,12 +92,14 @@ class RouteMonitorImpl @Inject constructor(
                         status: RouteStatus, path: RoutePath?
                     ) {
                         trySend(RouteMonitorEvent.Changed(status, path))
+                        println("$status, path: $path")
                     }
 
                     override fun onRouteAdvanced(
                         progress: Float, point: LocationPoint
                     ) {
                         trySend(RouteMonitorEvent.Advanced(progress, point))
+                        println("$progress, ${point.point}")
                     }
                 }
                 val ses = sdk.asyncRouteManager.createRouteSession(target, buildRouteOptions()).also {

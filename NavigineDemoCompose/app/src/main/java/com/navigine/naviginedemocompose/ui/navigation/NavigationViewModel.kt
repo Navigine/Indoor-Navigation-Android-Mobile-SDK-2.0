@@ -242,7 +242,18 @@ class NavigationViewModel @Inject constructor(
 
     private fun onRouteUpdate(event: RouteMonitorEvent){
         when(event){
-            RouteMonitorEvent.Cancelled -> {}
+            RouteMonitorEvent.Cancelled -> {
+                reduce {
+                    it.copy(
+                        isRouting = false,
+                        makeRouteSheetVisible = false,
+                        routeInfoVisible = false,
+                        routePath = null,
+                        routeDistanceMeters = null,
+                        etaSeconds = null
+                    )
+                }
+            }
             is RouteMonitorEvent.Advanced -> {
                 handleRouteAdvanced(event.progress, event.point)
             }
