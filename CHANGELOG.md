@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.25.2
+* Added **Camera.tilt** (degrees; 0 = top-down) to the public API; **flyTo**, **setCameraEased**, and **getEnclosingCamera** now animate and preserve tilt.
+* Fixed **Camera.rotation** units: values are now consistently degrees in the API layer (including **UserLocationLayer** heading mode); previously some paths mixed radians and degrees.
+* Reworked **TileManager** tile loading and proxy resolution (including grandparent tile fallback); extracted **BuildingsPayload** / **buildBuildingsFromLocation**; added **building_manager** unit tests.
+* Improved gesture and inertial scrolling: kinetic zoom uses screen center as pivot; simplified **InertialScalar** interval model; scroll bounds with rubber-band effect applied inline in **GestureHandler** (removed **scroll_bounds**, **rubber_band**, and **setScrollBoundsScale**).
+* Improved **ImageProvider** decoded RGBA handling on Android.
+
 ## 2.25.1
 # Fix crash in SDK reset method
 
