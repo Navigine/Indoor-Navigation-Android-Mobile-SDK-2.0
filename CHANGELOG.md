@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.26.0
+* Added **ClusterMapObject** and **ClusterMapObjectController** for icon map object clustering.
+* Added Swift Package Manager support for iOS and Flutter iOS SDK (**Package.swift**, install guide).
+* Added Android SDK publication to Maven Central and Javadoc artifacts to JitPack.
+* Improved listener lifetime: auto-unsubscribe expired listeners in generated bindings (Djinni).
+* Improved platform-specific API documentation generation (Java, Objective-C, Dart doc snippets).
+
 ## 2.25.2
 * Added **Camera.tilt** (degrees; 0 = top-down) to the public API; **flyTo**, **setCameraEased**, and **getEnclosingCamera** now animate and preserve tilt.
 * Fixed **Camera.rotation** units: values are now consistently degrees in the API layer (including **UserLocationLayer** heading mode); previously some paths mixed radians and degrees.
