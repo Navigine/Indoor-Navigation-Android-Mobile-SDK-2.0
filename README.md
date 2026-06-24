@@ -5,8 +5,9 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases"><img src="https://img.shields.io/github/v/release/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0" alt="SDK Version"/></a>
+  <a href="https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases"><img src="https://img.shields.io/github/v/release/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0" alt="SDK Version"/></a>
   <a href="https://android-arsenal.com/api?level=26"><img src="https://img.shields.io/badge/API-26%2B-brightgreen" alt="Min API"/></a>
+  <a href="https://central.sonatype.com/artifact/com.navigine/sdk"><img src="https://img.shields.io/maven-central/v/com.navigine/sdk" alt="Maven Central"/></a>
   <a href="https://jitpack.io/#Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0"><img src="https://jitpack.io/v/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0.svg" alt="JitPack"/></a>
   <a href="mailto:info@navigine.com"><img src="https://img.shields.io/badge/license-proprietary-red" alt="License"/></a>
 </p>
@@ -23,6 +24,15 @@ https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
 
 ## Quick Start
 
+**Via Maven Central (recommended):**
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation("com.navigine:sdk:2.26.0")
+}
+```
+
 **Via JitPack:**
 
 ```kotlin
@@ -35,7 +45,7 @@ dependencyResolutionManagement {
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:2.25.1")
+    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:2.26.0")
 }
 ```
 
@@ -46,12 +56,16 @@ dependencies {
 ## What's in this repo
 
 ### 📦 [Navigine SDK](libs/)
-The core indoor navigation SDK. Handles positioning, routing, map rendering, and radio measurements. This is the main product — everything else in this repo is built on top of it.
+
+The core indoor navigation SDK. Handles positioning, routing, map rendering, and radio measurements.
+This is the main product — everything else in this repo is built on top of it.
 
 ---
 
 ### 🗺 [LocationViewCompose](LocationViewCompose/)
-A Compose wrapper around the SDK's `LocationView`. Use this if you're building a Compose-based app and want idiomatic Compose APIs instead of working with the View directly.
+
+A Compose wrapper around the SDK's `LocationView`. Use this if you're building a Compose-based app
+and want idiomatic Compose APIs instead of working with the View directly.
 
 ```kotlin
 dependencies {
@@ -64,22 +78,27 @@ dependencies {
 ---
 
 ### 🚀 [Demo — Kotlin/Compose](NavigineDemoCompose/)
-A production-ready reference app showing how to integrate the SDK and `LocationViewCompose` — Hilt, Clean Architecture, Coroutines/Flow, Material 3.
+
+A production-ready reference app showing how to integrate the SDK and `LocationViewCompose` — Hilt,
+Clean Architecture, Coroutines/Flow, Material 3.
 
 [📥 Download APK](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases) · [Browse source](NavigineDemoCompose/)
 
-<img src="NavigineDemoCompose/screenshots/navigation.jpg" alt="Navigation" width="200"/>&nbsp;&nbsp;<img src="NavigineDemoCompose/screenshots/locations.jpg" alt="Locations" width="200"/>
+<img src="NavigineDemoCompose/screenshots/navigation.jpg" alt="Navigation" width="200"/>
+&nbsp;&nbsp;<img src="NavigineDemoCompose/screenshots/locations.jpg" alt="Locations" width="200"/>
 
 ---
 
 ### ☕ [Demo — Java/XML](NavigineDemo/)
+
 A stable reference app for teams working with a Java/XML codebase.
 
 [📥 Download APK](https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/releases) · [Browse source](NavigineDemo/)
 
 ---
 
-📂 **Looking for specific use cases?** Check out [Examples →](Examples/) — minimal single-Activity samples for navigation, routing, camera control, map objects, and more.
+📂 **Looking for specific use cases?** Check out [Examples →](Examples/) — minimal single-Activity
+samples for navigation, routing, camera control, map objects, and more.
 
 ---
 
