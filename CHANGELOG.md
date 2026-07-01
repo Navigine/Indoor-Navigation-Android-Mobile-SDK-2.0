@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.26.1
+* Replaced **djinni_support_lib** with a new **`common`** library that owns platform binding infrastructure (Android JNI, iOS ObjC++, Flutter FFI).
+* Rewrote Djinni generators (JNI, ObjC++, FFI, C++) to emit code against **navigine::android**, **navigine::ios**, and **navigine::bindings::flutter** instead of legacy **navigine::platform::*** / **djinni::*** APIs.
+* Removed vendored Djinni support-lib (JNI/ObjC/FFI helpers, **NativeLibLoader**, **djinni_main**, etc.).
+* Added Android binding runtime: **NativeObject**, **Subscription** (`com.navigine.common`), JNI helpers in **navigine/android/**.
+* Added iOS binding runtime: **NCSubscription**, object/cast helpers in **navigine/ios/**.
+* Added Flutter binding runtime under **navigine/bindings/flutter/** (opaque handles, interface wrappers, finalizable storage, main isolate helpers).
+* Extracted shared geometry/error types into a separate **common.djinni** IDL module (Point, Polygon, Error, etc.).
+
 ## 2.26.0
 * Added **ClusterMapObject** and **ClusterMapObjectController** for icon map object clustering.
 * Added Swift Package Manager support for iOS and Flutter iOS SDK (**Package.swift**, install guide).
