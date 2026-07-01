@@ -11,7 +11,7 @@ kotlin { explicitApi() }
 
 val navigineSdkVersionProvider = providers.gradleProperty("navigineSdk")
     .orElse(providers.environmentVariable("NAVIGINE_SDK_VERSION"))
-    .orElse("2.25.1")
+    .orElse("2.26.1")
 
 val navigineSdkVersion = navigineSdkVersionProvider.get()
 
@@ -57,7 +57,7 @@ dependencies {
 //    api("com.navigine:navigine:0.0.1-local")
 
     //noinspection UseTomlInstead
-    api("com.github.Navigine:Indoor-Navigation-Android-Mobile-SDK-2.0:${navigineSdkVersion}")
+    api("com.navigine:sdk:${navigineSdkVersion}")
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
