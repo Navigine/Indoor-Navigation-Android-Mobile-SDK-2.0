@@ -10,6 +10,7 @@ import com.navigine.idl.java.LocationPoint
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
+import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.CircleConfig
 import com.navigine.locationview.utils.toRgbaF
 
@@ -125,6 +126,7 @@ public fun Circle(
         },
         update = {
             update(position) { p ->
+                if (!circle.isValid) return@update
                 if (animatePosition && config.animation != null) {
                     circle.setPositionAnimated(p, config.animation.duration, config.animation.type)
                 } else {
@@ -132,41 +134,49 @@ public fun Circle(
                 }
             }
 
-            update(radius) { r -> circle.setRadius(r) }
+            update(radius) { r -> circle.ifValid { setRadius(r) } }
             update(color) { c ->
-                val (r, g, b, a) = c.toArgb().toRgbaF()
-                circle.setColor(r, g, b, a)
+                circle.ifValid {
+                    val (r, g, b, a) = c.toArgb().toRgbaF()
+                    setColor(r, g, b, a)
+                }
             }
 
             update(config.appearance) { appearance ->
-                circle.setVisible(appearance.visible)
-                circle.setAlpha(appearance.alpha)
-                appearance.title?.let { runCatching { circle.setTitle(it) } }
+                circle.ifValid {
+                    setVisible(appearance.visible)
+                    setAlpha(appearance.alpha)
+                    appearance.title?.let { runCatching { setTitle(it) } }
+                }
             }
 
             update(config.interaction) { interaction ->
-                circle.setInteractive(interaction.interactive)
-                circle.setCollisionEnabled(interaction.collisionEnabled)
+                circle.ifValid {
+                    setInteractive(interaction.interactive)
+                    setCollisionEnabled(interaction.collisionEnabled)
+                }
             }
 
             update(config.rendering) { rendering ->
-                circle.setPriority(rendering.priority)
+                circle.ifValid { setPriority(rendering.priority) }
             }
 
             update(config.offset) { offset ->
-                offset?.let { circle.setOffset(it.x, it.y) }
+                circle.ifValid { offset?.let { setOffset(it.x, it.y) } }
             }
 
             update(config.buffer) { buffer ->
-                buffer?.let { circle.setBuffer(it.width, it.height) }
+                circle.ifValid { buffer?.let { setBuffer(it.width, it.height) } }
             }
 
             update(config.outline) { outline ->
-                outline?.let { o ->
-                    circle.setOutlineRadius(o.radius)
-                    val (r, g, b, a) = o.color.toArgb().toRgbaF()
-                    circle.setOutlineColor(r, g, b, a)
-                    circle.setOutlineAlpha(o.alpha)
+                circle.ifValid {
+                    outline?.let { o ->
+                        setOutlineRadius(o.radius)
+                        val (r, g, b, a) = o.color.toArgb().toRgbaF()
+                        setOutlineColor(r, g, b, a)
+                        setOutlineAlpha(o.alpha)
+                    }
                 }
             }
         }

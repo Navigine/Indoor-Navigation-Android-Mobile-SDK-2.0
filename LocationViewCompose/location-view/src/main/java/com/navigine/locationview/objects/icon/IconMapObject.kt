@@ -10,6 +10,7 @@ import com.navigine.image.ImageProvider
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
+import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.IconConfig
 
 /**
@@ -151,55 +152,48 @@ public fun Icon(
         },
         update = {
             update(position) { p ->
+                if (!icon.isValid) return@update
                 if (animatePosition && config.animation != null) {
                     icon.setPositionAnimated(p, config.animation.duration, config.animation.type)
                 } else {
                     icon.setPosition(p)
                 }
             }
-            update(image) { b -> if (b != null) icon.setBitmap(b) }
+            update(image) { b -> icon.ifValid { b?.let { setBitmap(it) } } }
 
             // Config updates - only update if config changed
             update(config.size) { size ->
-                size?.let { icon.setSize(it.width, it.height) }
+                icon.ifValid { size?.let { setSize(it.width, it.height) } }
             }
 
             update(config.rotation) { rotation ->
-                rotation?.let { r ->
-                    if (r.animated) {
-                        icon.setAngleAnimated(r.angle, r.duration, r.type)
-                    } else {
-                        icon.setAngle(r.angle)
+                icon.ifValid {
+                    rotation?.let { r ->
+                        if (r.animated) setAngleAnimated(r.angle, r.duration, r.type)
+                        else setAngle(r.angle)
                     }
                 }
             }
 
             update(config.appearance) { appearance ->
-                icon.setVisible(appearance.visible)
-                icon.setAlpha(appearance.alpha)
-                appearance.title?.let { icon.setTitle(it) }
+                icon.ifValid {
+                    setVisible(appearance.visible)
+                    setAlpha(appearance.alpha)
+                    appearance.title?.let { setTitle(it) }
+                }
             }
 
             update(config.interaction) { interaction ->
-                icon.setInteractive(interaction.interactive)
-                icon.setCollisionEnabled(interaction.collisionEnabled)
+                icon.ifValid {
+                    setInteractive(interaction.interactive)
+                    setCollisionEnabled(interaction.collisionEnabled)
+                }
             }
 
-            update(config.rendering) { rendering ->
-                icon.setPriority(rendering.priority)
-            }
-
-            update(config.offset) { offset ->
-                offset?.let { icon.setOffset(it.x, it.y) }
-            }
-
-            update(config.buffer) { buffer ->
-                buffer?.let { icon.setBuffer(it.width, it.height) }
-            }
-
-            update(config.style) { style ->
-                icon.setFlat(style.flat)
-            }
+            update(config.rendering) { rendering -> icon.ifValid { setPriority(rendering.priority) } }
+            update(config.offset) { offset -> icon.ifValid { offset?.let { setOffset(it.x, it.y) } } }
+            update(config.buffer) { buffer -> icon.ifValid { buffer?.let { setBuffer(it.width, it.height) } } }
+            update(config.style) { style -> icon.ifValid { setFlat(style.flat) } }
         }
     )
 }

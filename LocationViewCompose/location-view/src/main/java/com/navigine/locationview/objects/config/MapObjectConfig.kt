@@ -503,3 +503,38 @@ public data class ModelConfig(
         public val Default: ModelConfig = ModelConfig()
     }
 }
+
+// cluster config
+/**
+ * Complete cluster controller configuration.
+ *
+ * Example:
+ * ```kotlin
+ * ClusterController(
+ *     icons = iconStates,
+ *     config = ClusterConfig(
+ *         radius = 60f,
+ *         clusterSize = Size(48f, 48f)
+ *     ),
+ *     onClusterCreated = { cluster ->
+ *         cluster.setBitmap(myBadgeProvider(cluster.count))
+ *     }
+ * )
+ * ```
+ *
+ * @property radius Cluster grouping radius in density-independent pixels
+ * @property enabled Whether clustering is active; when false, icons render individually
+ * @property clusterSize Size of the default cluster marker in pixels
+ * @property interactive Whether cluster markers respond to picks
+ */
+@Immutable
+public data class ClusterConfig(
+    val radius: Float = 40f,
+    val enabled: Boolean = true,
+    val clusterSize: Size = Size(40f, 40f),
+    val interactive: Boolean = true,
+) {
+    public companion object {
+        public val Default: ClusterConfig = ClusterConfig()
+    }
+}

@@ -10,6 +10,7 @@ import com.navigine.idl.java.ModelMapObject
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
+import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.ModelConfig
 import com.navigine.model.ModelProvider
 
@@ -137,6 +138,7 @@ public fun Model(
         },
         update = {
             update(position) { p ->
+                if (!obj.isValid) return@update
                 if (animatePosition && config.animation != null) {
                     obj.setPositionAnimated(p, config.animation.duration, config.animation.type)
                 } else {
@@ -144,40 +146,36 @@ public fun Model(
                 }
             }
 
-            update(model) { m -> m?.let { obj.setModel(it) } }
+            update(model) { m -> obj.ifValid { m?.let { setModel(it) } } }
 
-            update(config.size) { size ->
-                size?.let { obj.setSize(it.width, it.height) }
-            }
+            update(config.size) { size -> obj.ifValid { size?.let { setSize(it.width, it.height) } } }
 
             update(config.rotation) { rotation ->
-                rotation?.let { r ->
-                    if (r.animated) {
-                        obj.setAngleAnimated(r.angle, r.duration, r.type)
-                    } else {
-                        obj.setAngle(r.angle)
+                obj.ifValid {
+                    rotation?.let { r ->
+                        if (r.animated) setAngleAnimated(r.angle, r.duration, r.type)
+                        else setAngle(r.angle)
                     }
                 }
             }
 
             update(config.appearance) { appearance ->
-                obj.setVisible(appearance.visible)
-                obj.setAlpha(appearance.alpha)
-                appearance.title?.let { obj.setTitle(it) }
+                obj.ifValid {
+                    setVisible(appearance.visible)
+                    setAlpha(appearance.alpha)
+                    appearance.title?.let { setTitle(it) }
+                }
             }
 
             update(config.interaction) { interaction ->
-                obj.setInteractive(interaction.interactive)
-                obj.setCollisionEnabled(interaction.collisionEnabled)
+                obj.ifValid {
+                    setInteractive(interaction.interactive)
+                    setCollisionEnabled(interaction.collisionEnabled)
+                }
             }
 
-            update(config.rendering) { rendering ->
-                obj.setPriority(rendering.priority)
-            }
-
-            update(config.buffer) { buffer ->
-                buffer?.let { obj.setBuffer(it.width, it.height) }
-            }
+            update(config.rendering) { rendering -> obj.ifValid { setPriority(rendering.priority) } }
+            update(config.buffer) { buffer -> obj.ifValid { buffer?.let { setBuffer(it.width, it.height) } } }
         }
     )
 }

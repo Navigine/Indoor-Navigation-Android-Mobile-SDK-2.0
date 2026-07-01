@@ -1,8 +1,6 @@
 package com.navigine.locationview.objects.polygon
 
-import android.R.attr.order
-import android.R.attr.visible
-import androidx.annotation.ColorInt
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
@@ -13,6 +11,7 @@ import com.navigine.idl.java.PolygonMapObject
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
+import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.PolygonConfig
 import com.navigine.locationview.utils.toRgbaF
 
@@ -95,26 +94,27 @@ public fun Polygon(
             PolygonNode(applier, obj, state)
         },
         update = {
-            update(polygon) { p -> polygonObj.setPolygon(p) }
+            update(polygon) { p -> polygonObj.ifValid { setPolygon(p) } }
 
             update(color) { c ->
-                val (r, g, b, a) = c.toArgb().toRgbaF()
-                polygonObj.setColor(r, g, b, a)
+                polygonObj.ifValid {
+                    val (r, g, b, a) = c.toArgb().toRgbaF()
+                    setColor(r, g, b, a)
+                }
             }
 
             update(config.appearance) { appearance ->
-                polygonObj.setVisible(appearance.visible)
-                polygonObj.setAlpha(appearance.alpha)
-                appearance.title?.let { runCatching { polygonObj.setTitle(it) } }
+                polygonObj.ifValid {
+                    setVisible(appearance.visible)
+                    setAlpha(appearance.alpha)
+                    appearance.title?.let { runCatching { setTitle(it) } }
+                }
             }
 
             update(config.interaction) { interaction ->
-                polygonObj.setInteractive(interaction.interactive)
+                polygonObj.ifValid { setInteractive(interaction.interactive) }
             }
-
-            update(config.order) { order ->
-                polygonObj.setOrder(order)
-            }
+            update(config.order) { order -> polygonObj.ifValid { setOrder(order) } }
         }
     )
 }

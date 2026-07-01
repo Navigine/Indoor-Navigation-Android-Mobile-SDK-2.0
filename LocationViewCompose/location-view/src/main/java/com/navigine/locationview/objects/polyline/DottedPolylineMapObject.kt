@@ -10,6 +10,7 @@ import com.navigine.idl.java.LocationPolyline
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
+import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.DottedPolylineConfig
 import com.navigine.locationview.objects.config.Size
 import com.navigine.locationview.utils.toRgbaF
@@ -113,41 +114,41 @@ public fun DottedPolyline(
             DottedPolylineNode(applier, dotted, state)
         },
         update = {
-            update(points) { p -> dotted.setPolyLine(p) }
-
+            update(points) { p -> dotted.ifValid { setPolyLine(p) } }
             update(color) { c ->
-                val (r, g, b, a) = c.toArgb().toRgbaF()
-                dotted.setColor(r, g, b, a)
+                dotted.ifValid {
+                    val (r, g, b, a) = c.toArgb().toRgbaF()
+                    setColor(r, g, b, a)
+                }
             }
-            update(dotSize) { size ->
-                dotted.setSize(size.width, size.height)
-            }
-
+            update(dotSize) { size -> dotted.ifValid { setSize(size.width, size.height) } }
             update(config.appearance) { appearance ->
-                dotted.setVisible(appearance.visible)
-                dotted.setAlpha(appearance.alpha)
-                appearance.title?.let { runCatching { dotted.setTitle(it) } }
+                dotted.ifValid {
+                    setVisible(appearance.visible)
+                    setAlpha(appearance.alpha)
+                    appearance.title?.let { runCatching { setTitle(it) } }
+                }
             }
-
             update(config.interaction) { interaction ->
-                dotted.setInteractive(interaction.interactive)
-                dotted.setCollisionEnabled(interaction.collisionEnabled)
+                dotted.ifValid {
+                    setInteractive(interaction.interactive)
+                    setCollisionEnabled(interaction.collisionEnabled)
+                }
             }
-
-            update(config.rendering) { rendering ->
-                dotted.setPriority(rendering.priority)
-            }
-
+            update(config.rendering) { rendering -> dotted.ifValid { setPriority(rendering.priority) } }
             update(config.placement) { placement ->
-                dotted.setPlacement(placement.mode)
-                dotted.setPlacementMinRatio(placement.minRatio)
-                placement.spacing?.let { dotted.setPlacementSpacing(it) }
+                dotted.ifValid {
+                    setPlacement(placement.mode)
+                    setPlacementMinRatio(placement.minRatio)
+                    placement.spacing?.let { setPlacementSpacing(it) }
+                }
             }
-
             update(config.repeat) { repeat ->
-                repeat?.let { r ->
-                    dotted.setRepeatDistance(r.distance)
-                    r.group?.let { dotted.setRepeatGroup(it) }
+                dotted.ifValid {
+                    repeat?.let { r ->
+                        setRepeatDistance(r.distance)
+                        r.group?.let { setRepeatGroup(it) }
+                    }
                 }
             }
         }

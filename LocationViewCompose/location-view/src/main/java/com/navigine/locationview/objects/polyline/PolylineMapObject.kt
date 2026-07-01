@@ -1,7 +1,6 @@
 package com.navigine.locationview.objects.polyline
 
-import android.R.attr.order
-import android.R.attr.visible
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
@@ -12,6 +11,7 @@ import com.navigine.idl.java.PolylineMapObject
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
+import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.PolylineConfig
 import com.navigine.locationview.utils.toRgbaF
 
@@ -128,43 +128,51 @@ public fun Polyline(
         },
         update = {
             // Geometry updates
-            update(points) { p -> polyline.setPolyLine(p) }
+            update(points) { p -> polyline.ifValid { setPolyLine(p) } }
 
             // Color and width updates
             update(color) { c ->
-                val (r, g, b, a) = c.toArgb().toRgbaF()
-                polyline.setColor(r, g, b, a)
+                polyline.ifValid {
+                    val (r, g, b, a) = c.toArgb().toRgbaF()
+                    setColor(r, g, b, a)
+                }
             }
-            update(width) { w -> polyline.setWidth(w) }
+            update(width) { w -> polyline.ifValid { setWidth(w) } }
 
             // Config updates
             update(config.appearance) { appearance ->
-                polyline.setVisible(appearance.visible)
-                polyline.setAlpha(appearance.alpha)
-                appearance.title?.let { runCatching { polyline.setTitle(it) } }
+                polyline.ifValid {
+                    setVisible(appearance.visible)
+                    setAlpha(appearance.alpha)
+                    appearance.title?.let { runCatching { setTitle(it) } }
+                }
             }
 
             update(config.interaction) { interaction ->
-                polyline.setInteractive(interaction.interactive)
+                polyline.ifValid { setInteractive(interaction.interactive) }
             }
 
             update(config.style) { style ->
-                polyline.setOrder(style.order)
-                polyline.setCapType(style.capType)
-                polyline.setJoinType(style.joinType)
-                polyline.setMiterLimit(style.miterLimit)
+                polyline.ifValid {
+                    setOrder(style.order)
+                    setCapType(style.capType)
+                    setJoinType(style.joinType)
+                    setMiterLimit(style.miterLimit)
+                }
             }
 
             update(config.outline) { outline ->
-                outline?.let { o ->
-                    polyline.setOutlineWidth(o.width)
-                    val (r, g, b, a) = o.color.toArgb().toRgbaF()
-                    polyline.setOutlineColor(r, g, b, a)
-                    polyline.setOutlineAlpha(o.alpha)
-                    polyline.setOutlineCapType(o.capType)
-                    polyline.setOutlineJoinType(o.joinType)
-                    polyline.setOutlineMiterLimit(o.miterLimit)
-                    polyline.setOutlineOrder(o.order)
+                polyline.ifValid {
+                    outline?.let { o ->
+                        setOutlineWidth(o.width)
+                        val (r, g, b, a) = o.color.toArgb().toRgbaF()
+                        setOutlineColor(r, g, b, a)
+                        setOutlineAlpha(o.alpha)
+                        setOutlineCapType(o.capType)
+                        setOutlineJoinType(o.joinType)
+                        setOutlineMiterLimit(o.miterLimit)
+                        setOutlineOrder(o.order)
+                    }
                 }
             }
         }
