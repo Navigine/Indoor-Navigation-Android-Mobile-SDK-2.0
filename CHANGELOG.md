@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.26.2
+* Fixed DefaultNavigationLayer direction blinking
+* Improved OpenGL/Vulkan functions loading
+
 ## 2.26.1
 * Replaced **djinni_support_lib** with a new **`common`** library that owns platform binding infrastructure (Android JNI, iOS ObjC++, Flutter FFI).
 * Rewrote Djinni generators (JNI, ObjC++, FFI, C++) to emit code against **navigine::android**, **navigine::ios**, and **navigine::bindings::flutter** instead of legacy **navigine::platform::*** / **djinni::*** APIs.
