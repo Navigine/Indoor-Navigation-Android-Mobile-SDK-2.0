@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.27.0
+* Added **TrackingSdk** (optional `BUILD_TRACKING`): **AuthManager**, **ApplicationManager**, **ObjectListManager**, **LiveDataManager**, **LiveNotificationsManager**, and **LiveObjectsLayer** (live pins, clustering, footprint tracks, zone polygons/badges, filters, tap listeners).
+* Added **DefaultTrackingView** (Android, iOS, Flutter, Qt) and **DefaultNavigineView** chrome base (zoom controls, floor selector); **DefaultNavigationView** now subclasses it.
+* Added **LocationWindow.setOperatingMode** (`indoor_only` / `outdoor` / `outdoor_indoor`) with OSM MVT outdoor basemap, curved labels, and MVT POI icons.
+* Reworked the **LocationWindow** renderer: typed GPU meshes and a fixed frame order (outdoor buildings overlay, indoor tiles, models, map objects, labels). Tile **Style** tessellates only and no longer owns the frame.
+* iOS map rendering defaults to **Vulkan** via MoltenVK (`NCVulkanView`); system OpenGL ES (`NCGLView`) is the fallback. Android and desktop stay on OpenGL. MetalANGLE is no longer linked.
+* **pickMapObjectAt** / **pickMapFeatureAt** use CPU hit-test (map objects, tile geometry, labels). The GPU selection framebuffer is gone.
+* Extruded outdoor buildings are drawn opaque+depth offscreen and composited over the basemap; depth is cleared so indoor floors do not inherit leftover outdoor Z.
+* Added **MapObject.setTitleWithStyle** (**TitleStyle** / **TitleAnchor**) and polygon outline APIs (**setOutlineColor**, **setOutlineWidth**, **setOutlineAlpha**, **setOutlineOrder**).
+* Added Djinni **color** type replacing per-channel `setColor(r,g,b,a)`; **Zone.color** is now **color**. Record fields support default values (**RouteOptions**, **TitleStyle**).
+* Breaking: map coordinates are WGS84 **GlobalPoint** (camera, icons, circles, models, polygons, polylines). **screenPositionToMeters** / **metersToScreenPosition** renamed to **screenPositionToGlobal** / **globalToScreenPosition**. **setPosition** takes `(GlobalPoint, optional sublocationId)` (`null` = outdoor).
+* Added **Zone.guid** for live tracking zone membership.
+* Added AoA positioning support in the navigation pipeline.
+* Improved Android Maven publication (local + GitLab, signing) and tracking CI builds.
+
 ## 2.26.2
 * Fixed DefaultNavigationLayer direction blinking
 * Improved OpenGL/Vulkan functions loading
