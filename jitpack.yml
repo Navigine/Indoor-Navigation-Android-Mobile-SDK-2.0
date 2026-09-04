@@ -1,4 +1,4 @@
 install:
   - FILE="-Dfile=libs/libnavigine.aar"
   - SOURCES="-Dsources=libs/libnavigine-sources.jar"
-  - mvn install:install-file $FILE $SOURCES -DgroupId=com.navigine -DartifactId=sdk -Dversion=2.27.0 -Dpackaging=aar -DgeneratePom=true
+  - mvn install:install-file $FILE $SOURCES -DgroupId=com.navigine -DartifactId=sdk -Dversion=2.27.1 -Dpackaging=aar -DgeneratePom=true

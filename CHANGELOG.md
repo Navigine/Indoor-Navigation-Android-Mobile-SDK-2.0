@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.27.1
+* Flutter SDK: published package now includes generated Dart helpers (`containers__conversion.dart`, `weak_interfaces_meta.dart`, `com.navigine.dart`).
+* Flutter SDK: tracking sources (`lib/tracking`) are no longer shipped in the public Flutter package.
+* Replaced placeholder text on the documentation index with an SDK overview and community links.
+* Fixed Android SDK build after the 2.27.0 view split.
+
 ## 2.27.0
 * Added **TrackingSdk** (optional `BUILD_TRACKING`): **AuthManager**, **ApplicationManager**, **ObjectListManager**, **LiveDataManager**, **LiveNotificationsManager**, and **LiveObjectsLayer** (live pins, clustering, footprint tracks, zone polygons/badges, filters, tap listeners).
 * Added **DefaultTrackingView** (Android, iOS, Flutter, Qt) and **DefaultNavigineView** chrome base (zoom controls, floor selector); **DefaultNavigationView** now subclasses it.
