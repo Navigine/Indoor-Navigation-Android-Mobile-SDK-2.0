@@ -13,7 +13,6 @@ import com.navigine.locationview.internal.node.LocationNode
 import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.DottedPolylineConfig
 import com.navigine.locationview.objects.config.Size
-import com.navigine.locationview.utils.toRgbaF
 
 /**
  * Declarative dotted polyline.
@@ -86,8 +85,7 @@ public fun DottedPolyline(
 
             dotted.setPolyLine(points)
 
-            val (r, g, b, a) = color.toArgb().toRgbaF()
-            dotted.setColor(r, g, b, a)
+            dotted.setColor(color.toArgb())
             dotted.setSize(dotSize.width, dotSize.height)
 
             dotted.setVisible(config.appearance.visible)
@@ -117,8 +115,7 @@ public fun DottedPolyline(
             update(points) { p -> dotted.ifValid { setPolyLine(p) } }
             update(color) { c ->
                 dotted.ifValid {
-                    val (r, g, b, a) = c.toArgb().toRgbaF()
-                    setColor(r, g, b, a)
+                    setColor(c.toArgb())
                 }
             }
             update(dotSize) { size -> dotted.ifValid { setSize(size.width, size.height) } }

@@ -8,6 +8,7 @@ import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.MapObjectType
 import com.navigine.idl.java.ModelMapObject
 import com.navigine.locationview.NavigineMapComposable
+import com.navigine.locationview.geometry.NavPosition
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
 import com.navigine.locationview.internal.node.ifValid
@@ -17,31 +18,38 @@ import com.navigine.model.ModelProvider
 /**
  * Declarative 3D model map object for Navigine.
  *
- * ## Basic Usage
+ * ## Basic Usage — indoor
  * ```kotlin
  * Model(
- *     position = LocationPoint(100.0, 200.0),
+ *     position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
  *     model = ModelProvider.fromAsset(context, "models/chair.glb", texture)
  * )
  * ```
+ * ## Basic Usage — outdoor
+ * ```kotlin
+ * Model(
+ *     position = NavPosition.outdoor(GlobalPoint(55.751244, 37.618423)),
+ *     model = ModelProvider.fromAsset(context, "models/chair.glb", texture)
+ * )
+ *  * ```
  *
  * ## Loading from different sources
  * ```kotlin
  * // From a raw resource
  * Model(
- *     position = point,
+ *     position = position,
  *     model = ModelProvider.fromResource(context, R.raw.chair, texture)
  * )
  *
  * // From a file path
  * Model(
- *     position = point,
+ *     position = position,
  *     model = ModelProvider.fromFile("/path/to/model.glb", texture)
  * )
  *
  * // From a byte array
  * Model(
- *     position = point,
+ *     position = position,
  *     model = ModelProvider.fromByteArray(modelBytes, texture)
  * )
  * ```
@@ -49,7 +57,7 @@ import com.navigine.model.ModelProvider
  * ## Advanced Usage
  * ```kotlin
  * Model(
- *     position = point,
+ *     position = position,
  *     model = ModelProvider.fromAsset(context, "models/chair.glb", texture),
  *     config = ModelConfig(
  *         size = Size(1f, 1f),
@@ -84,7 +92,7 @@ import com.navigine.model.ModelProvider
 @Composable
 @NavigineMapComposable
 public fun Model(
-    position: LocationPoint,
+    position: NavPosition,
     model: ModelProvider? = null,
     config: ModelConfig = ModelConfig.Default,
     animatePosition: Boolean = false,
@@ -101,12 +109,13 @@ public fun Model(
 
             if (animatePosition && config.animation != null) {
                 obj.setPositionAnimated(
-                    position,
+                    position.point,
+                    position.sublocationId,
                     config.animation.duration,
                     config.animation.type
                 )
             } else {
-                obj.setPosition(position)
+                obj.setPosition(position.point, position.sublocationId)
             }
 
             model?.let { obj.setModel(it) }
@@ -140,9 +149,9 @@ public fun Model(
             update(position) { p ->
                 if (!obj.isValid) return@update
                 if (animatePosition && config.animation != null) {
-                    obj.setPositionAnimated(p, config.animation.duration, config.animation.type)
+                    obj.setPositionAnimated(p.point, p.sublocationId, config.animation.duration, config.animation.type)
                 } else {
-                    obj.setPosition(p)
+                    obj.setPosition(p.point, p.sublocationId,)
                 }
             }
 

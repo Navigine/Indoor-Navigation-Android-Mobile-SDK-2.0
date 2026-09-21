@@ -245,3 +245,57 @@ Publish-LocationViewCompose-To-Central:
       echo "  Maven Central: https://repo1.maven.org/maven2/com/navigine/navigine-locationview-compose/${VERSION}/"
       echo "  (May take 10-30 minutes to appear)"
       echo "═══════════════════════════════════════════════════════════"
+      
+      
+      
+
+Publish-LocationViewCompose-Tracking-To-GitLab:
+  stage: Upload
+  tags:
+    - docker-images
+  image: "$DOCKER_REGISTRY/android_app:latest"
+  rules:
+    - when: manual
+  variables:
+    PROJECT_DIR_FS: "LocationViewCompose"
+    MODULE_NAME: "location-view"
+  script:
+    - |
+      set -euo pipefail
+
+      REPO_DIR="$CI_PROJECT_DIR"
+      LIB_DIR="$REPO_DIR/$PROJECT_DIR_FS"
+      cd "$LIB_DIR"
+      chmod +x ./gradlew
+
+      echo ">>> Resolving Navigine SDK version..."
+
+      VERSION=""
+      if [ -n "${NAVIGINE_SDK_VERSION:-}" ]; then
+        VERSION="$NAVIGINE_SDK_VERSION"
+      fi
+
+      if [ -z "$VERSION" ]; then
+        NAVIGATION_REF="${NAVIGATION_REF:-master}"
+        GITLAB_FILE_URL="$CI_SERVER_URL/api/v4/projects/navigine%2Fnavigation/repository/files/mobile%2Frelease%2FVERSION/raw?ref=$NAVIGATION_REF"
+        RAW_VERSION="$(curl -sf --header "JOB-TOKEN: $CI_JOB_TOKEN" "$GITLAB_FILE_URL" || echo "")"
+        VERSION="$(echo "$RAW_VERSION" | tr -d '\r\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || echo "")"
+      fi
+
+      if [ -z "$VERSION" ]; then
+        GH_REF="${NAVIGATION_GH_REF:-master}"
+        RAW_VERSION="$(curl -sfL "https://raw.githubusercontent.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/refs/heads/${GH_REF}/VERSION" || echo "")"
+        VERSION="$(echo "$RAW_VERSION" | tr -d '\r\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || echo "")"
+      fi
+
+      if [ -z "$VERSION" ]; then
+        echo "ERROR: Cannot resolve VERSION from any source (env, GitLab, GitHub)"
+        exit 1
+      fi
+
+      echo "Resolved Navigine SDK version: $VERSION"
+
+      ./gradlew ":$MODULE_NAME:publishMavenPublicationToGitLabAndroidRepository" \
+        -Plocationview.tracking=true \
+        -PnavigineSdk="$VERSION" \
+        --stacktrace --no-daemon

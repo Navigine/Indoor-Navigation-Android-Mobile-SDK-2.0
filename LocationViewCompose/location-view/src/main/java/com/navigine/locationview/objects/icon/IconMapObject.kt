@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
 import com.navigine.idl.java.IconMapObject
-import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.MapObjectType
 import com.navigine.image.ImageProvider
 import com.navigine.locationview.NavigineMapComposable
+import com.navigine.locationview.geometry.NavPosition
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
 import com.navigine.locationview.internal.node.ifValid
@@ -16,10 +16,18 @@ import com.navigine.locationview.objects.config.IconConfig
 /**
  * Declarative icon map object for Navigine.
  *
- * ## Basic Usage
+ * ## Basic Usage — indoor
  * ```kotlin
  * Icon(
- *     position = LocationPoint(100.0, 200.0),
+ *     position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
+ *     image = ImageProvider.fromBitmap(myBitmap)
+ * )
+ * ```
+ *
+ * ## Basic Usage — outdoor
+ * ```kotlin
+ * Icon(
+ *     position = NavPosition.outdoor(GlobalPoint(55.751244, 37.618423)),
  *     image = ImageProvider.fromBitmap(myBitmap)
  * )
  * ```
@@ -28,19 +36,19 @@ import com.navigine.locationview.objects.config.IconConfig
  * ```kotlin
  * // From a drawable resource
  * Icon(
- *     position = point,
+ *     position = position,
  *     image = ImageProvider.fromResource(context, R.drawable.pin)
  * )
  *
  * // From an asset file
  * Icon(
- *     position = point,
+ *     position = position,
  *     image = ImageProvider.fromAsset(context, "icons/pin.png")
  * )
  *
  * // From a file path
  * Icon(
- *     position = point,
+ *     position = position,
  *     image = ImageProvider.fromFile("/path/to/icon.png")
  * )
  * ```
@@ -48,7 +56,7 @@ import com.navigine.locationview.objects.config.IconConfig
  * ## Advanced Usage
  * ```kotlin
  * Icon(
- *     position = point,
+ *     position = position,
  *     image = ImageProvider.fromResource(context, R.drawable.pin),
  *     config = IconConfig(
  *         size = Size(64f, 64f),
@@ -80,7 +88,9 @@ import com.navigine.locationview.objects.config.IconConfig
  * - Removes it when leaving composition
  * - Only changed properties trigger SDK updates on recomposition
  *
- * @param position Icon position in location coordinates (required)
+ * @param position Icon position. Use [NavPosition.indoor] for a point tied to a
+ * specific floor, or [NavPosition.outdoor] for a point on the global (outdoor) map.
+ * (required)
  * @param image Icon image provider (optional, can be set later).
  * Use [ImageProvider.fromBitmap], [ImageProvider.fromResource],
  * [ImageProvider.fromAsset], or [ImageProvider.fromFile] to create one.
@@ -94,7 +104,7 @@ import com.navigine.locationview.objects.config.IconConfig
 @Composable
 @NavigineMapComposable
 public fun Icon(
-    position: LocationPoint,
+    position: NavPosition,
     image: ImageProvider? = null,
     config: IconConfig = IconConfig.Default,
     animatePosition: Boolean = false,
@@ -111,12 +121,13 @@ public fun Icon(
 
             if (animatePosition && config.animation != null) {
                 icon.setPositionAnimated(
-                    position,
+                    position.point,
+                    position.sublocationId,
                     config.animation.duration,
                     config.animation.type
                 )
             } else {
-                icon.setPosition(position)
+                icon.setPosition(position.point, position.sublocationId)
             }
 
             image?.let { icon.setBitmap(it) }
@@ -154,9 +165,14 @@ public fun Icon(
             update(position) { p ->
                 if (!icon.isValid) return@update
                 if (animatePosition && config.animation != null) {
-                    icon.setPositionAnimated(p, config.animation.duration, config.animation.type)
+                    icon.setPositionAnimated(
+                        p.point,
+                        p.sublocationId,
+                        config.animation.duration,
+                        config.animation.type
+                    )
                 } else {
-                    icon.setPosition(p)
+                    icon.setPosition(p.point, p.sublocationId)
                 }
             }
             update(image) { b -> icon.ifValid { b?.let { setBitmap(it) } } }
@@ -191,8 +207,26 @@ public fun Icon(
             }
 
             update(config.rendering) { rendering -> icon.ifValid { setPriority(rendering.priority) } }
-            update(config.offset) { offset -> icon.ifValid { offset?.let { setOffset(it.x, it.y) } } }
-            update(config.buffer) { buffer -> icon.ifValid { buffer?.let { setBuffer(it.width, it.height) } } }
+            update(config.offset) { offset ->
+                icon.ifValid {
+                    offset?.let {
+                        setOffset(
+                            it.x,
+                            it.y
+                        )
+                    }
+                }
+            }
+            update(config.buffer) { buffer ->
+                icon.ifValid {
+                    buffer?.let {
+                        setBuffer(
+                            it.width,
+                            it.height
+                        )
+                    }
+                }
+            }
             update(config.style) { style -> icon.ifValid { setFlat(style.flat) } }
         }
     )

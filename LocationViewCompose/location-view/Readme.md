@@ -11,6 +11,7 @@ A thin, idiomatic Jetpack Compose wrapper around the [Navigine Indoor Navigation
 - Compose-first API — no direct interaction with the underlying OpenGL/View layer required
 - Two ready-to-use map composables: `NavigineLocation` (full control) and `DefaultNavigineLocation` (built-in UI widgets)
 - Declarative map objects: `Circle`, `Icon`, `Polyline`, `Model` (3D), and more
+- Global map support — indoor, outdoor, or both simultaneously via `operatingMode`
 - Camera state hoisting via `NavCameraPositionState`
 - Tap, double-tap, long-tap and pick event handlers
 - Building and sublocation event handlers for campus mode
@@ -106,7 +107,7 @@ NavigineLocation(
 
 LaunchedEffect(Unit) {
     cameraState.flyTo(
-        camera = Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f, tilt = 0f),
+        camera = Camera(point = GlobalPoint(55.751244, 37.618423), zoom = 18f, rotation = 0f, tilt = 0f),
         durationMs = 1000
     )
 }
@@ -116,12 +117,14 @@ LaunchedEffect(Unit) {
 
 ### Map objects
 
-Declare map objects inside the `content` block:
+Declare map objects inside the `content` block. Every object's position uses [`NavPosition`](#) —
+either `NavPosition.indoor(point, sublocationId)` for a point tied to a specific floor, or
+`NavPosition.outdoor(point)` for a point on the global map:
 
 ```kotlin
 NavigineLocation(modifier = Modifier.fillMaxSize()) {
     Circle(
-        position = LocationPoint(100.0, 200.0),
+        position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
         radius = 50f,
         color = Color.Blue
     )
@@ -136,19 +139,19 @@ Use `ImageProvider` to load the icon image from a bitmap, resource, asset, or fi
 NavigineLocation(modifier = Modifier.fillMaxSize()) {
     // From a drawable resource
     Icon(
-        position = LocationPoint(100.0, 200.0),
+        position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
         image = ImageProvider.fromResource(context, R.drawable.pin)
     )
 
     // From an asset file
     Icon(
-        position = LocationPoint(100.0, 200.0),
+        position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
         image = ImageProvider.fromAsset(context, "icons/pin.png")
     )
 
     // From a bitmap
     Icon(
-        position = LocationPoint(100.0, 200.0),
+        position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
         image = ImageProvider.fromBitmap(myBitmap)
     )
 }
@@ -204,16 +207,17 @@ Use `ModelProvider` to load a `.obj` model with a texture:
 ```kotlin
 NavigineLocation(modifier = Modifier.fillMaxSize()) {
     val texture = ImageProvider.fromResource(context, R.drawable.model_texture)
+    val position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3)
 
     // From an asset file
     Model(
-        position = LocationPoint(100.0, 200.0),
+        position = position,
         model = ModelProvider.fromAsset(context, "models/chair.obj", texture)
     )
 
     // From a raw resource
     Model(
-        position = LocationPoint(100.0, 200.0),
+        position = position,
         model = ModelProvider.fromResource(context, R.raw.chair, texture)
     )
 }
@@ -228,10 +232,10 @@ NavigineLocation(modifier = Modifier.fillMaxSize()) {
 ```kotlin
 NavigineLocation(modifier = Modifier.fillMaxSize()) {
     InputHandlers(
-        onTap = { viewPoint, meters ->
-            // handle tap
+        onTap = { viewPoint, global ->
+            // handle tap; global is the tapped point as GlobalPoint (WGS84), or null if off-map
         },
-        onLongTap = { viewPoint, meters ->
+        onLongTap = { viewPoint, global ->
             // handle long tap
         },
         autoPickObjectOnTap = true
@@ -258,6 +262,51 @@ NavigineLocation(
     )
 )
 ```
+
+---
+
+### Operating mode — indoor, outdoor, or both
+
+By default, the map renders indoor content only, matching pre-2.27 behavior. Switch to
+`OUTDOOR` to render just the outdoor OSM basemap, or `OUTDOOR_INDOOR` to render both
+at once — useful for letting a user zoom out from a building to the surrounding area:
+
+```kotlin
+NavigineLocation(
+    modifier = Modifier.fillMaxSize(),
+    operatingMode = OperatingMode.OUTDOOR_INDOOR
+)
+```
+
+`operatingMode` is reactive — change it at any time, e.g. from a button tap, and the
+map updates without recreating the view.
+
+---
+
+### Outdoor basemap appearance
+
+Customize the outdoor vector basemap's color theme and where the OSM attribution
+overlay is placed. Both only take effect outside `OperatingMode.INDOOR_ONLY` — the
+attribution overlay is shown automatically by the SDK whenever outdoor content is
+visible, and hidden automatically in indoor-only mode; there's no separate toggle
+to turn it off.
+
+```kotlin
+NavigineLocation(
+    modifier = Modifier.fillMaxSize(),
+    operatingMode = OperatingMode.OUTDOOR_INDOOR,
+    outdoorMapConfig = OutdoorMapConfig(
+        theme = MapTheme.DARK,
+        attributionAlignment = AttributionAlignment(
+            AttributionHorizontalAlignment.LEFT,
+            AttributionVerticalAlignment.BOTTOM
+        )
+    )
+)
+```
+
+`outdoorMapConfig` is reactive — change it at any time and the map updates without
+recreating the view.
 
 ---
 

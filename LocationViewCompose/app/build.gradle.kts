@@ -37,6 +37,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    flavorDimensions += "sdk"
+    productFlavors {
+        create("standard") { dimension = "sdk" }
+        create("tracking") { dimension = "sdk" }
+    }
 }
 
 dependencies {
