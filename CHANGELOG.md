@@ -2,7 +2,20 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.28.0
+* Outdoor tiles stay on screen while zooming: parent or child tiles keep covering a cell until the ideal tile is laid out (empty tiles still occupy the cell), so the map no longer flickers or shows mixed LODs.
+* Billboard POI icons, captions, and labels stay glued to the map during inertial pan and zoom by reprojecting world anchors with the live camera.
+* Selected POI pin grows upward from the ground contact point; the user-location 3D model draws above the accuracy circle and heading indicator.
+* Added OSM map **attribution** on **LocationWindow** (`attribution`, `attributionAlignment`) and MSAA antialiasing for the map view.
+* Added **LocationWindow.tileProvider** (`TileProvider`, `HttpTileSource`, `MbtilesTileSource`, `TileSchema`) for outdoor vector tiles: HTTP XYZ or a local MBTiles pack; `null` keeps the default OSM Shortbread endpoint.
+* Added **LocationWindow.mapTheme** (`MapTheme` light / dark) for the outdoor basemap palette.
+* Added **LocationWindow.focusRect**, **visibleRegion**, **focusRegion**, and **getEnclosingCameraWithFocus** so chrome can leave a viewport inset for fitted geometry.
+
 ## 2.27.1
+* Added public **RouteLayer** API (`NavigineSdk.getRouteLayer`): `setTarget(RouteEndpoint)` for live guidance and `setRoute(from, to)` for a static path; location/position are taken from the SDK automatically, while nullable endpoint sublocation ids allow indoor ↔ outdoor routes.
+* Added **RouteLayer** remaining styles (`SOLID` / `DASHED` / `DOTTED`) with dotted placement controls (`setRemainingPointSize`, `setRemainingPlacement`, spacing / min ratio / collision).
+* Added public **UserLocationLayer.setHeadingModeActive** / **headingModeActive** API for anchored heading-up navigation mode.
+* Added public **PolylineMapObject.setDashLength** / **dashLength** and **setGapLength** / **gapLength** APIs for dashed polyline rendering.
 * Flutter SDK: published package now includes generated Dart helpers (`containers__conversion.dart`, `weak_interfaces_meta.dart`, `com.navigine.dart`).
 * Flutter SDK: tracking sources (`lib/tracking`) are no longer shipped in the public Flutter package.
 * Replaced placeholder text on the documentation index with an SDK overview and community links.
