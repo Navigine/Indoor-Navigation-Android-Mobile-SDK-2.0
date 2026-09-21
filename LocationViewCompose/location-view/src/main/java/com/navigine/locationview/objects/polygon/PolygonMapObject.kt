@@ -13,7 +13,6 @@ import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
 import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.PolygonConfig
-import com.navigine.locationview.utils.toRgbaF
 
 
 /**
@@ -78,8 +77,7 @@ public fun Polygon(
 
             obj.setPolygon(polygon)
 
-            val (r, g, b, a) = color.toArgb().toRgbaF()
-            obj.setColor(r, g, b, a)
+            obj.setColor(color.toArgb())
 
             obj.setVisible(config.appearance.visible)
             obj.setAlpha(config.appearance.alpha)
@@ -98,8 +96,7 @@ public fun Polygon(
 
             update(color) { c ->
                 polygonObj.ifValid {
-                    val (r, g, b, a) = c.toArgb().toRgbaF()
-                    setColor(r, g, b, a)
+                    setColor(c.toArgb())
                 }
             }
 

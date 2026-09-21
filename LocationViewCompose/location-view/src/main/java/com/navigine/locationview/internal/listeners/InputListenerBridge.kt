@@ -1,33 +1,33 @@
 package com.navigine.locationview.internal.listeners
 
 import android.graphics.PointF
+import com.navigine.idl.java.GlobalPoint
 import com.navigine.idl.java.InputListener
 import com.navigine.idl.java.LocationWindow
-import com.navigine.idl.java.Point
 
 /**
  * Bridges Navigine [InputListener] to Kotlin lambdas. Also computes meters from screen coordinates
- * using [LocationWindow.screenPositionToMeters].
+ * using [LocationWindow.screenPositionToGlobal].
  */
 internal class InputListenerBridge(
     private val window: LocationWindow,
-    private val onTap: (viewPoint: PointF, meters: Point?) -> Unit,
-    private val onDoubleTap: (viewPoint: PointF, meters: Point?) -> Unit,
-    private val onLongTap: (viewPoint: PointF, meters: Point?) -> Unit,
+    private val onTap: (viewPoint: PointF, global: GlobalPoint?) -> Unit,
+    private val onDoubleTap: (viewPoint: PointF, global: GlobalPoint?) -> Unit,
+    private val onLongTap: (viewPoint: PointF, global: GlobalPoint?) -> Unit,
 ) : InputListener() {
 
     override fun onViewTap(point: PointF) {
-        val meters = runCatching { window.screenPositionToMeters(point) }.getOrNull()
-        onTap(point, meters)
+        val global = runCatching { window.screenPositionToGlobal(point) }.getOrNull()
+        onTap(point, global)
     }
 
     override fun onViewDoubleTap(point: PointF) {
-        val meters = runCatching { window.screenPositionToMeters(point) }.getOrNull()
-        onDoubleTap(point, meters)
+        val global = runCatching { window.screenPositionToGlobal(point) }.getOrNull()
+        onDoubleTap(point, global)
     }
 
     override fun onViewLongTap(point: PointF) {
-        val meters = runCatching { window.screenPositionToMeters(point) }.getOrNull()
-        onLongTap(point, meters)
+        val global = runCatching { window.screenPositionToGlobal(point) }.getOrNull()
+        onLongTap(point, global)
     }
 }

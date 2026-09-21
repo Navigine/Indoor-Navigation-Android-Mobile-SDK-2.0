@@ -13,7 +13,6 @@ import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
 import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.PolylineConfig
-import com.navigine.locationview.utils.toRgbaF
 
 /**
  * Declarative polyline.
@@ -89,8 +88,7 @@ public fun Polyline(
             polyline.setPolyLine(points)
 
             // Apply color and width
-            val (r, g, b, a) = color.toArgb().toRgbaF()
-            polyline.setColor(r, g, b, a)
+            polyline.setColor(color.toArgb())
             polyline.setWidth(width)
 
             // Apply appearance
@@ -110,8 +108,7 @@ public fun Polyline(
             // Apply outline
             config.outline?.let { outline ->
                 polyline.setOutlineWidth(outline.width)
-                val (or, og, ob, oa) = outline.color.toArgb().toRgbaF()
-                polyline.setOutlineColor(or, og, ob, oa)
+                polyline.setOutlineColor(outline.color.toArgb())
                 polyline.setOutlineAlpha(outline.alpha)
                 polyline.setOutlineCapType(outline.capType)
                 polyline.setOutlineJoinType(outline.joinType)
@@ -133,8 +130,7 @@ public fun Polyline(
             // Color and width updates
             update(color) { c ->
                 polyline.ifValid {
-                    val (r, g, b, a) = c.toArgb().toRgbaF()
-                    setColor(r, g, b, a)
+                    setColor(c.toArgb())
                 }
             }
             update(width) { w -> polyline.ifValid { setWidth(w) } }
@@ -165,8 +161,7 @@ public fun Polyline(
                 polyline.ifValid {
                     outline?.let { o ->
                         setOutlineWidth(o.width)
-                        val (r, g, b, a) = o.color.toArgb().toRgbaF()
-                        setOutlineColor(r, g, b, a)
+                        setOutlineColor(o.color.toArgb())
                         setOutlineAlpha(o.alpha)
                         setOutlineCapType(o.capType)
                         setOutlineJoinType(o.joinType)

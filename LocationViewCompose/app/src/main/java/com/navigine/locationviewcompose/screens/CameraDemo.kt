@@ -1,5 +1,6 @@
 package com.navigine.locationviewcompose.screens
 
+import android.graphics.PointF
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,10 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.navigine.idl.java.AnimationType
 import com.navigine.idl.java.Camera
+import com.navigine.idl.java.LocationWindow
 import com.navigine.idl.java.Point
 import com.navigine.locationview.NavigineLocation
 import com.navigine.locationview.camera.rememberNavCameraPositionState
@@ -22,12 +28,16 @@ import com.navigine.locationviewcompose.Utils.SUBLOC_ID
 @Composable
 fun MapCameraDemo(modifier: Modifier = Modifier) {
     val cam = rememberNavCameraPositionState()
+    var window by remember { mutableStateOf<LocationWindow?>(null) }
 
     Column {
         NavigineLocation(
             modifier = modifier.weight(1f),
             cameraPositionState = cam,
-            onWindowReady = { it.sublocationId = SUBLOC_ID },
+            onWindowReady = {
+                it.sublocationId = SUBLOC_ID
+                window = it
+            },
             properties = LocationProperties(sublocationId = SUBLOC_ID),
             uiSettings = LocationUiSettings(is3dEnabled = true)
         ) { /* content optional */ }
@@ -39,13 +49,23 @@ fun MapCameraDemo(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(onClick = {
-                val target = Camera(Point(3f, 2f), 8f, 0f, 0f)
-                cam.move(target)
+                val win = window ?: return@Button
+                val anchor = cam.position?.point ?: return@Button
+                val anchorScreen = runCatching { win.globalToScreenPosition(anchor, false) }.getOrNull() ?: return@Button
+                val targetGlobal = runCatching {
+                    win.screenPositionToGlobal(PointF(anchorScreen.x + 40f, anchorScreen.y + 20f))
+                }.getOrNull() ?: return@Button
+                cam.move(Camera(targetGlobal, 8f, 0f, 0f))
             }) { Text("Move") }
 
             Button(onClick = {
-                val target = Camera(Point(6f, 5f), 10f, 0f, 0f)
-                cam.animateTo(target, durationMs = 800, type = AnimationType.QUINT)
+                val win = window ?: return@Button
+                val anchor = cam.position?.point ?: return@Button
+                val anchorScreen = runCatching { win.globalToScreenPosition(anchor, false) }.getOrNull() ?: return@Button
+                val targetGlobal = runCatching {
+                    win.screenPositionToGlobal(PointF(anchorScreen.x + 60f, anchorScreen.y + 50f))
+                }.getOrNull() ?: return@Button
+                cam.animateTo(Camera(targetGlobal, 10f, 0f, 0f), durationMs = 800, type = AnimationType.QUINT)
             }) { Text("Animate") }
 
             Button(onClick = { cam.moveZoomTo((cam.zoomFactor ?: 9f) + 1f) }) { Text("Zoom+") }

@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.navigine.idl.java.LocationWindow
+import com.navigine.idl.java.OperatingMode
 import com.navigine.locationview.camera.NavCameraPositionState
 import com.navigine.locationview.camera.rememberNavCameraPositionState
 import com.navigine.locationview.effects.LocalLocationWindow
@@ -30,12 +31,16 @@ import com.navigine.locationview.internal.LocationViewHolder
 import com.navigine.locationview.internal.listeners.CameraListenerBridge
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationRootNode
+import com.navigine.locationview.internal.node.ifValid
+import com.navigine.locationview.internal.updates.applyOperatingMode
+import com.navigine.locationview.internal.updates.applyOutdoorMapConfig
 import com.navigine.locationview.internal.updates.applyProperties
 import com.navigine.locationview.internal.updates.applyUiSettings
 import com.navigine.locationview.settings.DefaultLocationProperties
 import com.navigine.locationview.settings.DefaultLocationUiSettings
 import com.navigine.locationview.settings.LocationProperties
 import com.navigine.locationview.settings.LocationUiSettings
+import com.navigine.locationview.settings.OutdoorMapConfig
 import com.navigine.locationview.utils.findGlChild
 
 
@@ -69,12 +74,12 @@ import com.navigine.locationview.utils.findGlChild
  * ```kotlin
  * NavigineLocation(modifier = Modifier.fillMaxSize()) {
  *     Circle(
- *         position = LocationPoint(100.0, 200.0),
+ *         position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
  *         radius = 50f,
  *         color = Color.Blue
  *     )
  *     InputHandlers(
- *         onTap = { viewPoint, meters -> /* handle tap */ }
+ *         onTap = { viewPoint, global -> /* handle tap */ }
  *     )
  * }
  * ```
@@ -90,7 +95,7 @@ import com.navigine.locationview.utils.findGlChild
  *
  * LaunchedEffect(Unit) {
  *     cameraState.flyTo(
- *         Camera(point = Point(100.0, 200.0), zoom = 18f, rotation = 0f, tilt = 0f),
+ *         Camera(point = GlobalPoint(55.751244, 37.618423), zoom = 18f, rotation = 0f, tilt = 0f),
  *         durationMs = 1000
  *     )
  * }
@@ -122,11 +127,26 @@ import com.navigine.locationview.utils.findGlChild
  * )
  * ```
  *
+ * ## Outdoor basemap appearance
+ * ```kotlin
+ * NavigineLocation(
+ *     modifier = Modifier.fillMaxSize(),
+ *     operatingMode = OperatingMode.OUTDOOR_INDOOR,
+ *     outdoorMapConfig = OutdoorMapConfig(theme = MapTheme.DARK)
+ * )
+ * ```
+ *
  * @param modifier Modifier for the map container.
  * @param cameraPositionState Camera state holder, two-way synced with the SDK.
  * Use [rememberNavCameraPositionState] to create one.
  * @param properties Map configuration such as zoom limits and pick radius.
  * @param uiSettings Gesture toggles and rendering options such as 3D mode.
+ * @param operatingMode Whether the map renders indoor content, the outdoor basemap,
+ * or both. Defaults to [OperatingMode.INDOOR_ONLY] to preserve pre-2.27 behavior.
+ * Reactive — safe to change after first composition.
+ * @param outdoorMapConfig Outdoor basemap appearance (theme, attribution overlay placement).
+ * Has no effect while the map is in [OperatingMode.INDOOR_ONLY]. Reactive — safe to
+ * change after first composition.
  * @param isVisible Controls map visibility without destroying the underlying view.
  * Useful for temporarily hiding the map while preserving its state.
  * @param onWindowReady Escape hatch — invoked once when [LocationWindow] is ready.
@@ -146,6 +166,8 @@ public fun NavigineLocation(
     cameraPositionState: NavCameraPositionState = rememberNavCameraPositionState(),
     properties: LocationProperties = DefaultLocationProperties,
     uiSettings: LocationUiSettings = DefaultLocationUiSettings,
+    operatingMode: OperatingMode = OperatingMode.INDOOR_ONLY,
+    outdoorMapConfig: OutdoorMapConfig = OutdoorMapConfig.Default,
     isVisible: Boolean = true,
     onWindowReady: (LocationWindow) -> Unit = {},
     content: @Composable @NavigineMapComposable () -> Unit = {}
@@ -197,9 +219,9 @@ public fun NavigineLocation(
                 viewHolder.onStop()
             }
 
-            win?.let { window ->
+            win?.ifValid {
                 runCatching {
-                    window.removeAllMapObjects()
+                    removeAllMapObjects()
                 }
             }
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -239,30 +261,38 @@ public fun NavigineLocation(
 
             // Register sdk camera listener -> state.
             val cameraBridge = CameraListenerBridge(cameraPositionState)
-            runCatching { window.addCameraListener(cameraBridge) }
-                .onFailure { Log.e("NavigineLocation", "Failed to add camera listener", it) }
+            window.ifValid {
+                runCatching { addCameraListener(cameraBridge) }
+                    .onFailure { Log.e("NavigineLocation", "Failed to add camera listener", it) }
+            }
 
             onDispose {
-                runCatching { window.removeCameraListener(cameraBridge) }
+                window.ifValid { runCatching { removeCameraListener(cameraBridge) } }
                 cameraPositionState.window = null
             }
         }
 
         var prevProps by remember(window) { mutableStateOf<LocationProperties?>(null) }
         var prevUi by remember(window) { mutableStateOf<LocationUiSettings?>(null) }
+        var prevOperatingMode by remember(window) { mutableStateOf<OperatingMode?>(null) }
+        var prevOutdoorMapConfig by remember(window) { mutableStateOf<OutdoorMapConfig?>(null) }
 
         SideEffect {
-            window?.let { win ->
-                applyProperties(win, properties, prevProps)
-                applyUiSettings(win, uiSettings, prevUi)
+            window?.ifValid {
+                applyProperties(this, properties, prevProps)
+                applyUiSettings(this, uiSettings, prevUi)
+                applyOperatingMode(this, operatingMode, prevOperatingMode)
+                applyOutdoorMapConfig(this, outdoorMapConfig, prevOutdoorMapConfig)
                 prevProps = properties
                 prevUi = uiSettings
+                prevOperatingMode = operatingMode
+                prevOutdoorMapConfig = outdoorMapConfig
             }
         }
 
         // compose tree for map objects
         DisposableEffect(window, parentComposition) {
-            if (window == null) return@DisposableEffect onDispose {}
+            if (window == null || !window.isValid) return@DisposableEffect onDispose {}
 
             val root = LocationRootNode(window)
             val applier = LocationApplier(root)

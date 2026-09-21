@@ -4,7 +4,7 @@ import android.graphics.PointF
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberUpdatedState
-import com.navigine.idl.java.Point
+import com.navigine.idl.java.GlobalPoint
 import com.navigine.locationview.NavigineMapComposable
 import com.navigine.locationview.effects.LocalLocationWindow
 import com.navigine.locationview.internal.listeners.InputListenerBridge
@@ -14,8 +14,8 @@ import com.navigine.locationview.internal.listeners.InputListenerBridge
  *
  * Registers an SDK [com.navigine.idl.java.InputListener] on the active [LocationWindow] and
  * forwards raw tap events to the provided lambdas. For convenience, each callback receives the
- * screen [viewPoint] and the corresponding [meters] obtained via
- * [LocationWindow.screenPositionToMeters].
+ * screen [viewPoint] and the corresponding [global] obtained via
+ * [LocationWindow.screenPositionToGlobal].
  *
  * Optionally, you can trigger SDK picking automatically on single tap by setting
  * [autoPickObjectOnTap] and/or [autoPickFeatureOnTap] to true. In that case we will invoke
@@ -25,9 +25,9 @@ import com.navigine.locationview.internal.listeners.InputListenerBridge
 @Composable
 @NavigineMapComposable
 public fun InputHandlers(
-    onTap: ((viewPoint: PointF, meters: Point?) -> Unit)? = null,
-    onDoubleTap: ((viewPoint: PointF, meters: Point?) -> Unit)? = null,
-    onLongTap: ((viewPoint: PointF, meters: Point?) -> Unit)? = null,
+    onTap: ((viewPoint: PointF, global: GlobalPoint?) -> Unit)? = null,
+    onDoubleTap: ((viewPoint: PointF, global: GlobalPoint?) -> Unit)? = null,
+    onLongTap: ((viewPoint: PointF, global: GlobalPoint?) -> Unit)? = null,
     autoPickObjectOnTap: Boolean = false,
     autoPickFeatureOnTap: Boolean = false,
 ){
@@ -40,8 +40,8 @@ public fun InputHandlers(
     DisposableEffect(window,autoPickObjectOnTap, autoPickFeatureOnTap) {
         val listener = InputListenerBridge(
             window = window,
-            onTap = { point, meters ->
-                onTapState.value?.invoke(point, meters)
+            onTap = { point, global ->
+                onTapState.value?.invoke(point, global)
                 if (autoPickObjectOnTap) runCatching{ window.pickMapObjectAt(point) }
                 if (autoPickFeatureOnTap) runCatching{ window.pickMapFeatureAt(point) }
             },

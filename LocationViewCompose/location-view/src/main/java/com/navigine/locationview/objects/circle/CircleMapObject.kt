@@ -6,22 +6,30 @@ import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.navigine.idl.java.CircleMapObject
-import com.navigine.idl.java.LocationPoint
 import com.navigine.locationview.NavigineMapComposable
+import com.navigine.locationview.geometry.NavPosition
 import com.navigine.locationview.internal.node.LocationApplier
 import com.navigine.locationview.internal.node.LocationNode
 import com.navigine.locationview.internal.node.ifValid
 import com.navigine.locationview.objects.config.CircleConfig
-import com.navigine.locationview.utils.toRgbaF
 
 
 /**
  * Declarative circle map object for Navigine.
  *
- * ## Basic Usage
+ * ## Basic Usage — indoor
  * ```kotlin
  * Circle(
- *     position = LocationPoint(100.0, 200.0),
+ *     position = NavPosition.indoor(GlobalPoint(55.751244, 37.618423), sublocationId = 3),
+ *     radius = 50f,
+ *     color = Color.Blue
+ * )
+ * ```
+ *
+ * ## Basic Usage — outdoor
+ * ```kotlin
+ * Circle(
+ *     position = NavPosition.outdoor(GlobalPoint(55.751244, 37.618423)),
  *     radius = 50f,
  *     color = Color.Blue
  * )
@@ -30,7 +38,7 @@ import com.navigine.locationview.utils.toRgbaF
  * ## Advanced Usage
  * ```kotlin
  * Circle(
- *     position = point,
+ *     position = position,
  *     radius = 50f,
  *     color = Color.Blue,
  *     config = CircleConfig(
@@ -56,7 +64,9 @@ import com.navigine.locationview.utils.toRgbaF
  * - Removes it when leaving composition
  * - Only changed properties trigger SDK updates on recomposition
  *
- * @param position Circle center position in location coordinates (required)
+ * @param position Circle center position. Use [NavPosition.indoor] for a point tied to a
+ * specific floor, or [NavPosition.outdoor] for a point on the global (outdoor) map.
+ * (required)
  * @param radius Circle radius in meters (required)
  * @param color Fill color (required)
  * @param config Circle configuration grouping all optional parameters
@@ -69,7 +79,7 @@ import com.navigine.locationview.utils.toRgbaF
 @Composable
 @NavigineMapComposable
 public fun Circle(
-    position: LocationPoint,
+    position: NavPosition,
     radius: Float,
     color: Color,
     config: CircleConfig = CircleConfig.Default,
@@ -87,18 +97,18 @@ public fun Circle(
 
             if (animatePosition && config.animation != null) {
                 circle.setPositionAnimated(
-                    position,
+                    position.point,
+                    position.sublocationId,
                     config.animation.duration,
                     config.animation.type
                 )
             } else {
-                circle.setPosition(position)
+                circle.setPosition(position.point, position.sublocationId)
             }
 
             circle.setRadius(radius)
 
-            val (r, g, b, a) = color.toArgb().toRgbaF()
-            circle.setColor(r, g, b, a)
+            circle.setColor(color.toArgb())
 
             circle.setVisible(config.appearance.visible)
             circle.setAlpha(config.appearance.alpha)
@@ -115,8 +125,7 @@ public fun Circle(
 
             config.outline?.let { outline ->
                 circle.setOutlineRadius(outline.radius)
-                val (or, og, ob, oa) = outline.color.toArgb().toRgbaF()
-                circle.setOutlineColor(or, og, ob, oa)
+                circle.setOutlineColor(outline.color.toArgb())
                 circle.setOutlineAlpha(outline.alpha)
             }
 
@@ -128,17 +137,16 @@ public fun Circle(
             update(position) { p ->
                 if (!circle.isValid) return@update
                 if (animatePosition && config.animation != null) {
-                    circle.setPositionAnimated(p, config.animation.duration, config.animation.type)
+                    circle.setPositionAnimated(p.point, p.sublocationId, config.animation.duration, config.animation.type)
                 } else {
-                    circle.setPosition(p)
+                    circle.setPosition(p.point, p.sublocationId)
                 }
             }
 
             update(radius) { r -> circle.ifValid { setRadius(r) } }
             update(color) { c ->
                 circle.ifValid {
-                    val (r, g, b, a) = c.toArgb().toRgbaF()
-                    setColor(r, g, b, a)
+                    setColor(c.toArgb())
                 }
             }
 
@@ -173,8 +181,7 @@ public fun Circle(
                 circle.ifValid {
                     outline?.let { o ->
                         setOutlineRadius(o.radius)
-                        val (r, g, b, a) = o.color.toArgb().toRgbaF()
-                        setOutlineColor(r, g, b, a)
+                        setOutlineColor(o.color.toArgb())
                         setOutlineAlpha(o.alpha)
                     }
                 }

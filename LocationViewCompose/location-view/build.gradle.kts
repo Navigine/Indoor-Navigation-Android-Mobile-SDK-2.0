@@ -11,9 +11,21 @@ kotlin { explicitApi() }
 
 val navigineSdkVersionProvider = providers.gradleProperty("navigineSdk")
     .orElse(providers.environmentVariable("NAVIGINE_SDK_VERSION"))
-    .orElse("2.26.1")
+    .orElse("2.28.0")
 
 val navigineSdkVersion = navigineSdkVersionProvider.get()
+
+val trackingFlavorBuild = providers.gradleProperty("locationview.tracking")
+    .orElse(providers.environmentVariable("LOCATIONVIEW_TRACKING_BUILD"))
+    .map { it.equals("true", ignoreCase = true) }
+    .getOrElse(false)
+
+val variantToPublish = if (trackingFlavorBuild) "trackingRelease" else "standardRelease"
+val locationViewArtifactId = if (trackingFlavorBuild)
+    "navigine-locationview-compose-tracking"
+else
+    "navigine-locationview-compose"
+
 
 val isPublishing = gradle.startParameter.taskRequests.any { req ->
     req.args.any { it.contains("publish", ignoreCase = true) }
@@ -50,6 +62,18 @@ android {
     }
     buildFeatures { compose = true }
     lint { abortOnError = true }
+
+    val sdkDimension = "sdk"
+    flavorDimensions += sdkDimension
+    productFlavors {
+        create("standard") {
+            dimension = sdkDimension
+        }
+        create("tracking") {
+            dimension = sdkDimension
+        }
+    }
+
 }
 
 dependencies {
@@ -57,7 +81,9 @@ dependencies {
 //    api("com.navigine:navigine:0.0.1-local")
 
     //noinspection UseTomlInstead
-    api("com.navigine:sdk:${navigineSdkVersion}")
+//    "standardApi"(files("libs/navigine-release-15-09-2026.aar"))
+    "standardApi"("com.navigine:sdk:${navigineSdkVersion}")
+    "trackingApi"("com.navigine:sdk-tracking:${navigineSdkVersion}")
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -78,23 +104,25 @@ mavenPublishing {
     // ./gradlew :location-view:publishToMavenLocal
     coordinates(
         "com.navigine",
-        "navigine-locationview-compose",
+        locationViewArtifactId,
         navigineSdkVersion
     )
 
     configure(
         AndroidSingleVariantLibrary(
-            variant = "release",
+            variant = variantToPublish,
             sourcesJar = true,
             publishJavadocJar = true
         )
     )
 
-    publishToMavenCentral(automaticRelease = true)
-    val isCi = listOf("CI", "GITLAB_CI")
-        .any { providers.environmentVariable(it).map { v -> v.equals("true", true) || v == "1" }.isPresent }
-    if (isCi) {
-        signAllPublications()
+    if (!trackingFlavorBuild) {
+        publishToMavenCentral(automaticRelease = true)
+        val isCi = listOf("CI", "GITLAB_CI")
+            .any { providers.environmentVariable(it).map { v -> v.equals("true", true) || v == "1" }.isPresent }
+        if (isCi) {
+            signAllPublications()
+        }
     }
 
     pom {
@@ -123,6 +151,22 @@ mavenPublishing {
         }
         issueManagement {
             url.set("https://github.com/Navigine/Indoor-Navigation-Android-Mobile-SDK-2.0/issues")
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitLabAndroid"
+            url = uri("${System.getenv("CI_API_V4_URL")}/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven")
+            credentials(HttpHeaderCredentials::class) {
+                name = "Job-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
         }
     }
 }
