@@ -2,6 +2,25 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.29.0
+* Added raster outdoor tiles: **TileProvider.kind** (**TileKind** `vector` / `raster`). A raster source draws PNG, JPEG, or WebP imagery from HTTP XYZ or an MBTiles pack, hides outdoor vector geometry and labels, and keeps indoor floors on top; `schema` is ignored for raster.
+* Improved **TileSchema** support: OpenMapTiles and Mapbox Streets now use schema-aware filters (source layers, site / transit partition, 3D extrude keys, admin levels).
+* Added **GuidanceCamera** (`NavigineSdk.getGuidanceCamera`): follows route progress and publishes the next **RouteInstruction** (**GuidanceCameraMode** Free / Following / Overview, **GuidanceListener**). It does not draw the route. Outdoor legs of hybrid routes now carry OSRM maneuver steps.
+* Added **RouteProgress.remainingTime**: pedestrian ETA in seconds (outdoor legs scale the OSRM duration, indoor legs use 1.4 m/s).
+* Added **RouteSimulator** (`NavigineSdk.getRouteSimulator`): walks a polyline at a constant pedestrian speed and reports samples and completion; it does not move the user location layer.
+* Added **LocationWindow.addGeoJson** (**GeoJsonImport**): polygons and polylines from a FeatureCollection, a Feature, or one geometry, on a floor or outdoors. **LocationPolygon** gained **innerRings** (holes).
+* Added **PointBatch** (`LocationWindow.addPointBatch` / `removePointBatch`, **PointSprite**, **MapObjectType.POINT_BATCH**): a cloud of screen-space arrows with `setPoints` and `hitTest`.
+* Added **UserLocationLayer.setFollowMode** / **followMode** (**UserLocationFollowMode** `NONE` / `POSITION` / `HEADING` / `COURSE`; a map gesture returns the mode to `NONE`), **setArrowBitmap**, and **setAccuracyColor**.
+* Added **PolylineMapObject.setDrawnFraction**, **drawnFraction**, and **setDrawnFractionAnimated** for animated growth of a polyline.
+* Improved dashed polyline rendering (dash atlas with SDF edges).
+* Fixed **LocationWindow.flyTo**: `duration` is in milliseconds as documented (it was treated as seconds), and the rotation animation follows the animation progress. The **flyTo** / **moveTo** documentation now describes both methods correctly.
+* Fixed a lost tap: the first tap of a tap followed by a drag or a long press was dropped.
+* Fixed iOS touch forwarding for a non-interactive map view (`touchesMoved`, `touchesEnded`, and `touchesCancelled` called the wrong super method).
+* Fixed gestures staying open across a pause: an unfinished touch sequence is cancelled when the view is paused.
+* Fixed the Android map staying blank after the OpenGL context is lost: tiles, map objects, textures, and glyph atlases are rebuilt.
+* Fixed data races in asynchronous tile deletion (shutdown and context loss), texture pixel updates, and glyph atlas growth.
+* Added a benchmark suite for rendering, overlays, queries, and memory (`mobile/benchmark`).
+
 ## 2.28.0
 * Outdoor tiles stay on screen while zooming: parent or child tiles keep covering a cell until the ideal tile is laid out (empty tiles still occupy the cell), so the map no longer flickers or shows mixed LODs.
 * Billboard POI icons, captions, and labels stay glued to the map during inertial pan and zoom by reprojecting world anchors with the live camera.
