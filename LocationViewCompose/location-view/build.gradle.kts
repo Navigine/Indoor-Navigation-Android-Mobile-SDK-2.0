@@ -11,7 +11,7 @@ kotlin { explicitApi() }
 
 val navigineSdkVersionProvider = providers.gradleProperty("navigineSdk")
     .orElse(providers.environmentVariable("NAVIGINE_SDK_VERSION"))
-    .orElse("2.28.0")
+    .orElse("2.29.0")
 
 val navigineSdkVersion = navigineSdkVersionProvider.get()
 
@@ -26,6 +26,8 @@ val locationViewArtifactId = if (trackingFlavorBuild)
 else
     "navigine-locationview-compose"
 
+val locationViewVersion = providers.gradleProperty("locationViewVersion")
+    .getOrElse(navigineSdkVersion)
 
 val isPublishing = gradle.startParameter.taskRequests.any { req ->
     req.args.any { it.contains("publish", ignoreCase = true) }
@@ -105,7 +107,7 @@ mavenPublishing {
     coordinates(
         "com.navigine",
         locationViewArtifactId,
-        navigineSdkVersion
+        locationViewVersion
     )
 
     configure(
