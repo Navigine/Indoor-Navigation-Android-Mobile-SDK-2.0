@@ -9,13 +9,16 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,10 +28,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.navigine.idl.java.Camera
+import com.navigine.idl.java.OperatingMode
 import com.navigine.image.ImageProvider
 import com.navigine.locationview.DefaultNavigineLocation
 import com.navigine.locationview.ExperimentalNavigineApi
 import com.navigine.locationview.camera.rememberNavCameraPositionState
+import com.navigine.locationview.effects.LocalLocationWindow
+import com.navigine.locationview.geometry.NavPosition
 import com.navigine.locationview.interaction.InputHandlers
 import com.navigine.locationview.interaction.PickHandlers
 import com.navigine.locationview.objects.config.DottedPolylineConfig
@@ -37,6 +43,8 @@ import com.navigine.locationview.objects.config.Size
 import com.navigine.locationview.objects.icon.Icon
 import com.navigine.locationview.objects.icon.rememberIconState
 import com.navigine.locationview.objects.polyline.DottedPolyline
+import com.navigine.locationview.settings.DefaultLocationProperties
+import com.navigine.locationview.settings.LocationProperties
 import com.navigine.naviginedemocompose.R
 import com.navigine.naviginedemocompose.core.util.copy
 import com.navigine.naviginedemocompose.core.util.getBitmapFromImage
@@ -48,6 +56,9 @@ import com.navigine.naviginedemocompose.ui.composables.RouteInfoSheet
 import com.navigine.naviginedemocompose.ui.composables.VenueModalSheet
 import com.navigine.naviginedemocompose.ui.theme.extendedColors
 
+private const val DEFAULT_CAMERA_ZOOM = 10f
+private const val GLOBAL_MIN_ZOOM_FACTOR = 0.01f
+
 @OptIn(ExperimentalNavigineApi::class)
 @Composable
 fun NavigationScreen(
@@ -58,22 +69,29 @@ fun NavigationScreen(
     val mapKey by viewModel.mapRecomposeKey.collectAsState()
 
     val cam = rememberNavCameraPositionState()
-    val positionIconState = rememberIconState()
+    var indoorProperties by remember { mutableStateOf(DefaultLocationProperties) }
+    val mapProperties = if (state.isGlobalMapEnabled) {
+        indoorProperties.copy(minZoomFactor = GLOBAL_MIN_ZOOM_FACTOR, stickToBorder = false)
+    } else {
+        indoorProperties
+    }
+    val operatingMode = if (state.isGlobalMapEnabled) OperatingMode.OUTDOOR_INDOOR else OperatingMode.INDOOR_ONLY
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     val ctx = LocalContext.current
-    val density = LocalDensity.current
+    val pinImage = remember(ctx) { ImageProvider.fromResource(ctx, R.drawable.ic_pin_point) }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is NavigationEffect.ApplyVenueLayerFilter -> {}
+                is NavigationEffect.ApplyVenueLayerFilter -> Unit
                 is NavigationEffect.MoveCameraToPoint -> cam.flyTo(
                     Camera(
                         effect.point,
-                        cam.position?.zoom ?: 10f,
-                        cam.position?.rotation ?: 1f,
-                        cam.position?.tilt ?: 1f
+                        cam.position?.zoom ?: DEFAULT_CAMERA_ZOOM,
+                        cam.position?.rotation ?: 0f,
+                        cam.position?.tilt ?: 0f
                     )
                 )
 
@@ -87,7 +105,7 @@ fun NavigationScreen(
         }
     }
 
-    Scaffold() { padding ->
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
         if (state.loadingVisible)
             CircularProgressIndicator()
         else
@@ -101,47 +119,54 @@ fun NavigationScreen(
                         isVisible = isVisible,
                         cameraPositionState = cam,
                         uiSettings = state.locationUiSettings,
-                        onWindowReady = {
-                            viewModel.onEvent(NavigationEvent.WindowReady(it))
-                        }
+                        properties = mapProperties,
+                        operatingMode = operatingMode,
+                        onWindowReady = { window ->
+                            indoorProperties = LocationProperties(
+                                minZoomFactor = window.minZoomFactor,
+                                stickToBorder = window.stickToBorder,
+                            )
+                        },
                     ) {
+                        val window = LocalLocationWindow.current
+
                         InputHandlers(
                             autoPickFeatureOnTap = true,
-                            onTap = { point, meters ->
-                                viewModel.onEvent(NavigationEvent.CancelPin)
-                                viewModel.onEvent(NavigationEvent.CancelRoute)
-                            },
-                            onLongTap = { point, meters ->
-                                viewModel.onEvent(NavigationEvent.LongPressAt(point, meters))
+                            onTap = { _, _ -> viewModel.onEvent(NavigationEvent.MapTapped) },
+                            onLongTap = { _, global ->
+                                val sublocationId = window?.sublocationId ?: return@InputHandlers
+                                viewModel.onEvent(NavigationEvent.LongPressAt(global, sublocationId))
                             }
                         )
 
                         PickHandlers(
                             onFeaturePicked = { attrs, viewPoint ->
-                                val vName = attrs.venueName() ?: return@PickHandlers
-                                val venue = state.location?.location
-                                    ?.sublocations?.firstOrNull { it.id == state.currentSublocationId }
-                                    ?.venues?.firstOrNull { it.name == vName }
-                                if (venue != null)
-                                    viewModel.onEvent(NavigationEvent.VenuePickedOnMap(venue))
+                                val name = attrs.venueName() ?: return@PickHandlers
+                                val sublocationId = window?.sublocationId ?: return@PickHandlers
+                                viewModel.onEvent(NavigationEvent.VenueFeaturePicked(name, sublocationId))
                             }
                         )
 
-                        state.toPoint?.let { pin ->
+                        ShownSublocation(state.requestedSublocationId)
+
+                        state.toPin?.let { pin ->
                             Icon(
-                                position = pin,
-                                image = ImageProvider.fromResource(ctx, R.drawable.ic_pin_point)
+                                position = pin.toNavPosition(),
+                                image = pinImage
                             )
                         }
 
-                        state.routePolylines.forEach { poly ->
-                            DottedPolyline(
-                                points = poly,
-                                color = MaterialTheme.extendedColors.success,
-                                dotSize = Size(8f,8f),
-                                config = DottedPolylineConfig(placement = PlacementConfig(spacing = 8f))
-                            )
-                        }
+                        NavigationRoute(
+                            target = state.routeTarget,
+                            color = MaterialTheme.extendedColors.success,
+                            onRouteChanged = { status, length ->
+                                viewModel.onEvent(NavigationEvent.RouteChanged(status, length))
+                            },
+                            onRouteAdvanced = { meters, seconds ->
+                                viewModel.onEvent(NavigationEvent.RouteAdvanced(meters, seconds))
+                            },
+                            onTargetReached = { viewModel.onEvent(NavigationEvent.RouteTargetReached) }
+                        )
 
                     }
                 }
@@ -200,9 +225,13 @@ fun NavigationScreen(
                 MapSettingsSheet(
                     visible = state.mapSettingsSheetVisible,
                     settings = state.locationUiSettings,
+                    globalMapEnabled = state.isGlobalMapEnabled,
                     onDismiss = { viewModel.onEvent(NavigationEvent.HideMapSettings) },
-                    onSettingsChanged = { viewModel.onEvent(NavigationEvent.MapSettingsChanged(it)) }
+                    onSettingsChanged = { viewModel.onEvent(NavigationEvent.MapSettingsChanged(it)) },
+                    onGlobalMapChanged = { viewModel.onEvent(NavigationEvent.GlobalMapToggled(it))}
                 )
             }
     }
 }
+
+private fun MapPosition.toNavPosition() = NavPosition(point, sublocationId)
