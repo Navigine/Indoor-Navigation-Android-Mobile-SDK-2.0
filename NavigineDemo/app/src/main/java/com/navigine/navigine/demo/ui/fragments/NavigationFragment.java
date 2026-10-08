@@ -71,6 +71,7 @@ import com.navigine.idl.java.LocationWindow;
 import com.navigine.idl.java.MapFilterCondition;
 import com.navigine.idl.java.MapObjectPickResult;
 import com.navigine.idl.java.NavigineSdk;
+import com.navigine.idl.java.OperatingMode;
 import com.navigine.idl.java.PickListener;
 import com.navigine.idl.java.Placement;
 import com.navigine.idl.java.Point;
@@ -136,6 +137,8 @@ public class NavigationFragment extends BaseFragment {
     private static final float ROUTE_WIDTH = 8f;
     private static final float ROUTE_DOT_SIZE = 8f;
     private static final float ROUTE_DOT_SPACING = 8f;
+    private static final float ZOOM_FACTOR_RANGE = 16f;
+    private static final float GLOBAL_MIN_ZOOM_FACTOR = 0.01f;
 
     private SharedViewModel viewModel = null;
 
@@ -1034,6 +1037,7 @@ public class NavigationFragment extends BaseFragment {
                 window.getZoomGesturesEnabled(),
                 window.getStickToBorder(),
                 m3dEnabled,
+                isGlobalMapEnabled(),
                 new BottomSheetMapSettings.OnSettingsChangedListener() {
                     @Override
                     public void onRotateChanged(boolean e) {
@@ -1064,6 +1068,11 @@ public class NavigationFragment extends BaseFragment {
                     public void on3dChanged(boolean e) {
                         set3dEnabled(e);
                     }
+
+                    @Override
+                    public void onGlobalMapChanged(boolean enabled) {
+                        setGlobalMapEnabled(enabled);
+                    }
                 }
         ).show(getParentFragmentManager(), null);
     }
@@ -1078,6 +1087,30 @@ public class NavigationFragment extends BaseFragment {
         ArrayList<MapFilterCondition> conditions = new ArrayList<>();
         conditions.add(new MapFilterCondition("$geometry", values));
         window.applyLayerFilter(BARRIER_LAYER, conditions);
+    }
+
+    private boolean isGlobalMapEnabled() {
+        return mLocationView.getLocationWindow().getOperatingMode() == OperatingMode.OUTDOOR_INDOOR;
+    }
+
+    private void setGlobalMapEnabled(boolean enabled) {
+        LocationWindow window = mLocationView.getLocationWindow();
+        window.setOperatingMode(enabled ? OperatingMode.OUTDOOR_INDOOR : OperatingMode.INDOOR_ONLY);
+        window.setStickToBorder(!enabled);
+        applyZoomLimits();
+    }
+
+    private float fitZoomFactor() {
+        float pixelWidth = mLocationView.getWidth() / getResources().getDisplayMetrics().density;
+        return pixelWidth / mSublocation.getWidth();
+    }
+
+    private void applyZoomLimits() {
+        if (mSublocation == null) return;
+        LocationWindow window = mLocationView.getLocationWindow();
+        float fitZoom = fitZoomFactor();
+        window.setMaxZoomFactor(fitZoom * ZOOM_FACTOR_RANGE);
+        window.setMinZoomFactor(isGlobalMapEnabled() ? GLOBAL_MIN_ZOOM_FACTOR : fitZoom / ZOOM_FACTOR_RANGE);
     }
 
     private void resetLocationFlags() {
@@ -1120,10 +1153,8 @@ public class NavigationFragment extends BaseFragment {
 
         mLocationView.getLocationWindow().setSublocationId(mSublocation.getId());
         return mLocationView.post(() -> {
-            float pixelWidth = mLocationView.getWidth() / getResources().getDisplayMetrics().density;
-            mLocationView.getLocationWindow().setMaxZoomFactor((pixelWidth * 16.f) / mSublocation.getWidth());
-            mLocationView.getLocationWindow().setMinZoomFactor((pixelWidth / 16.f) / mSublocation.getWidth());
-            mLocationView.getLocationWindow().setZoomFactor(pixelWidth / mSublocation.getWidth());
+            applyZoomLimits();
+            mLocationView.getLocationWindow().setZoomFactor(fitZoomFactor());
             mLocationView.getLocationWindow().applyLayerFilter(VENUE_FILTER_LAYER_DEFAULT, new ArrayList<>());
             setupZoomCameraDefault();
         });

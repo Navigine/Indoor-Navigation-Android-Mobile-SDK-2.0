@@ -29,4 +29,7 @@
     <include layout="@layout/map_settings_switch_item"
         android:id="@+id/map_settings__3d_switch_item" />
 
+    <include layout="@layout/map_settings_switch_item"
+        android:id="@+id/map_settings__global_map_switch_item" />
+
 </LinearLayout>

@@ -28,6 +28,8 @@ public class BottomSheetMapSettings extends BottomSheetDialogFragment {
         void onStickToBorderChanged(boolean enabled);
 
         void on3dChanged(boolean enabled);
+
+        void onGlobalMapChanged(boolean enabled);
     }
 
     private static final String ARG_ROTATE = "rotate";
@@ -36,6 +38,7 @@ public class BottomSheetMapSettings extends BottomSheetDialogFragment {
     private static final String ARG_ZOOM = "zoom";
     private static final String ARG_STICK = "stick";
     private static final String ARG_3D = "3d";
+    private static final String ARG_GLOBAL_MAP = "global";
 
     private OnSettingsChangedListener mListener;
 
@@ -49,6 +52,7 @@ public class BottomSheetMapSettings extends BottomSheetDialogFragment {
             boolean zoom,
             boolean stick,
             boolean is3d,
+            boolean globalMap,
             OnSettingsChangedListener listener
     ) {
         BottomSheetMapSettings sheet = new BottomSheetMapSettings();
@@ -60,6 +64,7 @@ public class BottomSheetMapSettings extends BottomSheetDialogFragment {
         args.putBoolean(ARG_ZOOM, zoom);
         args.putBoolean(ARG_STICK, stick);
         args.putBoolean(ARG_3D, is3d);
+        args.putBoolean(ARG_GLOBAL_MAP, globalMap);
         sheet.setArguments(args);
         return sheet;
     }
@@ -86,7 +91,9 @@ public class BottomSheetMapSettings extends BottomSheetDialogFragment {
                 mTiltSwitch.setChecked(true);
             }
             mListener.on3dChanged(enabled);
-        });        return view;
+        });
+        bindSwitch(view, R.id.map_settings__global_map_switch_item, getString(R.string.map_settings_global_map), args.getBoolean(ARG_GLOBAL_MAP), mListener::onGlobalMapChanged);
+        return view;
     }
 
     private SwitchMaterial bindSwitch(View root, int containerId, String label, boolean initialValue, Consumer<Boolean> onChange) {
