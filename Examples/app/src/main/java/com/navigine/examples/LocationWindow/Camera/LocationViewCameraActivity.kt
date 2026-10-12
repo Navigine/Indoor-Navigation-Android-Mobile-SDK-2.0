@@ -10,11 +10,14 @@ import com.navigine.idl.java.Camera
 import com.navigine.idl.java.CameraCallback
 import com.navigine.idl.java.CameraListener
 import com.navigine.idl.java.CameraUpdateReason
+import com.navigine.idl.java.GlobalPoint
 import com.navigine.idl.java.Location
 import com.navigine.idl.java.LocationListener
 import com.navigine.idl.java.LocationManager
+import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.NavigineSdk
 import com.navigine.idl.java.Point
+import com.navigine.sdk.Navigine
 import kotlinx.coroutines.launch
 import java.lang.Error
 
@@ -40,6 +43,14 @@ class LocationViewCameraActivity : AppCompatActivity() {
 
     private var defaultCameraZoom = 0f
 
+    private var floorCenter: GlobalPoint? = null
+
+    private val cameraCallback = object : CameraCallback() {
+        override fun onMoveFinished(finished: Boolean) {
+            Log.d("CameraCallback", "onMoveFinished: $finished")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityLocationViewCameraBinding.inflate(layoutInflater)
@@ -64,10 +75,18 @@ class LocationViewCameraActivity : AppCompatActivity() {
         _binding = null
     }
 
-    private fun setViewListeners() {
-        binding.btnZoomIn.setOnClickListener { zoomIn() }
-        binding.btnZoomOut.setOnClickListener { zoomOut() }
+    private fun setViewListeners() = binding.apply {
+        btnZoomIn.setOnClickListener { zoomIn() }
+        btnZoomOut.setOnClickListener { zoomOut() }
+        btnFlyToCenter.setOnClickListener { floorCenterCamera()?.let { adjustCamera(it) } }
+        btnMoveToCenter.setOnClickListener { floorCenterCamera()?.let { moveCamera(it) } }
     }
+
+    /**
+     * Camera looking at the center of the current floor with the default zoom.
+     */
+    private fun floorCenterCamera(): Camera? =
+        floorCenter?.let { Camera(it, defaultCameraZoom, 0f, 0f) }
 
     /**
      * Increase zoomFactor by 2x on current camera window.
@@ -94,9 +113,7 @@ class LocationViewCameraActivity : AppCompatActivity() {
      * @param duration Animation duration in milliseconds (default 300).
      */
     private fun adjustCamera(target: Camera, duration: Int = 300) {
-        lifecycleScope.launch {
-            binding.navigationLocationView.locationWindow?.flyTo(target, duration, /* listener= */ null)
-        }
+        binding.navigationLocationView.locationWindow?.flyTo(target, duration, /* listener= */ null)
     }
 
     /**
@@ -111,15 +128,9 @@ class LocationViewCameraActivity : AppCompatActivity() {
         duration: Int = 300,
         animationType: AnimationType = AnimationType.CUBIC
     ) {
-        lifecycleScope.launch {
-            binding.navigationLocationView.locationWindow?.moveTo(
-                target, duration, animationType, object : CameraCallback(){
-                    override fun onMoveFinished(finished: Boolean) {
-                        Log.d("CameraCallback", "onMoveFinished: $finished")
-                    }
-                }
-            )
-        }
+        binding.navigationLocationView.locationWindow?.moveTo(
+            target, duration, animationType, cameraCallback
+        )
     }
 
     /**
@@ -155,6 +166,13 @@ class LocationViewCameraActivity : AppCompatActivity() {
 
             }
             setupZoomCameraDefault()
+            floorCenter = sublocation.localToGlobal(
+                LocationPoint(
+                    Point(sublocation.width / 2f, sublocation.height / 2f),
+                    location.id,
+                    sublocation.id
+                )
+            )
         }
     }
 
@@ -201,7 +219,7 @@ class LocationViewCameraActivity : AppCompatActivity() {
              * @param isFinished True if animation has completed, false if in progress.
              */
             override fun onCameraPositionChanged(reason: CameraUpdateReason?, isFinished: Boolean) {
-                val message = when(reason){
+                val message = when (reason) {
                     CameraUpdateReason.GESTURES -> "Camera position changed by gestures"
                     CameraUpdateReason.APPLICATION -> "Camera position changed by application"
                     else -> "Camera position changed"
@@ -212,6 +230,7 @@ class LocationViewCameraActivity : AppCompatActivity() {
     }
 
     private fun initSdk() {
+        Navigine.initialize(this.applicationContext)
         val sdk = NavigineSdk.getInstance()
         // your server URL
         sdk.setServer("https://ips.navigine.com")

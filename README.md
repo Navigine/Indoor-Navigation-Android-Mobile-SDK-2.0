@@ -29,7 +29,7 @@ https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("com.navigine:sdk:2.26.0")
+    implementation("com.navigine:sdk:2.29.0")
 }
 ```
 

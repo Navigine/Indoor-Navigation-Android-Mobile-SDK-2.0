@@ -2,6 +2,8 @@
 
 This example demonstrates how to **calculate** and **track** indoor routes *asynchronously* using the Navigine SDK.
 
+`AsyncRouteManager` gives you route **data**: the path from the user's current position to a target, rebuilt automatically when the user deviates, and progress along it. It does not draw anything. To draw and follow a route on the map, see the **RouteLayer** example.
+
 ## ✅ Step-by-step Guide
 
 ### 🔹 Prerequisites
@@ -25,16 +27,19 @@ This example demonstrates how to **calculate** and **track** indoor routes *asyn
 
 ---
 
-### 🔹 Step 1: Initialize the SDK
+### 🔹 Step 1: Initialize the SDK and load a location
 
-Before using the `NavigationManager`, make sure the SDK is properly initialized:
+A location must be loaded: without it there is no position, and without a position there is no route.
 
 ```kotlin
+Navigine.initialize(applicationContext)
+
 val sdk = NavigineSdk.getInstance()
 sdk.setServer("https://ips.navigine.com")
 sdk.setUserHash("your_user_hash")
+
 val locationManager = sdk.locationManager
-val navigationManager = sdk.getNavigationManager(locationManager)
+locationManager.locationId = LOCATION_ID // obtained from the LocationListManager example
 ```
 ⚠️ In production, initialize the SDK in your Application class and reuse managers from a singleton like NavigineSdkManager.
 
@@ -43,54 +48,87 @@ val navigationManager = sdk.getNavigationManager(locationManager)
 ### 🔹 Step 2: Obtain `NavigationManager` and `AsyncRouteManager`
 
 ```kotlin
-val locationManager = sdk.locationManager
 navigationManager = sdk.getNavigationManager(locationManager)
 asyncRouteManager = sdk.getAsyncRouteManager(locationManager, navigationManager)
 ```
 
-### 🔹 Step 3: After adding a PositionListener, create a Route Session
+---
+
+### 🔹 Step 3: Create a Route Session
+
+The route always starts from the user's current position, so subscribe to position updates first (`navigationManager.addPositionListener(...)`), then create a session to the target:
 
 ```kotlin
+val targetPoint = LocationPoint(Point(1f, 1f), LOCATION_ID, SUBLOCATION_ID)
 val options = RouteOptions(0.0, 3.0, 2.0)
+
 routeSession = asyncRouteManager?.createRouteSession(targetPoint, options)
     ?.apply { addRouteListener(asyncRouteListener) }
 ```
 
-- `targetPoint`: a valid `LocationPoint` within your loaded map.
+- `targetPoint`: a `LocationPoint` in **local sublocation meters** within the loaded location. In a real app it usually comes from a map tap or a venue (`LocationPoint(venue.point, venue.locationId, venue.sublocationId)`).
 - `RouteOptions(smoothRadius, maxProjectionDistance, maxAdvance)`: customize as needed.
+
+> The map works in WGS84 (`GlobalPoint`), while routing works in local meters. A tap on the map gives you a `GlobalPoint`; convert it with `sublocation.globalToLocal(globalPoint)` before using it as a route target.
+
+---
 
 ### 🔹 Step 4: Handle Callbacks
 
-Implement `AsyncRouteListener` and `PositionListener`:
+Implement `PositionListener` and `AsyncRouteListener`:
 
-- `onPositionUpdated(position: Position?)`
-  Called when new position has been calculated.
+- `onPositionUpdated(position: Position?)`  
+  Called when a new position has been calculated. `position.locationPoint` is in local meters, `position.point` is in WGS84.
 
-- `onPositionError(error: Error)`
-  Called if unable to calculate user's position.
+- `onPositionError(error: Error)`  
+  Called if the user's position cannot be calculated.
 
-- `onRouteChanged(path: RoutePath?)`  
-  Called when a new route is successfully calculated or recalculated.  
-  You can use `path.points` to draw a polyline on your `LocationView`.
+- `onRouteChanged(status: RouteStatus?, path: RoutePath?)`  
+  Called when a route is built or rebuilt (for example, after the user deviates).  
+  `status` is `NEW_ROUTE` when a route is available; otherwise it tells why it is missing (`MISSING_POSITION`, `MISSING_GRAPH`, `MISSING_ROUTE`, `MISSING_PROJECTION`).  
+  `path.length` is the route length in meters, `path.nodes()` are the route nodes with their `LocationPoint`s.
 
 - `onRouteAdvanced(distance: Float, currentPoint: LocationPoint?)`  
   Called when the user moves along the route.  
-  `distance` is how far they've traveled along the route so far.
+  `distance` is how far they've traveled along the route so far, in meters.
+
+---
 
 ### 🔹 Step 5: Clean Up
 
-Cancel the session and remove listeners in `onPause()` or `onStop()` to avoid memory leaks:
+Use a symmetric lifecycle: subscribe and create the session in `onStart()`, clean up in `onStop()`.  
+Remove the route listener **before** cancelling the session, so no callbacks arrive from the session being cancelled:
 
 ```kotlin
-asyncRouteManager?.cancelRouteSession(routeSession)
-routeSession?.removeRouteListener(asyncRouteListener)
-routeSession = null
+override fun onStart() {
+    super.onStart()
+    addPositionListener()
+    startRoute()
+}
+
+override fun onStop() {
+    super.onStop()
+    removePositionListener()
+    cancelRoute()
+}
+
+private fun cancelRoute() {
+    val session = routeSession ?: return
+    asyncRouteListener?.let(session::removeRouteListener)
+    asyncRouteManager?.cancelRouteSession(session)
+    routeSession = null
+}
 ```
 
 ---
 
 ## 📝 Notes
-- You can't build a route without available position. 
-- It uses user's position as starting point. If you want to calculate path between two points, use RouteManager.
+
+- **Which API to use:**
+  - `AsyncRouteManager` — route data from the current position, rebuilt automatically (this example).
+  - `RouteManager` — a one-off path between two arbitrary points.
+  - `RouteLayer` — draws the route on the map and reports progress and arrival (see the RouteLayer example).
+- You can't build a route without an available position.
+- **Keep references to SDK listeners.** The SDK does not keep listener objects alive: a listener passed without being stored in a field can be garbage-collected, and its callbacks silently stop arriving. Store listeners in fields, as in this example.
 - Always cancel your route session when the Activity or Fragment stops.
-- Ensure `targetPoint` and any passed `LocationPoint` correspond to the current location.
+- Ensure `targetPoint` belongs to the loaded location (`LOCATION_ID`) and to an existing sublocation; if a position is available but no route arrives, the target is probably outside the navigation graph.

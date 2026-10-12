@@ -147,7 +147,7 @@ class MeasurementActivity : AppCompatActivity() {
             "mac",0,0,0
         )
         measurementManager?.addLocationGenerator(
-            0.0,0.0,0.0,0.0,0.0,0.0,0
+            0.0,0.0,0.0,0.0,0.0f,0.0f,0
         )
     }
 }

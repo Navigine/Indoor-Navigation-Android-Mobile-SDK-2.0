@@ -47,6 +47,19 @@
             android:contentDescription="Zoom Out"
             android:padding="8dp"
             android:src="@drawable/ic_zoom_out" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_fly_to_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Fly" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_move_to_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Move" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

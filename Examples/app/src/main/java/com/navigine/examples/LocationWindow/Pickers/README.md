@@ -1,6 +1,6 @@
 # LocationWindow Pickers Example
 
-This example demonstrates how to use Navigine SDK’s pick and input listeners to interact with an indoor map. You will learn how to detect taps, double-taps, long-taps, and pick map objects or map features at specific screen coordinates.
+This example demonstrates how to use Navigine SDK’s pick and input listeners to interact with an indoor map. You will learn how to detect taps, double-taps, long-taps, pick map objects or map features at the tapped position, and convert a screen position to WGS84 coordinates.
 
 ---
 
@@ -9,26 +9,33 @@ This example demonstrates how to use Navigine SDK’s pick and input listeners t
 - **SDK Initialization**: Configure the Navigine SDK server URL and user hash.
 - **Location Loading**: Load a location and its sublocation via `LocationManager` and `LocationListener`.
 - **Input Handling**: Detect user interactions on the map view:
-    - Single tap (`onViewTap`)
+    - Single tap (`onViewTap`) — triggers picking at the tapped position
     - Double tap (`onViewDoubleTap`)
-    - Long tap (`onViewLongTap`)
+    - Long tap (`onViewLongTap`) — converts the position to WGS84 with `screenPositionToGlobal`
 - **Pick Handling**:
-    - Pick map objects (`onMapObjectPickComplete`) with `PickListener`.
-    - Pick map features (`onMapFeaturePickComplete`) with `PickListener`.
+    - Request picking with `pickMapObjectAt` / `pickMapFeatureAt`.
+    - Receive map objects (`onMapObjectPickComplete`) and map features (`onMapFeaturePickComplete`) with `PickListener`.
 
 ---
 
 ## 🛠 Prerequisites
 
-1. Make sure the SDK `.aar` file is located in the `libs/` directory.  
-   Then add the following in your `build.gradle.kts`:
+1. **Dependency** — the SDK `.aar` is taken from the `libs` folder in the repository root:
 
     ```kotlin
+    // settings.gradle.kts
+    dependencyResolutionManagement {
+        repositories {
+            flatDir { dirs("../libs") }
+        }
+    }
+
+    // app/build.gradle.kts
     dependencies {
-        implementation(files("../libs/navigine.aar"))
+        implementation(":libnavigine@aar")
     }
     ```
-   
+
 2. **Android Permissions** in `AndroidManifest.xml` (and request at runtime on Android 6+):
    ```xml
    <!-- Location for Wi‑Fi, BLE scanning, and map interaction -->
@@ -70,13 +77,13 @@ Register a `LocationListener` to receive the loaded location:
 ```kotlin
 locationListener = object : LocationListener() {
     override fun onLocationLoaded(location: Location?) {
-        loadSublocation(location ?: return)
+        location?.let { loadSublocation(it) }
     }
+    override fun onLocationUploaded(locationId: Int) {}
     override fun onLocationFailed(locationId: Int, error: Error?) {
         Log.e("Pickers", "Failed to load location: $error")
     }
 }
-locationManager?.addLocationListener(locationListener)
 ```
 
 Helper to switch to the first sublocation and set zoom bounds:
@@ -84,69 +91,79 @@ Helper to switch to the first sublocation and set zoom bounds:
 ```kotlin
 private fun loadSublocation(location: Location) {
     val sub = location.sublocations.firstOrNull() ?: return
-    navigationLocationView.post {
-        navigationLocationView.locationWindow?.apply {
+    binding.navigationLocationView.post {
+        binding.navigationLocationView.locationWindow?.apply {
             setSublocationId(sub.id)
-            // Calculate zoom constraints then fit
-            configureZoom(sub.width)
-            setupZoomCameraDefault()
+            val pixelWidth = binding.navigationLocationView.width / resources.displayMetrics.density
+            maxZoomFactor = (pixelWidth * 16f / sub.width).coerceIn(1f, 600f)
+            minZoomFactor = (pixelWidth / 16f / sub.width).coerceIn(1f, 600f)
+            zoomFactor    = (pixelWidth / sub.width).coerceIn(minZoomFactor, maxZoomFactor)
         }
     }
 }
 ```
 
-### 3. Register Input and Pick Listeners
+### 3. Handle Input and Picking
 
-Set up `InputListener` to handle tap gestures and `PickListener` to handle object/feature picks:
+Picking is **not automatic**: a tap only reaches the `InputListener`. To find out what is under the finger, request picking explicitly at the tapped position — results are delivered to the `PickListener`.
 
 ```kotlin
 inputListener = object : InputListener() {
-    override fun onViewTap(point: PointF?)        { showToast("Tap at $point") }
-    override fun onViewDoubleTap(point: PointF?)  { showToast("Double tap at $point") }
-    override fun onViewLongTap(point: PointF?)    { showToast("Long tap at $point") }
+    override fun onViewTap(point: PointF?) {
+        point ?: return
+        binding.navigationLocationView.locationWindow?.apply {
+            pickMapObjectAt(point)
+            pickMapFeatureAt(point)
+        }
+    }
+
+    override fun onViewDoubleTap(point: PointF?) {
+        showToast("Double tap")
+    }
+
+    override fun onViewLongTap(point: PointF?) {
+        point ?: return
+        val global = binding.navigationLocationView.locationWindow
+            ?.screenPositionToGlobal(point)
+            ?: return
+        showToast(String.format(Locale.US, "Long tap at %.6f, %.6f", global.latitude, global.longitude))
+    }
 }
 
 pickListener = object : PickListener() {
-    override fun onMapObjectPickComplete(
-        result: MapObjectPickResult?, screenPos: PointF?
-    ) {
-        if (result != null) {
-            showToast("Picked object type: ${result.mapObject.type.name}")
-        }
+    override fun onMapObjectPickComplete(result: MapObjectPickResult?, screenPosition: PointF?) {
+        val type = result?.mapObject?.type ?: return
+        showToast("Map object picked: ${type.name}")
     }
-    override fun onMapFeaturePickComplete(
-        props: HashMap<String, String>?, screenPos: PointF?
-    ) {
-        val label = props?.values?.firstOrNull()
-        showToast("Picked feature: $label")
-    }
-}
 
-// Add listeners when the view is ready
-locationManager?.addLocationListener(locationListener)
-navigationLocationView.locationWindow?.apply {
-    addInputListener(inputListener)
-    addPickListener(pickListener)
+    override fun onMapFeaturePickComplete(attributes: HashMap<String, String>?, point: PointF?) {
+        val name = attributes?.get("name") ?: return
+        showToast("Map feature picked: $name")
+    }
 }
 ```
 
-Remember to remove listeners in `onPause()` or `onDestroy()`:
+`screenPositionToGlobal` returns a WGS84 `GlobalPoint`. If you need local sublocation meters instead, convert it with `sublocation.globalToLocal(globalPoint)`.
+
+### 4. Register and Remove Listeners
+
+Add listeners in `onResume()` and remove them in `onPause()`:
 
 ```kotlin
-locationManager?.removeLocationListener(locationListener)
-navigationLocationView.locationWindow?.apply {
-    removeInputListener(inputListener)
-    removePickListener(pickListener)
+private fun addListeners() {
+    locationManager?.addLocationListener(locationListener)
+    binding.navigationLocationView.locationWindow.apply {
+        addPickListener(pickListener)
+        addInputListener(inputListener)
+    }
 }
-```
 
-### 4. Handle User Interactions
-
-For example, you can use a helper method to display a `Toast`:
-
-```kotlin
-private fun showToast(msg: String) {
-    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+private fun removeListeners() {
+    locationManager?.removeLocationListener(locationListener)
+    binding.navigationLocationView.locationWindow.apply {
+        removePickListener(pickListener)
+        removeInputListener(inputListener)
+    }
 }
 ```
 
@@ -161,9 +178,11 @@ private fun showToast(msg: String) {
 
 ## ⚠️ Notes
 
+- **Migrating from SDK < 2.27:** `screenPositionToMeters` (local meters) was replaced by `screenPositionToGlobal` (WGS84 `GlobalPoint`).
+- **Keep references to SDK listeners.** The SDK does not keep listener objects alive: a listener passed without being stored in a field can be garbage-collected, and its callbacks silently stop arriving. Store listeners in fields, as in this example.
+- `onMapObjectPickComplete` is called with `null` when there is no interactive map object at the tapped position — always check the result.
+- Feature attributes depend on your map data; venues usually carry a `name` attribute.
 - Ensure you request runtime permissions before loading the location.
-- Always remove listeners to prevent memory leaks.
 - Customize the `Toast` or replace it with a UI dialog for production.
-- You can combine pick results with custom UI overlays to highlight selected objects.
+- You can combine pick results with custom UI overlays to highlight selected objects (`selectMapFeature` / `deselectMapFeature`).
 - For production, consider initializing the SDK in your `Application` class and managing `LocationManager` as a singleton.
-
