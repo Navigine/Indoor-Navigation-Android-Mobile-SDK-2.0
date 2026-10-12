@@ -128,7 +128,7 @@ private fun zoomOut() {
 Use `flyTo` for smooth animation:
 
 ```kotlin
-val target = Camera(Point(x, y), zoomLevel, rotation)
+val target = Camera(GlobalPoint(latitude, longitude), zoomLevel, rotation)
 adjustCamera(target)
 ```
 

@@ -116,8 +116,10 @@ fun VenueModalSheet(
 fun MapSettingsSheet(
     visible: Boolean,
     settings: LocationUiSettings,
+    globalMapEnabled: Boolean,
     onDismiss: () -> Unit,
     onSettingsChanged: (LocationUiSettings) -> Unit,
+    onGlobalMapChanged: (Boolean) -> Unit,
 ) {
     if (!visible) return
 
@@ -171,8 +173,14 @@ fun MapSettingsSheet(
                     onSettingsChanged(updated)
                 }
             )
+            MapSettingSwitch(
+                label = stringResource(R.string.map_settings_global_map),
+                checked = globalMapEnabled,
+                onCheckedChange = onGlobalMapChanged
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
+
         }
     }
 }

@@ -150,4 +150,5 @@ For push notifications, the application has to work in background mode</string>
     <string name="map_settings_zoom">Zoom gesture</string>
     <string name="map_settings_stick">Stick to border</string>
     <string name="map_settings_3d">3D buildings</string>
+    <string name="map_settings_global_map">Global Map</string>
 </resources>

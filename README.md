@@ -18,7 +18,7 @@
 
 ---
 
-https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
+https://github.com/user-attachments/assets/99f3bf09-aa12-4e2f-ae9b-44e2544d14a2
  
 ---
 
@@ -29,7 +29,7 @@ https://github.com/user-attachments/assets/182dca62-4b5a-4ec2-bf01-1adbcf22813c
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("com.navigine:sdk:2.26.0")
+    implementation("com.navigine:sdk:2.29.0")
 }
 ```
 
@@ -45,7 +45,7 @@ dependencyResolutionManagement {
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:2.26.0")
+    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:2.29.0")
 }
 ```
 
@@ -69,11 +69,11 @@ and want idiomatic Compose APIs instead of working with the View directly.
 
 ```kotlin
 dependencies {
-    implementation("com.navigine:navigine-locationview-compose:2.25.1")
+    implementation("com.navigine:navigine-locationview-compose:2.29.0")
 }
 ```
 
-<img src="NavigineDemoCompose/screenshots/3d-object.jpg" alt="LocationViewCompose preview" width="240"/>
+<img src="NavigineDemo/screenshots/navigation.jpg" alt="LocationViewCompose preview" width="240"/>
 
 ---
 

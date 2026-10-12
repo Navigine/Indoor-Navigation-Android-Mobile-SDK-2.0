@@ -10,4 +10,5 @@
     <string name="map_settings_scroll">Scroll gestures</string>
     <string name="map_settings_zoom">Zoom gestures</string>
     <string name="map_settings_3d">3D mode</string>
+    <string name="map_settings_global_map">Global map</string>
 </resources>

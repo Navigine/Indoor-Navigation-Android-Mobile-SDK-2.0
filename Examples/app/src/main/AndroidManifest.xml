@@ -32,6 +32,15 @@
             android:exported="false">
         </activity>
         <activity
+            android:name=".LocationWindow.RouteLayer.LocationViewRouteLayerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LocationWindow.UserLocation.LocationViewUserLocationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LocationWindow.GlobalMap.LocationViewGlobalMapActivity"
+            android:exported="false" />
+        <activity
             android:name=".LocationWindow.Camera.LocationViewCameraActivity"
             android:exported="false"/>
         <activity

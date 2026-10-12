@@ -5,14 +5,17 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.navigine.idl.java.GlobalPoint
 import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.LocationPolyline
 import com.navigine.idl.java.LocationWindow
 import com.navigine.idl.java.Point
 import com.navigine.idl.java.Polyline
 import com.navigine.idl.java.Position
+import com.navigine.idl.java.RouteLayerStatus
 import com.navigine.idl.java.RoutePath
 import com.navigine.idl.java.RouteStatus
+import com.navigine.idl.java.Sublocation
 import com.navigine.idl.java.Venue
 import com.navigine.naviginedemocompose.core.log.AppLogger
 import com.navigine.naviginedemocompose.core.sdk.NavigineSdkManager
@@ -33,20 +36,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
     private val locationMonitor: LocationMonitor,
     private val positionMonitor: PositionMonitor,
-    private val routeMonitor: RouteMonitor,
     private val sdk: NavigineSdkManager,
-    private val saveStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val log: AppLogger
 ) : ViewModel() {
 
     companion object {
-        private const val WALK_SPEED_MPS = 1.43f
-        private const val FINISH_THRESHOLD_M = 1.5f
+        private const val WALK_SPEED_MPS = 1.4f
+        private const val KEY_INITIAL_SUBLOCATION = "initial_subloc"
+        private const val KEY_INITIAL_VENUE = "initial_venue_id"
     }
 
     val mapRecomposeKey = locationMonitor.mapRecomposeKey.stateIn(
@@ -65,7 +69,7 @@ class NavigationViewModel @Inject constructor(
     init {
         reduce { it.copy(loadingVisible = true) }
 
-        getQrParams()
+        readQrParams()
 
         sdk.state
             .onEach { st ->
@@ -75,7 +79,7 @@ class NavigationViewModel @Inject constructor(
             .launchIn(viewModelScope)
 
         mapRecomposeKey
-            .onEach { k -> _state.update { it.copy(mapKey = k) } }
+            .onEach { k -> reduce { it.copy(isGlobalMapEnabled = false, mapKey = k) } }
             .launchIn(viewModelScope)
 
         locationMonitor.currentLocation.onEach { loc ->
@@ -87,28 +91,39 @@ class NavigationViewModel @Inject constructor(
             onEvent(NavigationEvent.PositionUpdated(pos))
         }.launchIn(viewModelScope)
 
-        routeMonitor.events.onEach {
-            onEvent(NavigationEvent.RouteUpdate(it))
-        }.launchIn(viewModelScope)
     }
 
     fun onEvent(event: NavigationEvent) {
         when (event) {
             NavigationEvent.Init -> onInit()
-            is NavigationEvent.WindowReady -> onWindowReady(event.window)
             is NavigationEvent.LocationLoaded -> onLocationLoaded(event.location)
-
             is NavigationEvent.SwitchFloor -> onSwitchFloor(event.sublocationId)
-            is NavigationEvent.PositionUpdated -> onPositionUpdated(event.snapshot)
-            NavigationEvent.CancelPin -> onCancelPin()
-            is NavigationEvent.FollowMyLocationToggle -> reduce { it.copy(followMyLocation = event.enabled) }
-            is NavigationEvent.LongPressAt -> onLongPress(event.point)
 
+            NavigationEvent.MapTapped -> onMapTapped()
+            is NavigationEvent.LongPressAt -> onLongPress(event.global, event.sublocationId)
+            is NavigationEvent.VenueFeaturePicked -> onVenueFeaturePicked(
+                event.venueName,
+                event.sublocationId
+            )
+
+            NavigationEvent.CancelPin -> onCancelPin()
             is NavigationEvent.VenuePickedOnMap -> onVenuePicked(event.venue)
 
+            is NavigationEvent.PositionUpdated -> onPositionUpdated(event.snapshot)
+            is NavigationEvent.FollowMyLocationToggle -> reduce { it.copy(followMyLocation = event.enabled) }
+
+
             NavigationEvent.BuildRoute -> onBuildRoute()
-            is NavigationEvent.RouteUpdate -> onRouteUpdate(event.event)
             NavigationEvent.CancelRoute -> onCancelRoute()
+            is NavigationEvent.RouteChanged -> onRouteChanged(event.status, event.lengthMeters)
+            is NavigationEvent.RouteAdvanced -> onRouteAdvanced(
+                event.remainingMeters,
+                event.remainingSeconds
+            )
+
+            NavigationEvent.RouteTargetReached -> onRouteTargetReached()
+
+
             NavigationEvent.HideMakeRouteSheet -> reduce { it.copy(makeRouteSheetVisible = false) }
             NavigationEvent.HideRouteInfo -> reduce { it.copy(routeInfoVisible = false) }
             NavigationEvent.HideFinish -> reduce { it.copy(isFinishNear = false) }
@@ -116,7 +131,9 @@ class NavigationViewModel @Inject constructor(
             NavigationEvent.OnRouteVenue -> onRouteVenue()
             NavigationEvent.HideMapSettings -> reduce { it.copy(mapSettingsSheetVisible = false) }
             NavigationEvent.ShowMapSettings -> reduce { it.copy(mapSettingsSheetVisible = true) }
+
             is NavigationEvent.MapSettingsChanged -> reduce { it.copy(locationUiSettings = event.settings) }
+            is NavigationEvent.GlobalMapToggled -> reduce { it.copy(isGlobalMapEnabled = event.enabled) }
         }
     }
 
@@ -125,51 +142,73 @@ class NavigationViewModel @Inject constructor(
         reduce { it.copy(sdkReady = ready, loadingVisible = !ready) }
     }
 
-    private fun onLocationLoaded(model: LocationModel){
-        reduce {
-            it.copy(
+    private fun onLocationLoaded(model: LocationModel) {
+        reduce { st ->
+            val sdkLocation = model.location
+            val requested = st.requestedSublocationId
+                ?.takeIf { id -> sdkLocation?.getSublocationById(id) != null }
+            st.copy(
                 location = model,
-                currentSublocationId = model.location?.sublocations?.firstOrNull()?.id ?: -1,
+                requestedSublocationId = requested ?: sdkLocation?.sublocations?.firstOrNull()?.id,
                 loadingVisible = false
             )
         }
     }
 
-    private fun onWindowReady(window: LocationWindow) {
-        reduce { it.copy(locationWindow = window) }
-        _state.value.currentSublocationId.let { id ->
-            window.setSublocationId(id)
-        }
-
-        emitEffect(NavigationEffect.ApplyVenueLayerFilter(state.value.layerFilterExpr))
-    }
-
     private fun onSwitchFloor(id: Int) {
-        Log.d("NavigationViewModel", "onSwitchFloor: $id")
-        if(_state.value.followMyLocation) {
+        if (_state.value.followMyLocation) {
             emitEffect(NavigationEffect.ShowToast("Turn of follow mode to change floor"))
             return
         }
-        _state.value.locationWindow?.let { win ->
-            win.setSublocationId(id)
-        }
-        reduce { it.copy(currentSublocationId = id) }
+        showSublocation(id)
     }
 
-    private fun onVenuePicked( venue: Venue){
+    private fun showSublocation(id: Int) {
+        reduce { it.copy(requestedSublocationId = id) }
+    }
+
+    private fun onMapTapped() {
+        if (_state.value.isRouting) return
+        onCancelPin()
+    }
+
+    private fun onLongPress(global: GlobalPoint?, sublocationId: Int) {
         val prev = _state.value
-        reduce { it.copy(
-            toVenue = venue,
-            toPoint = null,
-            makeRouteSheetVisible = false,
-            venueSheet = VenueSheetState(venue, true)
-        ) }
-        venue.point?.let { emitEffect(NavigationEffect.MoveCameraToPoint(it)) }
+        if (prev.isRouting || global == null) return
+        val from = prev.position?.locationPoint ?: return
+        val target = sublocation(sublocationId)?.globalToLocal(global) ?: return
+        reduce {
+            it.copy(
+                makeRouteSheetVisible = true,
+                fromPoint = from,
+                toPoint = target,
+                toPin = MapPosition(global, sublocationId),
+                toVenue = null
+            )
+        }
+    }
+
+    private fun onVenueFeaturePicked(name: String, sublocationId: Int) {
+        val venue = sublocation(sublocationId)?.venues?.firstOrNull { it.name == name } ?: return
+        onVenuePicked(venue)
+    }
+
+    private fun onVenuePicked(venue: Venue) {
+        reduce {
+            it.copy(
+                toVenue = venue,
+                toPoint = null,
+                toPin = null,
+                makeRouteSheetVisible = false,
+                venueSheet = VenueSheetState(venue)
+            )
+        }
+        venue.toLocationPoint().toMapPosition()
+            ?.let { emitEffect(NavigationEffect.MoveCameraToPoint(it.point)) }
     }
 
     private fun onRouteVenue() {
-        val prev = _state.value
-        if (prev.isRouting) {
+        if (_state.value.isRouting) {
             onBuildRoute()
         } else {
             reduce { it.copy(makeRouteSheetVisible = true) }
@@ -182,211 +221,111 @@ class NavigationViewModel @Inject constructor(
             it.copy(position = position, fromPoint = position?.locationPoint)
         }
 
-        if (position == null) return
+        if (position == null || !prev.followMyLocation) return
 
-        if (prev.followMyLocation) {
-            val sublocId = position.locationPoint?.sublocationId
-            if (sublocId != null && sublocId != prev.currentSublocationId) {
-                onSwitchFloor(sublocId)
-            }
-            position.locationPoint?.point?.let { pt ->
-                emitEffect(NavigationEffect.MoveCameraToPoint(pt))
-            }
-        }
+        position.locationPoint?.sublocationId?.let(::showSublocation)
+        position.point?.let { emitEffect(NavigationEffect.MoveCameraToPoint(it)) }
     }
 
-    private fun onLongPress(point: PointF) {
+
+    private fun onBuildRoute() {
         val prev = _state.value
-        val win = prev.locationWindow ?: return
-        val loc = prev.location ?: return
-        reduce {
-            it.copy(
-                makeRouteSheetVisible = true,
-                fromPoint = prev.position?.locationPoint ?: return,
-                toPoint = LocationPoint(
-                    win.screenPositionToMeters(point),
-                    loc.id,
-                    _state.value.currentSublocationId
-                ),
-                toVenue = null
-            )
-        }
-    }
-
-    private fun onBuildRoute(){
-        val prev = _state.value
-        val targetVenue = prev.toVenue
-        val targetPoint = prev.toPoint
-        viewModelScope.launch {
-            val res = runCatching {
-                when {
-                    targetVenue != null -> routeMonitor.startRouteTo(targetVenue)
-                    targetPoint != null -> routeMonitor.startRouteTo(targetPoint)
-                    else -> error("No destination selected")
-                }
-            }
-            res.onSuccess {
-                reduce {
-                    it.copy(
-                        isRouting = true,
-                        makeRouteSheetVisible = false,
-                        routeInfoVisible = true
-                    )
-                }
-            }.onFailure {
-                emitEffect(NavigationEffect.ShowSnackbar("Failed to start route: ${it.message}"))
-                log.nonFatal(it, mapOf("where" to "start_route"))
-            }
-        }
-    }
-
-    private fun onRouteUpdate(event: RouteMonitorEvent){
-        when(event){
-            RouteMonitorEvent.Cancelled -> {
-                reduce {
-                    it.copy(
-                        isRouting = false,
-                        makeRouteSheetVisible = false,
-                        routeInfoVisible = false,
-                        routePath = null,
-                        routeDistanceMeters = null,
-                        etaSeconds = null
-                    )
-                }
-            }
-            is RouteMonitorEvent.Advanced -> {
-                handleRouteAdvanced(event.progress, event.point)
-            }
-            is RouteMonitorEvent.Changed -> {
-                when(event.status){
-                    RouteStatus.MISSING_ROUTE,
-                    RouteStatus.MISSING_GRAPH,
-                    RouteStatus.MISSING_POSITION,
-                    RouteStatus.MISSING_PROJECTION -> {
-                        reduce { it.copy(isRouting = false, routePath = null, routeDistanceMeters = null, etaSeconds = null) }
-                        emitEffect(NavigationEffect.ShowSnackbar("Route status: ${event.status}"))
-                    }
-                    RouteStatus.NEW_ROUTE -> handleNewRoute(event.path)
-                }
-            }
-        }
-    }
-
-    private fun handleNewRoute(path: RoutePath?){
-        if (path == null) {
-            emitEffect(NavigationEffect.ShowToast("Empty route"))
+        val destination = prev.toVenue?.toLocationPoint() ?: prev.toPoint
+        val target = destination?.toMapPosition()
+        if (target == null) {
+            emitEffect(NavigationEffect.ShowSnackbar("No destination selected"))
             return
         }
-        val length = path.length
-        val eta = (length / WALK_SPEED_MPS).toInt()
-
-        val pointsBySublocation = path.nodes().map { it.point }.reversed()
-            .groupBy { it.sublocationId }
-        val polys = buildPolylines(pointsBySublocation)
-
-        if (length <= FINISH_THRESHOLD_M) { onReachedDestination(); return }
-
         reduce {
             it.copy(
                 isRouting = true,
-                routePath = path,
-                routePolylines = polys,
-                routeDistanceMeters = length,
-                etaSeconds = eta,
-                isFinishNear = length < FINISH_THRESHOLD_M
+                routeTarget = target,
+                makeRouteSheetVisible = false,
+                routeInfoVisible = true,
+                isFinishNear = false
             )
         }
     }
 
-    private fun handleRouteAdvanced(distance : Float, point : LocationPoint) {
-        val path = _state.value.routePath ?: return
-        val tail = path.tail(distance) ?: return
+    private fun onRouteChanged(status: RouteLayerStatus, lengthMeters: Float?) {
+        if (!_state.value.isRouting) return
+        when (status) {
+            RouteLayerStatus.ROUTE_UPDATED -> if (lengthMeters != null) {
+                reduce {
+                    it.copy(
+                        routeDistanceMeters = lengthMeters,
+                        etaSeconds = (lengthMeters / WALK_SPEED_MPS).roundToInt()
+                    )
+                }
+            }
 
-        val pointsBySublocation = tail.nodes().map { it.point }
-            .groupBy { it.sublocationId }
+            RouteLayerStatus.MISSING_POSITION ->
+                emitEffect(NavigationEffect.ShowSnackbar("Route status: $status"))
 
-        val left = tail.length
-        val eta = (left / WALK_SPEED_MPS).toInt()
-        val polys = buildPolylines(pointsBySublocation)
+            RouteLayerStatus.MISSING_GRAPH,
+            RouteLayerStatus.MISSING_LOCATION,
+            RouteLayerStatus.MISSING_ROUTE,
+            RouteLayerStatus.MISSING_PROJECTION -> {
+                reduce { it.withoutRoute() }
+                emitEffect(NavigationEffect.ShowSnackbar("Route status: $status"))
+            }
 
-        if (left <= FINISH_THRESHOLD_M) { onReachedDestination(); return }
+            RouteLayerStatus.IDLE -> Unit
+        }
+    }
 
+    private fun onRouteAdvanced(remainingMeters: Float, remainingSeconds: Float) {
+        if (!_state.value.isRouting) return
         reduce {
             it.copy(
-                routePath = tail,
-                routeDistanceMeters = left,
-                routePolylines = polys,
-                etaSeconds = eta
+                routeDistanceMeters = remainingMeters,
+                etaSeconds = remainingSeconds.roundToInt()
             )
         }
     }
 
-    private fun onReachedDestination() {
-        viewModelScope.launch { runCatching { routeMonitor.cancel() } }
-        reduce {
-            it.copy(
-                isRouting = false,
-                routeInfoVisible = false,
-                routePolylines = emptyList(),
-                routePath = null,
-                routeDistanceMeters = null,
-                etaSeconds = null,
-                isFinishNear = true
-            )
-        }
+    private fun onRouteTargetReached() {
+        if (!_state.value.isRouting) return
+        reduce { it.withoutRoute().withoutDestination().copy(isFinishNear = true) }
     }
 
     private fun onCancelPin() {
-        reduce {
-            it.copy(
-                makeRouteSheetVisible = false,
-                toPoint = null,
-                toVenue = null
-            )
-        }
+        reduce { it.withoutDestination().copy(makeRouteSheetVisible = false) }
     }
 
     private fun onCancelRoute() {
-        viewModelScope.launch {
-            routeMonitor.cancel()
-            reduce {
-                it.copy(
-                    isRouting = false,
-                    routeInfoVisible = false,
-                    routePath = null,
-                    routePolylines = emptyList(),
-                    routeDistanceMeters = null,
-                    etaSeconds = null,
-                    isFinishNear = false,
-                    toPoint = null,
-                    toVenue = null
-                )
-            }
-        }
+        reduce { it.withoutRoute().withoutDestination().copy(isFinishNear = false) }
     }
 
-    private fun buildPolylines(pointsByFloor :  Map<Int, List<LocationPoint>>) : List<LocationPolyline>{
-        val locId = _state.value.location?.id ?: return emptyList()
-        return pointsByFloor.mapNotNull { (sid, list) ->
-                if (list.isEmpty()) return@mapNotNull null
-                val arr = ArrayList<Point>(list.size)
-                list.forEach { arr.add(it.point) }
-                LocationPolyline(Polyline(arr), locId, sid)
-            }
-    }
+    private fun sublocation(id: Int): Sublocation? =
+        _state.value.location?.location?.getSublocationById(id)
 
-    private fun getQrParams(){
-        val initSubloc: Int? =
-            saveStateHandle.get<Int>("initial_subloc")?.takeIf { it > 0 }
-        val initVenueId : Int? =
-            saveStateHandle.get<Int>("initial_venue_id")?.takeIf { it > 0}
+    private fun LocationPoint.toMapPosition(): MapPosition? =
+        sublocation(sublocationId)?.localToGlobal(this)?.let { MapPosition(it, sublocationId) }
 
-        saveStateHandle.remove<Int>("initial_subloc")
-        saveStateHandle.remove<Int>("initial_venue_id")
+    private fun Venue.toLocationPoint(): LocationPoint =
+        LocationPoint(point, locationId, sublocationId)
 
-        if (initSubloc != null) reduce { st -> st.copy(currentSublocationId = initSubloc) }
-//        if (initVenueId != null) reduce { st -> st.copy(toVenue = initVenueId) }
+    private fun NavigationState.withoutRoute() = copy(
+        isRouting = false,
+        routeTarget = null,
+        routeInfoVisible = false,
+        routeDistanceMeters = null,
+        etaSeconds = null
+    )
 
+    private fun NavigationState.withoutDestination() = copy(
+        toPoint = null,
+        toPin = null,
+        toVenue = null
+    )
+
+    private fun readQrParams() {
+        val initialSublocation = savedStateHandle.get<Int>(KEY_INITIAL_SUBLOCATION)?.takeIf { it > 0 }
+        savedStateHandle.remove<Int>(KEY_INITIAL_SUBLOCATION)
+        savedStateHandle.remove<Int>(KEY_INITIAL_VENUE)
+
+        if (initialSublocation != null) reduce { it.copy(requestedSublocationId = initialSublocation) }
     }
 
     private inline fun reduce(block: (NavigationState) -> NavigationState) {
@@ -396,5 +335,5 @@ class NavigationViewModel @Inject constructor(
     private fun emitEffect(effect: NavigationEffect) {
         viewModelScope.launch { _effects.send(effect) }
     }
-}
 
+}

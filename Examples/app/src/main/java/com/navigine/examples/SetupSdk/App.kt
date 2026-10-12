@@ -32,15 +32,15 @@ class App : Application() {
         val hash = "0000-0000-0000-0000"
         try {
             Navigine.initialize(context)
-//            NavigineSdk.getInstance().apply {
-//                setServer(server)
-//                setUserHash(hash)
-//
-//                val locManager = locationManager
-//                val navManager = getNavigationManager(locManager)
-//                val measureManager = getMeasurementManager(locManager)
-//
-//            }
+            NavigineSdk.getInstance().apply {
+                setServer(server)
+                setUserHash(hash)
+
+                val locManager = locationManager
+                val navManager = getNavigationManager(locManager)
+                val measureManager = getMeasurementManager(locManager)
+
+            }
         } catch (e: Exception) {
             Log.e("NavigineSdkManager", "Failed to initialize SDK", e)
         }

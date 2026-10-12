@@ -4,14 +4,8 @@ import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.navigine.examples.R
 import com.navigine.examples.databinding.ActivityLocationWindowPickersBinding
-import com.navigine.idl.java.CameraListener
-import com.navigine.idl.java.CameraUpdateReason
 import com.navigine.idl.java.InputListener
 import com.navigine.idl.java.Location
 import com.navigine.idl.java.LocationListener
@@ -19,8 +13,10 @@ import com.navigine.idl.java.LocationManager
 import com.navigine.idl.java.MapObjectPickResult
 import com.navigine.idl.java.NavigineSdk
 import com.navigine.idl.java.PickListener
+import com.navigine.sdk.Navigine
 import java.lang.Error
 import java.util.HashMap
+import java.util.Locale
 
 /**
  * Activity demonstrating how to handle user interactions on a Navigine indoor map.
@@ -28,22 +24,26 @@ import java.util.HashMap
  * Features:
  *  1. Initialize and load a location with its sublocation.
  *  2. Detect tap gestures (single, double, long) via InputListener.
- *  3. Pick map objects and features at screen coordinates via PickListener.
- *  4. Display feedback using Toast messages.
+ *  3. Pick map objects and features at the tapped screen position via PickListener.
+ *  4. Convert a screen position to WGS84 coordinates on long tap.
+ *  5. Display feedback using Toast messages.
  */
 class LocationWindowPickersActivity : AppCompatActivity() {
+
+    companion object {
+        private const val KEY_FEATURE_NAME = "name"
+    }
 
     private var _binding: ActivityLocationWindowPickersBinding? = null
     private val binding get() = _binding!!
 
     private var locationManager: LocationManager? = null
 
+    // Keep listeners in fields: the SDK does not keep them alive,
+    // an unreferenced listener can be garbage-collected and stop receiving callbacks.
     private var locationListener: LocationListener? = null
     private var inputListener: InputListener? = null
     private var pickListener: PickListener? = null
-
-
-    private var defaultCameraZoom = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +85,7 @@ class LocationWindowPickersActivity : AppCompatActivity() {
      */
     private fun loadSublocation(location: Location) {
         // you can choose any sublocation, it is ordered ascending by index
-        val sublocation = location.sublocations.first() ?: return
+        val sublocation = location.sublocations.firstOrNull() ?: return
 
         binding.navigationLocationView.post {
             binding.navigationLocationView.locationWindow?.apply {
@@ -100,20 +100,12 @@ class LocationWindowPickersActivity : AppCompatActivity() {
 
                 // Initialize zoom factor to fit sublocation view
                 zoomFactor = (pixelWidth / sublocation.width).coerceIn(minZoomFactor, maxZoomFactor)
-
             }
-            setupZoomCameraDefault()
         }
     }
 
-    /**
-     * Store the current zoom level to allow resetting later.
-     */
-    private fun setupZoomCameraDefault() {
-        defaultCameraZoom = binding.navigationLocationView.locationWindow?.camera?.zoom ?: 0f
-    }
-
     private fun initSdk() {
+        Navigine.initialize(this.applicationContext)
         val sdk = NavigineSdk.getInstance()
         // your server URL
         sdk.setServer("https://ips.navigine.com")
@@ -126,7 +118,7 @@ class LocationWindowPickersActivity : AppCompatActivity() {
     }
 
     /**
-     * Subscribe to location and pick updates.
+     * Subscribe to location, input and pick updates.
      */
     private fun addListeners() {
         locationManager?.addLocationListener(locationListener)
@@ -174,36 +166,56 @@ class LocationWindowPickersActivity : AppCompatActivity() {
 
         // Listener for user tap gestures on the locationView
         inputListener = object : InputListener() {
+            /**
+             * Picking is not automatic: request it explicitly at the tapped position.
+             * Results are delivered to the PickListener below.
+             */
             override fun onViewTap(point: PointF?) {
-                showToast("Single tap")
+                point ?: return
+                binding.navigationLocationView.locationWindow?.apply {
+                    pickMapObjectAt(point)
+                    pickMapFeatureAt(point)
+                }
             }
 
             override fun onViewDoubleTap(point: PointF?) {
                 showToast("Double tap")
             }
 
+            /**
+             * Converts the screen position to WGS84 coordinates.
+             */
             override fun onViewLongTap(point: PointF?) {
-                showToast("Long tap")
+                point ?: return
+                val global = binding.navigationLocationView.locationWindow
+                    ?.screenPositionToGlobal(point)
+                    ?: return
+                showToast(
+                    String.format(Locale.US, "Long tap at %.6f, %.6f", global.latitude, global.longitude)
+                )
             }
         }
+
         // Listener for picking map objects and features
         pickListener = object : PickListener() {
+            /**
+             * Called with null when there is no interactive map object at the position.
+             */
             override fun onMapObjectPickComplete(
                 mapObjectPickResult: MapObjectPickResult?,
                 screenPosition: PointF?
             ) {
-                if (mapObjectPickResult == null) return
-                showToast("Map object picked: ${mapObjectPickResult.mapObject.type.name}")
+                val type = mapObjectPickResult?.mapObject?.type ?: return
+                showToast("Map object picked: ${type.name}")
             }
 
             override fun onMapFeaturePickComplete(
                 mapFeaturePickResult: HashMap<String, String>?,
                 point: PointF?
             ) {
-                if (mapFeaturePickResult == null) return
-                showToast("Map feature picked: ${mapFeaturePickResult.values.firstOrNull()}")
+                val name = mapFeaturePickResult?.get(KEY_FEATURE_NAME) ?: return
+                showToast("Map feature picked: $name")
             }
-
         }
     }
 

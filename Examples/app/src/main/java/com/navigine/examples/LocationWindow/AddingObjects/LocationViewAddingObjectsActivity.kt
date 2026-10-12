@@ -1,28 +1,23 @@
 package com.navigine.examples.LocationWindow.AddingObjects
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.navigine.examples.R
 import com.navigine.examples.databinding.ActivityLocationViewAddingObjectsBinding
-import com.navigine.idl.java.CameraListener
-import com.navigine.idl.java.CameraUpdateReason
 import com.navigine.idl.java.CircleMapObject
-import com.navigine.idl.java.FlatIconMapObject
+import com.navigine.idl.java.GlobalPoint
 import com.navigine.idl.java.IconMapObject
 import com.navigine.idl.java.Location
 import com.navigine.idl.java.LocationListener
 import com.navigine.idl.java.LocationManager
-import com.navigine.idl.java.LocationPoint
 import com.navigine.idl.java.LocationPolygon
 import com.navigine.idl.java.LocationPolyline
 import com.navigine.idl.java.NavigineSdk
-import com.navigine.idl.java.Point
 import com.navigine.idl.java.PolygonMapObject
 import com.navigine.idl.java.PolylineMapObject
+import com.navigine.sdk.Navigine
 import java.lang.Error
 
 /**
@@ -36,16 +31,28 @@ import java.lang.Error
  */
 class LocationViewAddingObjectsActivity : AppCompatActivity() {
 
+
+    companion object {
+        private const val LOCATION_ID = 2025
+        private const val SUBLOCATION_ID = 1
+
+        // Replace with WGS84 coordinates inside your location
+        private val POINT_1 = GlobalPoint(55.75100, 37.61700)
+        private val POINT_2 = GlobalPoint(55.75100, 37.61705)
+        private val POINT_3 = GlobalPoint(55.75103, 37.61705)
+        private val POINT_4 = GlobalPoint(55.75103, 37.61700)
+
+        private val OBJECT_COLOR = Color.rgb(140, 93, 76)
+        private val POLYGON_COLOR = Color.argb(128, 140, 93, 76)
+        private const val CIRCLE_RADIUS = 0.5f
+        private const val POLYLINE_WIDTH_PX = 4f
+    }
+
     private var _binding: ActivityLocationViewAddingObjectsBinding? = null
     private val binding get() = _binding!!
 
     private var locationManager: LocationManager? = null
     private var locationListener: LocationListener? = null
-
-    companion object{
-        private const val LOCATION_ID = 2025  // Assign the locationId you want to load (obtained from LocationList sample)
-        private const val SUBLOCATION_ID = 1  // Assign the sublocationId you want to load (obtained from LocationsListener)
-    }
 
     /**
      * Holder for all map-object references so we can avoid duplicates and remove them later.
@@ -54,7 +61,6 @@ class LocationViewAddingObjectsActivity : AppCompatActivity() {
     private data class MapObjectsHolder(
         var circle: CircleMapObject? = null,
         var icon: IconMapObject? = null,
-        var flatIcon: FlatIconMapObject? = null,
         var polygon: PolygonMapObject? = null,
         var polyline: PolylineMapObject? = null,
     )
@@ -68,6 +74,7 @@ class LocationViewAddingObjectsActivity : AppCompatActivity() {
         setContentView(binding.root)
         initSdk()
         initListeners()
+        initViewsListeners()
     }
 
     override fun onResume() {
@@ -98,55 +105,44 @@ class LocationViewAddingObjectsActivity : AppCompatActivity() {
     private fun addObjects(){
         val lw = binding.navigationLocationView.locationWindow ?: return
 
-        // Usually you get coordinates from AsyncRouteListener or PositionListener
-        val p1 = Point(1f, 1f)
-        val p2 = Point(3f, 1f)
-        val p3 = Point(3f, 3f)
-        val p4 = Point(1f, 3f)
-
         if (mapObjects.circle == null) {
             mapObjects.circle = lw.addCircleMapObject().also { circle ->
-                circle.setPosition(LocationPoint(p1, LOCATION_ID, SUBLOCATION_ID))
-                circle.setRadius(3f)
-                circle.setColor(
-                    140f/255f,
-                    93f/255f,
-                    76f/255f,
-                    1f
-                )
+                circle.setPosition(POINT_1, SUBLOCATION_ID)
+                circle.setRadius(CIRCLE_RADIUS)
+                circle.setColor(OBJECT_COLOR)
             }
         }
 
         if (mapObjects.icon == null) {
             mapObjects.icon = lw.addIconMapObject().also { icon ->
-                icon.setPosition(LocationPoint(p2, LOCATION_ID, SUBLOCATION_ID))
+                icon.setPosition(POINT_2, SUBLOCATION_ID)
                 //icon.setBitmap()  set your own bitmap here
-            }
-        }
-
-        if (mapObjects.flatIcon == null) {
-            mapObjects.flatIcon = lw.addFlatIconMapObject().also { flatIcon ->
-                flatIcon.setPosition(LocationPoint(p3, LOCATION_ID, SUBLOCATION_ID))
-                //flatIcon.setBitmap()  set your own bitmap here
             }
         }
 
         if (mapObjects.polygon == null) {
             mapObjects.polygon = lw.addPolygonMapObject().also { polygon ->
-                //polygon.setPolygon(LocationPolygon()) set your own polygon here
-                polygon.setColor(
-                    140f/255f,
-                    93f/255f,
-                    76f/255f,
-                    1f
+                polygon.setPolygon(
+                    LocationPolygon(
+                        arrayListOf(POINT_1, POINT_2, POINT_3, POINT_4),
+                        SUBLOCATION_ID,
+                        arrayListOf()
+                    )
                 )
+                polygon.setColor(POLYGON_COLOR)
             }
         }
 
         if (mapObjects.polyline == null) {
             mapObjects.polyline = lw.addPolylineMapObject().also { polyline ->
-                // polyline.setWidth(px)
-                //polyline.setPolyLine(LocationPolyline()) set your own polyline here
+                polyline.setPolyLine(
+                    LocationPolyline(
+                        arrayListOf(POINT_1, POINT_3),
+                        SUBLOCATION_ID
+                    )
+                )
+                polyline.setWidth(POLYLINE_WIDTH_PX)
+                polyline.setColor(OBJECT_COLOR)
             }
         }
     }
@@ -156,7 +152,6 @@ class LocationViewAddingObjectsActivity : AppCompatActivity() {
 
         mapObjects.circle?.let { if (lw.removeCircleMapObject(it)) mapObjects.circle = null }
         mapObjects.icon?.let { if (lw.removeIconMapObject(it)) mapObjects.icon = null }
-        mapObjects.flatIcon?.let { if (lw.removeFlatIconMapObject(it)) mapObjects.flatIcon = null }
         mapObjects.polygon?.let { if (lw.removePolygonMapObject(it)) mapObjects.polygon = null }
         mapObjects.polyline?.let { if (lw.removePolylineMapObject(it)) mapObjects.polyline = null }
     }
@@ -187,6 +182,7 @@ class LocationViewAddingObjectsActivity : AppCompatActivity() {
             }
         }
     }
+
 
     /**
      * Subscribe to location updates.
@@ -223,6 +219,7 @@ class LocationViewAddingObjectsActivity : AppCompatActivity() {
     }
 
     private fun initSdk() {
+        Navigine.initialize(this.applicationContext)
         val sdk = NavigineSdk.getInstance()
         // your server URL
         sdk.setServer("https://ips.navigine.com")

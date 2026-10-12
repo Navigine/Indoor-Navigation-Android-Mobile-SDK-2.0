@@ -15,6 +15,7 @@ import com.navigine.idl.java.PositionListener
 import com.navigine.idl.java.RouteOptions
 import com.navigine.idl.java.RoutePath
 import com.navigine.idl.java.RouteSession
+import com.navigine.idl.java.RouteStatus
 import com.navigine.sdk.Navigine
 
 /**
@@ -30,6 +31,14 @@ import com.navigine.sdk.Navigine
  * 6. Unregister listeners and cancel session in onStop to avoid leaks.
  */
 class AsyncRouteActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "AsyncRouteActivity"
+        private const val LOCATION_ID = 2025  // Assign the locationId you want to load (obtained from LocationList sample)
+        private const val SUBLOCATION_ID = 1  // Sublocation of the target point
+        private val TARGET_POINT = Point(1f, 1f) // Target in sublocation meters. Usually obtained from a map tap or a venue.
+    }
+
 
     private var _binding: ActivityAsyncRouteBinding? = null
     private val binding get() = _binding!!
@@ -52,20 +61,16 @@ class AsyncRouteActivity : AppCompatActivity() {
         initListeners()
     }
 
-    override fun onResume() {
-        super.onResume()
-        addPositionListener()
-    }
-
     override fun onStart() {
         super.onStart()
+        addPositionListener()
         startRoute()
     }
 
     override fun onStop() {
         super.onStop()
         removePositionListener()
-        removeAsyncRouteListener()
+        cancelRoute()
     }
 
     private fun initSdk() {
@@ -76,9 +81,11 @@ class AsyncRouteActivity : AppCompatActivity() {
         // your user hash
         sdk.setUserHash("0000-0000-0000-0000")
         // your valid target point. Usually get from pickListener in LocationView.
-        targetPoint = LocationPoint(Point(1f,1f), 0,0)
+        targetPoint = LocationPoint(TARGET_POINT, LOCATION_ID, SUBLOCATION_ID)
 
         val locationManager = sdk.locationManager
+        locationManager.locationId = LOCATION_ID
+
         navigationManager = sdk.getNavigationManager(locationManager)
         asyncRouteManager = sdk.getAsyncRouteManager(locationManager, navigationManager)
     }
@@ -95,12 +102,14 @@ class AsyncRouteActivity : AppCompatActivity() {
         }
 
         asyncRouteListener = object : AsyncRouteListener() {
-            override fun onRouteChanged(path: RoutePath?) {
+            override fun onRouteChanged(status: RouteStatus?,
+                                        path: RoutePath?) {
                 // Called when new route is built or rebuilt after a failure.
                 path?.let {
-                    binding.asyncRoutePathTextView.text = it.points.toString()
+                    binding.asyncRoutePathTextView.text = "Status: $status, path: ${it.nodes()}"
                 }
             }
+
             override fun onRouteAdvanced(distance: Float, currentPoint: LocationPoint?) {
                 // Called when user has progressed along the route.
                 Log.d("AsyncRouteActivity", "Advanced $distance meters; next point: $currentPoint")
@@ -135,15 +144,13 @@ class AsyncRouteActivity : AppCompatActivity() {
     }
 
     /**
-     * Cancels the current route session and removes the listener to avoid memory leaks.
+     * Removes the listener first so no callbacks arrive from the session being cancelled.
      */
-    private fun removeAsyncRouteListener() {
-        routeSession?.let { session ->
-            asyncRouteManager?.cancelRouteSession(session)
-            asyncRouteListener?.let { listener ->
-                session.removeRouteListener(listener)
-            }
-            routeSession = null
-        }
+    private fun cancelRoute() {
+        val session = routeSession ?: return
+        asyncRouteListener?.let(session::removeRouteListener)
+        asyncRouteManager?.cancelRouteSession(session)
+        routeSession = null
     }
+
 }
