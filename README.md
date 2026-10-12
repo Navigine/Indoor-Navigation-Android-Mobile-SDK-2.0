@@ -45,7 +45,7 @@ dependencyResolutionManagement {
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:2.26.0")
+    implementation("com.github.Navigine.Indoor-Navigation-Android-Mobile-SDK-2.0:libnavigine:2.29.0")
 }
 ```
 
@@ -69,7 +69,7 @@ and want idiomatic Compose APIs instead of working with the View directly.
 
 ```kotlin
 dependencies {
-    implementation("com.navigine:navigine-locationview-compose:2.25.1")
+    implementation("com.navigine:navigine-locationview-compose:2.29.0")
 }
 ```
 
