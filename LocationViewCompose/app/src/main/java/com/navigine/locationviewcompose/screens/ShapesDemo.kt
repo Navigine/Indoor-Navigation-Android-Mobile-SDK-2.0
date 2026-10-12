@@ -100,7 +100,7 @@ fun MapShapesDemo(modifier: Modifier = Modifier) {
 
                 computed = ShapesGeometry(
                     line = LocationPolyline(ArrayList(linePoints), SUBLOC_ID),
-                    poly = LocationPolygon(ArrayList(polyPoints), SUBLOC_ID),
+                    poly = LocationPolygon(ArrayList(polyPoints), SUBLOC_ID, arrayListOf()),
                     circlePoint = circlePoint,
                     modelPoint = modelPoint,
                 )
