@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file
 adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.29.1
+* Hotfix shaders type alignment on new Android simulators
+
 ## 2.29.0
 * Added raster outdoor tiles: **TileProvider.kind** (**TileKind** `vector` / `raster`). A raster source draws PNG, JPEG, or WebP imagery from HTTP XYZ or an MBTiles pack, hides outdoor vector geometry and labels, and keeps indoor floors on top; `schema` is ignored for raster.
 * Improved **TileSchema** support: OpenMapTiles and Mapbox Streets now use schema-aware filters (source layers, site / transit partition, 3D extrude keys, admin levels).
